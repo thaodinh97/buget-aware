@@ -189,7 +189,7 @@ def prepare(input_path, config_path, output_dir):
     reverse = frame[GROUP_COLUMNS].copy()
     reverse.columns = ["dst_ip", "dst_port", "src_ip", "src_port", "proto"]
     reversed_groups = signatures(reverse[GROUP_COLUMNS])
-    bidirectional = np.array([min(a, b) for a, b in zip(groups, reversed_groups)])
+    bidirectional = np.array([min(a, b) for a, b in zip(signatures(frame[GROUP_COLUMNS]), reversed_groups)])
     signature_overlap = overlaps(feature_signature, splits)
     group_overlap = overlaps(groups, splits)
     reverse_overlap = overlaps(bidirectional, splits)

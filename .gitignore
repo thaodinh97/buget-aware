@@ -1,6 +1,7 @@
 # Raw and processed datasets
 /dataset/
 /data/
+/container_data/
 
 # Full experiment artifacts and temporary files
 /runs/

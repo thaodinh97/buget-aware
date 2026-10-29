@@ -10,10 +10,14 @@ from src.data.prepare import digest
 from src.data.federated import ids_hash
 
 
-def verify(run, data):
+def verify(run, data, allow_changed_reports=False):
     hashes=json.loads((run/'artifact_hashes.json').read_text())
+    changed_reports=[]
     for name, expected in hashes.items():
-        if digest(run/name)!=expected: raise ValueError(f'Artifact modified: {name}')
+        if digest(run/name)!=expected:
+            if allow_changed_reports and name=='metrics.csv':
+                changed_reports.append({'path':name,'expected':expected,'actual':digest(run/name)})
+            else: raise ValueError(f'Artifact modified: {name}')
     manifest=json.loads((run/'manifest.json').read_text())
     if digest(data/'manifest.json')!=manifest['data_manifest_sha256']:
         raise ValueError('Wrong data manifest')
@@ -61,7 +65,7 @@ def verify(run, data):
             fg={row_groups[i] for i in ev['forget']}
             rg={row_groups[i] for i in ev['retained']}
             if fg&rg: raise ValueError('MIA retained control overlaps forget groups')
-    return {'verified':True,'verified_artifacts':len(hashes),'nested_requests':True,'no_op_exact':True,
+    return {'verified':not changed_reports,'verified_artifacts':len(hashes)-len(changed_reports),'changed_unused_reports':changed_reports,'nested_requests':True,'no_op_exact':True,
             'retained_counts_correct':True,'fl_payload_bytes_up_all_comparators':total_up,
             'fl_payload_bytes_down_all_comparators':total_down,'fl_client_compute_seconds_all_comparators':compute,
             'cost_scope':'FL training/recovery only, aggregated across comparisons; excludes FU transfer, Python/process startup, preprocessing, actual network and peak memory'}

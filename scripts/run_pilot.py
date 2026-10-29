@@ -14,7 +14,7 @@ import pandas as pd
 import torch
 from src.data.prepare import digest, write_json
 from src.data.federated import partition, forget_request, retained_partition, ids_hash
-from src.fl.fedavg_core import ClientWorker, model, state, fedavg, predict
+from src.fl.fedavg_core import ClientWorker, model, state, fedavg, predict, get_device
 from src.fu.conpfu_inspired import alternating, distill
 from src.eval.metrics import utility, similarity, calibrate_mia, matched_indices, mia
 
@@ -50,6 +50,8 @@ def run(data_path, config_path, output, smoke=False):
         config['fractions'] = [.1]
     torch.set_num_threads(config['threads'])
     torch.use_deterministic_algorithms(True)
+    device = get_device()
+    print(f'Using device: {device}', flush=True)
     data = load_data(data_path)
     train = data['train']
     if smoke:
@@ -68,7 +70,7 @@ def run(data_path, config_path, output, smoke=False):
     manifest = {'config': config, 'smoke_only': smoke, 'data_manifest_sha256': digest(data_path/'manifest.json'),
                 'source_hashes': {str(p): digest(p) for root in ['src','scripts'] for p in Path(root).rglob('*.py')},
                 'python': platform.python_version(), 'torch': torch.__version__, 'numpy': np.__version__,
-                'platform': platform.platform(), 'processor': platform.processor(), 'device': 'cpu',
+                'platform': platform.platform(), 'processor': platform.processor(), 'device': str(device),
                 'timing': 'time.perf_counter; sequential logical workers', 'code_revision': None,
                 'target_client': target, 'algorithm': 'conpfu_inspired',
                 'planner': 'all_clients_fixed', 'threshold': .5,

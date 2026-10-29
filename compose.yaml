@@ -1,0 +1,158 @@
+services:
+  prepare:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: budget-aware-fl:local
+    working_dir: /workspace
+    profiles:
+      - setup
+    volumes:
+      - ./data/processed/connected_v3_seed42:/workspace/data/processed/connected_v3_seed42:ro
+      - ./runs/pilot_v3_seed42:/workspace/runs/pilot_v3_seed42:ro
+      - ./container_data/distributed_clients:/workspace/container_data/distributed_clients
+    command:
+      - python
+      - scripts/prepare_distributed_clients.py
+      - --data
+      - data/processed/connected_v3_seed42
+      - --source
+      - runs/pilot_v3_seed42
+      - --output
+      - container_data/distributed_clients
+
+  server:
+    image: budget-aware-fl:local
+    working_dir: /workspace
+    read_only: true
+    environment:
+      PYTHONUNBUFFERED: "1"
+      FL_DEVICE: cpu
+    volumes:
+      - ./runs/pilot_v3_seed42/checkpoints/initial.pt:/workspace/initial.pt:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+      - ./runs/docker:/workspace/runs/docker
+    command:
+      - python
+      - scripts/fl_server.py
+      - --checkpoint
+      - /workspace/initial.pt
+      - --client-manifest
+      - /workspace/client_manifest.json
+      - --output
+      - /workspace/runs/docker/distributed_fedavg
+      - --rounds
+      - "30"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; urlopen('http://localhost:8000/health', timeout=2)"
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks:
+      - fl-internal
+
+  client0: &client
+    image: budget-aware-fl:local
+    working_dir: /workspace
+    read_only: true
+    gpus: all
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      CUBLAS_WORKSPACE_CONFIG: ":4096:8"
+      FL_DEVICE: cuda
+      FL_SERVER_URL: http://server:8000
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    depends_on:
+      server:
+        condition: service_healthy
+    volumes:
+      - ./container_data/distributed_clients/client_0.npz:/workspace/client.npz:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+    command:
+      - python
+      - scripts/fl_client.py
+      - --client-id
+      - "0"
+      - --data
+      - /workspace/client.npz
+      - --client-manifest
+      - /workspace/client_manifest.json
+    networks:
+      - fl-internal
+
+  client1:
+    <<: *client
+    volumes:
+      - ./container_data/distributed_clients/client_1.npz:/workspace/client.npz:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+    command:
+      - python
+      - scripts/fl_client.py
+      - --client-id
+      - "1"
+      - --data
+      - /workspace/client.npz
+      - --client-manifest
+      - /workspace/client_manifest.json
+
+  client2:
+    <<: *client
+    volumes:
+      - ./container_data/distributed_clients/client_2.npz:/workspace/client.npz:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+    command:
+      - python
+      - scripts/fl_client.py
+      - --client-id
+      - "2"
+      - --data
+      - /workspace/client.npz
+      - --client-manifest
+      - /workspace/client_manifest.json
+
+  client3:
+    <<: *client
+    volumes:
+      - ./container_data/distributed_clients/client_3.npz:/workspace/client.npz:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+    command:
+      - python
+      - scripts/fl_client.py
+      - --client-id
+      - "3"
+      - --data
+      - /workspace/client.npz
+      - --client-manifest
+      - /workspace/client_manifest.json
+
+  client4:
+    <<: *client
+    volumes:
+      - ./container_data/distributed_clients/client_4.npz:/workspace/client.npz:ro
+      - ./container_data/distributed_clients/manifest.json:/workspace/client_manifest.json:ro
+    command:
+      - python
+      - scripts/fl_client.py
+      - --client-id
+      - "4"
+      - --data
+      - /workspace/client.npz
+      - --client-manifest
+      - /workspace/client_manifest.json
+
+  test:
+    image: budget-aware-fl:local
+    working_dir: /workspace
+    profiles:
+      - test
+    command: ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
+
+networks:
+  fl-internal:
+    internal: true

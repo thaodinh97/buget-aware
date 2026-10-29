@@ -1,0 +1,42 @@
+[
+  {
+    "client": 0,
+    "normal": 8657,
+    "attack": 5808,
+    "total": 14465,
+    "attack_percent": 40.152091254752854,
+    "share_of_training_percent": 12.65706485597284
+  },
+  {
+    "client": 1,
+    "normal": 11025,
+    "attack": 104,
+    "total": 11129,
+    "attack_percent": 0.9344954623056878,
+    "share_of_training_percent": 9.738021070316055
+  },
+  {
+    "client": 2,
+    "normal": 159,
+    "attack": 313,
+    "total": 472,
+    "attack_percent": 66.3135593220339,
+    "share_of_training_percent": 0.4130061950929264
+  },
+  {
+    "client": 3,
+    "normal": 1944,
+    "attack": 12770,
+    "total": 14714,
+    "attack_percent": 86.78809297267908,
+    "share_of_training_percent": 12.874943124146862
+  },
+  {
+    "client": 4,
+    "normal": 749,
+    "attack": 72755,
+    "total": 73504,
+    "attack_percent": 98.98100783630822,
+    "share_of_training_percent": 64.31696475447131
+  }
+]

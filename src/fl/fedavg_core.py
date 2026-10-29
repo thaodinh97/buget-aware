@@ -1,15 +1,28 @@
 """Shared MLP/local optimizer/FedAvg core for original, retrain and recovery."""
 import copy
+import os
 import time
 import numpy as np
 import torch
 from torch import nn
 
 
-def model(input_dim, hidden, seed):
+def get_device(device=None):
+    requested = device or os.environ.get('FL_DEVICE', 'auto')
+    if requested != 'cpu':
+        os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+    if requested == 'auto':
+        return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    resolved = torch.device(requested)
+    if resolved.type == 'cuda' and not torch.cuda.is_available():
+        raise RuntimeError(f'CUDA device requested ({resolved}) but CUDA is unavailable')
+    return resolved
+
+
+def model(input_dim, hidden, seed, device=None):
     torch.manual_seed(seed)
     return nn.Sequential(nn.Linear(input_dim, hidden[0]), nn.ReLU(),
-                         nn.Linear(hidden[0], hidden[1]), nn.ReLU(), nn.Linear(hidden[1], 2))
+                         nn.Linear(hidden[0], hidden[1]), nn.ReLU(), nn.Linear(hidden[1], 2)).to(get_device(device))
 
 
 def state(model):
@@ -33,12 +46,13 @@ def batches(n, batch_size, seed):
 
 class ClientWorker:
     """Raw/transformed records stay local to this logical worker."""
-    def __init__(self, client_id, x, y, row_ids):
+    def __init__(self, client_id, x, y, row_ids, device=None):
         if len(y) == 0 or len(x) != len(y) or len(row_ids) != len(y):
             raise ValueError('Invalid client data')
         self.client_id = client_id
-        self.x = torch.as_tensor(x, dtype=torch.float32)
-        self.y = torch.as_tensor(y, dtype=torch.long)
+        self.device = get_device(device)
+        self.x = torch.as_tensor(x, dtype=torch.float32, device=self.device)
+        self.y = torch.as_tensor(y, dtype=torch.long, device=self.device)
         self.row_ids = np.array(row_ids)
 
     def train(self, global_model, config, seed):
@@ -61,11 +75,12 @@ class ClientWorker:
                 'loss': loss_sum / steps, 'compute_seconds': time.perf_counter() - start}
 
 
-def fedavg(initial, workers, config, rounds, seed):
+def fedavg(initial, workers, config, rounds, seed, observer=None):
     result = copy.deepcopy(initial)
     logs = []
     size = sum(v.numel() * v.element_size() for v in result.state_dict().values())
     for round_id in range(rounds):
+        before = state(result) if observer is not None else None
         started = time.perf_counter()
         updates, counts, local_logs = [], [], []
         for worker in workers:
@@ -79,11 +94,15 @@ def fedavg(initial, workers, config, rounds, seed):
                      'wall_seconds': time.perf_counter() - started,
                      'payload_bytes_up': size * len(workers), 'payload_bytes_down': size * len(workers),
                      'transport': 'logical_sequential_simulation_not_wire_measurement'})
+        if observer is not None:
+            observer(round_id, before, state(result), updates, counts, logs[-1])
     return result, logs
 
 
 def predict(model, x, batch_size=4096):
     model.eval()
+    device = next(model.parameters()).device
     with torch.no_grad():
-        return np.concatenate([torch.softmax(model(torch.as_tensor(x[i:i+batch_size], dtype=torch.float32)), 1)[:, 1].numpy()
+        return np.concatenate([torch.softmax(model(torch.as_tensor(
+            x[i:i+batch_size], dtype=torch.float32, device=device)), 1)[:, 1].cpu().numpy()
                                for i in range(0, len(x), batch_size)])

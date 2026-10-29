@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from src.data.prepare import connected_groups, balanced_group_split, overlaps
 from src.data.federated import partition, forget_request, retained_partition
-from src.fl.fedavg_core import model, state, aggregate, ClientWorker, fedavg
+from src.fl.fedavg_core import model, state, aggregate, ClientWorker, fedavg, get_device, predict
 from src.fu.conpfu_inspired import forget_step, kd_loss, distill
 from src.eval.metrics import similarity, matched_indices, mia, calibrate_mia
 
@@ -12,6 +12,17 @@ from src.eval.metrics import similarity, matched_indices, mia, calibrate_mia
 class FUTests(unittest.TestCase):
     def setUp(self):
         torch.set_num_threads(1)
+
+    def test_device_selection_and_cpu_inference(self):
+        self.assertEqual(get_device('cpu'), torch.device('cpu'))
+        with unittest.mock.patch('torch.cuda.is_available', return_value=False):
+            self.assertEqual(get_device('auto'), torch.device('cpu'))
+            with self.assertRaisesRegex(RuntimeError, 'CUDA is unavailable'):
+                get_device('cuda')
+        m=model(2,[4,3],42,device='cpu')
+        worker=ClientWorker(0,np.eye(2,dtype=np.float32),np.array([0,1]),['a','b'],device='cpu')
+        self.assertEqual(worker.x.device.type,'cpu')
+        self.assertEqual(predict(m,np.eye(2,dtype=np.float32)).shape,(2,))
 
     def test_transitive_leakage_components(self):
         g=connected_groups(['a','a','b','c','d'],['x','y','y','z','w'])
