@@ -130,3 +130,63 @@ python scripts/run_study.py --data runs/synthetic/data --output runs/synthetic/s
 - Ngưỡng `nonmember` là cận dưới thận trọng cho kịch bản family: một họ chưa từng thấy có thể có CE cao hơn nhiều so với nonmember trung bình. Chênh lệch với bản oracle sẽ đo khoảng hở này.
 - Compute matching tính theo số minibatch gradient evaluation, không theo FLOP hay wall time.
 - Retained control ở thang lớp/group, không match theo họ attack.
+
+## v3 — khóa trước khi chạy (2026-10-30)
+
+Các thay đổi sau được đề xuất sau khi đã xem `study_v2` (`docs/study_report_v2.md`), nên v3 là một run mới với config mới (`configs/study_v3.json`). Kết luận của v2 giữ nguyên.
+
+### Chẩn đoán LiRA (`scripts/diagnose_lira.py`)
+
+Lưới 2×2 trên checkpoint của `study_v2`:
+- Shadow train trên nửa pool hoặc toàn pool (`subset_fraction` 0,5 / 1,0).
+- Loại bản trùng chính xác, hoặc loại thêm cả bản gần trùng (`exclude` exact / near).
+
+Định nghĩa bản gần trùng: một dòng train nằm trong bán kính r quanh một query member (F_eval hoặc control) trong không gian encoded. r là trung vị của khoảng cách từ mỗi dòng test tới dòng train gần nhất. Test là group-disjoint, nên trong bán kính này một dòng train gần query hơn mức một nonmember điển hình gần dữ liệu train.
+
+Chẩn đoán chỉ train thêm shadow. Biến thể (0,5; exact) phải tái lập đúng v2.
+
+**Quy tắc chọn (khóa trước, chỉ dựa trên tính hợp lệ của attack, không dùng kết quả FU):**
+- Trên mọi case random, chọn biến thể có tỷ lệ case đạt LiRA AUC control (mô hình gốc) ≥ 0,55 cao nhất.
+- Nếu bằng nhau, chọn biến thể có |trung vị score của test nonmember| gần 0 nhất, tức shadow mô phỏng đúng độ tự tin của target trên dữ liệu chưa thấy.
+- Nếu tỷ lệ tốt nhất < 0,5, giữ biến thể của v2. Khi đó kịch bản random tiếp tục inconclusive.
+
+Biến thể được chọn sẽ được ghi vào `configs/study_v3.json` trước khi chạy v3.
+
+### Stop rule mới
+
+**Ngưỡng proxy mà client tự tính được (`stop_rule: proxy_calibrated`).** Client target train một mô hình proxy từ đầu chỉ trên R của chính nó: cùng kiến trúc, Adam lr 1e-3, 15 epoch (bằng 15 round × 1 local epoch của FL). Proxy không bao giờ thấy F. Ngưỡng được tính là:
+
+  ngưỡng = CE_gốc(validation, có trọng số lớp như F) × CE_proxy(F) / CE_proxy(validation, cùng trọng số)
+
+Ý nghĩa: proxy cho biết F "lạ" đến đâu so với dữ liệu chưa thấy (validation, mà cả mô hình gốc lẫn proxy đều chưa thấy). Tỷ lệ đó được chuyển sang thang loss của mô hình gốc.
+- Với xóa mẫu ngẫu nhiên, tỷ lệ gần 1, nên ngưỡng gần ngưỡng `nonmember`.
+- Với một họ chưa từng thấy (mitm), ngưỡng cao hơn.
+- `proxy_raw` = CE_proxy(F) chưa hiệu chỉnh, chỉ được log để đối chiếu.
+- Chi phí proxy (số bước, thời gian) được ghi riêng và không cộng vào `retain_matched`, vì proxy không cập nhật mô hình được triển khai.
+
+**Kiểm tra ngưỡng sau recovery ngắn (`stop_check: after_recovery`, `src/fu/recovery_check.py`).** Mỗi bước ngoài gồm:
+1. Một cycle alternating, vẫn có chốt chặn local ở ngưỡng.
+2. `check_rounds`=1 round FedAvg trên R.
+3. Kiểm tra CE(F) của mô hình *đã recovery* so với ngưỡng.
+
+Vòng ngoài chạy tối đa `max_outer`=5 bước. Mô hình cuối là mô hình sau vòng này, không chạy thêm recovery. Anchor L2 luôn là mô hình gốc. `retain_matched` nhận đúng số bước local và đúng số round FedAvg đã dùng, với cùng lịch seed. Chế độ này không kết hợp với KD.
+
+Giới hạn đã biết: CE(F) không tăng đơn điệu theo bước quên. Ví dụ objective `uniform` kéo p về 0,5, nên CE của các điểm đang bị phân loại sai *giảm*, và CE trung bình có thể giảm theo.
+
+### Ứng viên trước recovery
+
+Với các method kiểm tra ngưỡng local, gate đánh giá hai ứng viên:
+- `final`: sau recovery, so với `retain_matched`.
+- `pre_recovery`: sau local/KD, chưa recovery, so với `retain_matched_local` (cùng số bước local, không có recovery). Ứng viên này phải qua cùng gate utility: macro-F1 ≥ 0,65; tụt ≤ 0,03 so với max(gốc, retrain); FPR tăng ≤ 0,02.
+
+Gate tổng hợp tính riêng theo cặp `method@candidate`. Với `after_recovery`, chỉ có ứng viên `final`; `local_effect_before_recovery` dùng mô hình local đầu tiên, trước mọi recovery.
+
+### Methods v3 (`configs/study_v3.json`)
+
+- `legacy_retain_kd` và `neggrad_plus_adam`: giữ như v2 để đối chiếu.
+- `neggrad_plus_proxy`: ngưỡng proxy, kiểm tra local.
+- `neggrad_plus_proxy_recovery` và `random_label_proxy_recovery`: ngưỡng proxy, kiểm tra sau recovery.
+- `uniform_bad_teacher_proxy`: KD bad-teacher với ngưỡng proxy.
+- `neggrad_plus_oracle_recovery`: chỉ để chẩn đoán.
+
+Kịch bản, seed, target, gate, số retrain và số shadow giữ nguyên như v2. Hyperparameter là preset, không tune.

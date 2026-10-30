@@ -1,11 +1,12 @@
 """Offline LiRA (Carlini et al., 2022) with OUT-only shadow models.
 
-Every shadow model is trained without any query record or its connected group, so per-record
-OUT statistics calibrate record difficulty and remove the distribution shift that made the
-fixed loss attack inconclusive. Shadow training itself is supplied by the caller.
+Every shadow model is trained without any member query record or its exact (optionally near)
+duplicates, so per-record OUT statistics calibrate record difficulty. Shadow training itself
+is supplied by the caller.
 """
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score, roc_curve
+from sklearn.neighbors import NearestNeighbors
 
 
 def logit_confidence(y, p, eps=1e-7):
@@ -24,6 +25,22 @@ def out_statistics(shadow_phi, global_variance=True):
         # Fixed variance is more stable than per-record variance with few shadows.
         sd = np.full_like(sd, np.sqrt(np.mean(sd**2)))
     return mu, np.maximum(sd, 1e-6)
+
+
+def near_duplicate_index(train_x, nonmember_x, quantile):
+    """Radius = quantile of nonmember-to-train nearest-neighbour distance in encoded space.
+
+    Nonmembers come from group-disjoint splits, so within this radius a train row is closer to a
+    query than a typical nonmember is to any training row: a near duplicate for the attack.
+    """
+    index = NearestNeighbors(n_neighbors=1).fit(train_x)
+    distance, _ = index.kneighbors(nonmember_x)
+    return index, float(np.quantile(distance[:, 0], quantile))
+
+
+def near_duplicates(index, query_x, radius):
+    found = index.radius_neighbors(query_x, radius=radius, return_distance=False)
+    return np.unique(np.concatenate(found)).astype(np.int64) if len(found) else np.array([], dtype=np.int64)
 
 
 def lira_scores(phi, mu, sd):

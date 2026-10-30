@@ -11,7 +11,7 @@ from torch import nn
 from src.fl.fedavg_core import batches
 
 FORGET_OBJECTIVES = ('neg_ce', 'neggrad_plus', 'random_label', 'uniform')
-STOP_RULES = ('none', 'nonmember', 'oracle_retrain')
+STOP_RULES = ('none', 'nonmember', 'proxy_raw', 'proxy_calibrated', 'oracle_retrain')
 KD_MODES = ('retain_only', 'full_local', 'bad_teacher')
 
 
@@ -73,8 +73,10 @@ def _retain_batches(retain, batch_size, seed):
         epoch += 1
 
 
-def alternating(original, forget, retain, config, seed, stop_target=None):
+def alternating(original, forget, retain, config, seed, stop_target=None, anchor_model=None):
     """Forget phase on F, then retain phase on R, for at most config['cycles'] cycles.
+
+    The L2 anchor is the start model unless anchor_model is given (the original inside an outer loop).
 
     With a stop rule the forget phase ends once mean CE on F reaches stop_target, and cycling
     ends once CE on F is still at the target after the retain repair phase.
@@ -87,7 +89,7 @@ def alternating(original, forget, retain, config, seed, stop_target=None):
         raise ValueError('stop_target must be given exactly when a stop rule is active')
     local = copy.deepcopy(original)
     local.train()
-    anchor = [p.detach().clone() for p in local.parameters()]
+    anchor = [p.detach().clone() for p in (local if anchor_model is None else anchor_model).parameters()]
     # SGD has no state, so persistent optimizers match the pilot's per-step/per-cycle SGD exactly.
     forget_optimizer = make_optimizer(local.parameters(), config.get('forget_optimizer', 'sgd'), config['forget_lr'])
     retain_optimizer = make_optimizer(local.parameters(), config.get('retain_optimizer', 'sgd'), config['retain_lr'])

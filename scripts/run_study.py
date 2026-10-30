@@ -22,14 +22,18 @@ from src.data.scenarios import exclusive_family_partition, family_request, uniqu
 from src.fl.fedavg_core import ClientWorker, model, state, fedavg, predict
 from src.fu.conpfu_inspired import alternating, distill, gradient_batches, mean_ce
 from src.fu.baselines import retain_finetune
+from src.fu.recovery_check import forget_with_recovery_check
 from src.eval.metrics import utility, calibrate_mia, matched_indices, mia
 from src.eval.noise_floor import retrain_noise, distance_to_retrains, margin, identifiable
-from src.eval.lira import logit_confidence, out_statistics, lira_scores, calibrate_thresholds, attack_summary
+from src.eval.lira import (logit_confidence, out_statistics, lira_scores, calibrate_thresholds, attack_summary,
+                           near_duplicate_index, near_duplicates)
 from scripts.run_pilot import load_data
 
 RETRAIN_SEED_STRIDE = 104729
 SHADOW_SEED_OFFSET = 15485863
 RECOVERY_SEED_OFFSET = 900000
+PROXY_SEED_OFFSET = 31337
+ROUND_SEED_STRIDE = 10000  # fedavg's per-round seed stride, so split recoveries keep one schedule
 
 
 def builtin(obj):
@@ -88,6 +92,33 @@ def shadow_partition(y, seed, alpha, clients, attempts=10):
     raise ValueError(f'Shadow partition degenerate after {attempts} attempts')
 
 
+def encoded_signatures(x):
+    """Encoded-vector identity, as in prepare.py's encoded overlap audit."""
+    return np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in np.ascontiguousarray(x)])
+
+
+def shadow_pool(signatures, members, near=None):
+    """Train rows an OUT shadow may use: no member query, no exact duplicate of one, optionally no near duplicate."""
+    excluded = np.isin(signatures, signatures[members])
+    if near is not None:
+        excluded[near] = True
+    return np.flatnonzero(~excluded)
+
+
+def train_shadows(X, y, row_ids, pool, query_x, query_y, lira, seed, alpha, clients, fl, dim, hidden):
+    """FedAvg shadows on random pool subsets; returns per-shadow logit confidence on the queries."""
+    phi, retries = [], []
+    for k in range(lira['shadows']):
+        s = seed + SHADOW_SEED_OFFSET + k
+        subset = np.sort(np.random.default_rng(s).choice(pool, int(lira['subset_fraction'] * len(pool)), replace=False))
+        parts, retry = shadow_partition(y[subset], s, alpha, clients)
+        workers = [ClientWorker(i, X[subset[p]], y[subset[p]], row_ids[subset[p]]) for i, p in enumerate(parts)]
+        shadow, _ = fedavg(model(dim, hidden, s), workers, fl, lira.get('rounds', fl['rounds']), s)
+        phi.append(logit_confidence(query_y, predict(shadow, query_x)))
+        retries.append(retry)
+    return phi, retries
+
+
 def nonmember_reference(original, x, y, forget_y):
     """Class-weighted CE of the original on validation nonmembers, weighted like F."""
     weights = np.bincount(forget_y, minlength=2) / len(forget_y)
@@ -103,43 +134,58 @@ def ci_low(values, confidence):
 
 
 def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
+    """Gate decisions for each candidate of one method in one case.
+
+    final: after recovery, against retain_matched (same local steps and recovery rounds).
+    pre_recovery (local stop check only): the local FU model before any recovery, against
+    retain_matched_local (same local steps, no recovery); it must pass the same utility gate.
+    """
     d = lambda key: metrics[key]['distance_F']
-    final, matched = f'{name}/final', f'{name}/retain_matched'
     pre = f'{name}/after_kd' if f'{name}/after_kd' in metrics else f'{name}/after_local'
     mg = margin(noise, gate['margin_sd_factor'], gate['minimum_margin'])
-    original, candidate = metrics['original'], metrics[final]
-    f1 = candidate['utility_test']['macro_f1']
-    checks = {
-        'identifiable': identifiable(d('original'), noise, gate['identifiability_sd']),
-        'mia_positive_control': original['lira_retained_control']['mia_auc'] >= gate['minimum_retained_lira_auc'],
-        'local_effect_before_recovery': d('original') - d(pre) > mg,
-        'beats_retain_only_matched': d(matched) - d(final) > mg,
-        'beats_retain_only_recovery': d('retain_only') - d(final) > mg,
-        'utility_floor': f1 >= gate['minimum_macro_f1'],
-        'utility_preserved': f1 >= max(original['utility_test']['macro_f1'], retrain_f1) - gate['maximum_f1_drop'],
-        'fpr_preserved': candidate['utility_test']['fpr'] <= original['utility_test']['fpr'] + gate['maximum_fpr_increase'],
-        'mia_closer_to_retrain': abs(candidate['lira_forget']['mia_auc'] - retrain_auc_f)
-                                 <= abs(original['lira_forget']['mia_auc'] - retrain_auc_f),
-        'not_oracle_stop': cfg.get('stop_rule', 'none') != 'oracle_retrain'}
-    checks = {k: bool(v) for k, v in checks.items()}
-    valid = checks['identifiable'] and checks['mia_positive_control']
-    return {'method': name, 'checks': checks, 'valid_case': valid, 'margin': mg,
-            'distance_original': d('original'), 'distance_pre_recovery': d(pre), 'distance_final': d(final),
-            'distance_retain_matched': d(matched), 'distance_retain_only': d('retain_only'),
-            'improvement_over_matched': d(matched) - d(final),
-            'passed': bool(valid and all(checks.values()) and not smoke)}
+    original = metrics['original']
+    shared = {'identifiable': identifiable(d('original'), noise, gate['identifiability_sd']),
+              'mia_positive_control': original['lira_retained_control']['mia_auc'] >= gate['minimum_retained_lira_auc'],
+              'local_effect_before_recovery': d('original') - d(pre) > mg,
+              'not_oracle_stop': cfg.get('stop_rule', 'none') != 'oracle_retrain'}
+    candidates = [('final', f'{name}/final', f'{name}/retain_matched')]
+    if cfg.get('stop_check', 'local') == 'local':
+        candidates.append(('pre_recovery', pre, f'{name}/retain_matched_local'))
+    decisions = []
+    for candidate_name, key, matched in candidates:
+        candidate = metrics[key]
+        f1 = candidate['utility_test']['macro_f1']
+        checks = {**shared,
+                  'beats_retain_only_matched': d(matched) - d(key) > mg,
+                  'beats_retain_only_recovery': d('retain_only') - d(key) > mg,
+                  'utility_floor': f1 >= gate['minimum_macro_f1'],
+                  'utility_preserved': f1 >= max(original['utility_test']['macro_f1'], retrain_f1) - gate['maximum_f1_drop'],
+                  'fpr_preserved': candidate['utility_test']['fpr'] <= original['utility_test']['fpr'] + gate['maximum_fpr_increase'],
+                  'mia_closer_to_retrain': abs(candidate['lira_forget']['mia_auc'] - retrain_auc_f)
+                                           <= abs(original['lira_forget']['mia_auc'] - retrain_auc_f)}
+        checks = {k: bool(v) for k, v in checks.items()}
+        valid = checks['identifiable'] and checks['mia_positive_control']
+        decisions.append({'method': name, 'candidate': candidate_name, 'model': key, 'matched_model': matched,
+                          'checks': checks, 'valid_case': valid, 'margin': mg,
+                          'distance_original': d('original'), 'distance_pre_recovery': d(pre),
+                          'distance_candidate': d(key), 'distance_final': d(f'{name}/final'),
+                          'distance_retain_matched': d(matched), 'distance_retain_only': d('retain_only'),
+                          'improvement_over_matched': d(matched) - d(key),
+                          'passed': bool(valid and all(checks.values()) and not smoke)})
+    return decisions
 
 
 def summarize(decisions, config, smoke):
     gate, summary = config['gate'], {}
-    for name in config['methods']:
-        rows = [d for d in decisions if d['method'] == name]
+    for name, candidate in dict.fromkeys((d['method'], d['candidate']) for d in decisions):
+        rows = [d for d in decisions if d['method'] == name and d['candidate'] == candidate]
         valid = [d for d in rows if d['valid_case']]
         excess = [d['improvement_over_matched'] - d['margin'] for d in valid]
         low = ci_low(excess, gate['confidence'])
         rate = float(np.mean([d['passed'] for d in valid])) if valid else None
         oracle = config['methods'][name].get('stop_rule', 'none') == 'oracle_retrain'
-        summary[name] = {'cases': len(rows), 'valid_cases': len(valid), 'pass_rate_valid': rate,
+        summary[f'{name}@{candidate}'] = {'method': name, 'candidate': candidate,
+                         'cases': len(rows), 'valid_cases': len(valid), 'pass_rate_valid': rate,
                          'mean_excess_over_matched_margin': float(np.mean(excess)) if excess else None,
                          'excess_ci_low': low, 'oracle_stop': oracle,
                          'study_passed': bool(not smoke and not oracle and len(valid) >= gate['minimum_valid_cases']
@@ -169,8 +215,10 @@ def run(data_path, config_path, output, smoke=False):
     test, validation, calibration = data['test'], data['validation'], data['calibration']
     dim, hidden, fl, n_clients = X.shape[1], config['hidden'], config['fl'], config['clients']
     unique_mask = unique_feature_rows(X)
-    # Encoded-vector identity, as in prepare.py's encoded overlap audit.
-    signatures = np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in np.ascontiguousarray(X)])
+    signatures = encoded_signatures(X)
+    near_index, near_radius = None, None
+    if config['lira'].get('exclude', 'exact') == 'near':
+        near_index, near_radius = near_duplicate_index(X, test['X'], config['lira']['near_quantile'])
     output.mkdir(parents=True)
     (output/'cases').mkdir()
     started = time.perf_counter()
@@ -232,27 +280,53 @@ def run(data_path, config_path, output, smoke=False):
                   'retain_only': recover(original)}
         references = {'nonmember': nonmember_reference(original, validation['X'], validation['y'], y[f]),
                       'oracle_retrain': float(np.mean([mean_ce(m, fw.x, fw.y) for m in retrains]))}
+        proxy_info = None
+        if 'proxy' in config:
+            # Client-computable reference: the target trains a from-scratch model on its own R (never F).
+            # Its CE on F relative to unseen validation data is transferred to the original's loss scale.
+            t = time.perf_counter()
+            s = seed + PROXY_SEED_OFFSET
+            proxy_state, _, proxy_log = rw[target].train(model(dim, hidden, s), {
+                'lr': fl['lr'], 'batch_size': fl['batch_size'], 'local_epochs': config['proxy']['epochs']}, s)
+            proxy = model(dim, hidden, s)
+            proxy.load_state_dict(proxy_state)
+            proxy_f = mean_ce(proxy, fw.x, fw.y)
+            proxy_validation = nonmember_reference(proxy, validation['X'], validation['y'], y[f])
+            references['proxy_raw'] = proxy_f
+            references['proxy_calibrated'] = references['nonmember'] * proxy_f / max(proxy_validation, 1e-6)
+            proxy_info = {'forget_ce': proxy_f, 'validation_ce': proxy_validation, 'steps': proxy_log['steps'],
+                          'seconds': time.perf_counter() - t, 'counted_in_retain_matched': False}
         method_info = {}
         for name, cfg in config['methods'].items():
             t = time.perf_counter()
             rule = cfg.get('stop_rule', 'none')
             stop = None if rule == 'none' else references[rule] * cfg.get('stop_scale', 1.)
-            local, logs = alternating(original, fw, rw[target], cfg, seed, stop)
-            steps, start = gradient_batches(logs), local
-            models[f'{name}/after_local'] = local
-            kd_steps = 0
-            if cfg.get('kd_mode'):
-                incompetent = model(dim, hidden, seed + 7) if cfg.get('kd_incompetent') == 'random_init' else None
-                kd, losses = distill(original, local, rw[target], cfg, seed, fw, incompetent,
-                                     stop if cfg.get('kd_stop') else None)
-                kd_steps, start = len(losses), kd
-                models[f'{name}/after_kd'] = kd
-            models[f'{name}/final'] = recover(start)
+            kd_steps, rounds = 0, config['recovery_rounds']
+            if cfg.get('stop_check', 'local') == 'after_recovery':
+                per = cfg['check_rounds']
+                step_recovery = lambda m, k: fedavg(m, rw, fl, per, seed + RECOVERY_SEED_OFFSET + k * per * ROUND_SEED_STRIDE)[0]
+                final, first_local, logs = forget_with_recovery_check(original, fw, rw[target], cfg, seed, stop, step_recovery)
+                steps, rounds = logs[-1]['gradient_batches'], logs[-1]['outer_steps'] * per
+                models[f'{name}/after_local'] = first_local
+                models[f'{name}/final'] = final
+            else:
+                local, logs = alternating(original, fw, rw[target], cfg, seed, stop)
+                steps, start = gradient_batches(logs), local
+                models[f'{name}/after_local'] = local
+                if cfg.get('kd_mode'):
+                    incompetent = model(dim, hidden, seed + 7) if cfg.get('kd_incompetent') == 'random_init' else None
+                    kd, losses = distill(original, local, rw[target], cfg, seed, fw, incompetent,
+                                         stop if cfg.get('kd_stop') else None)
+                    kd_steps, start = len(losses), kd
+                    models[f'{name}/after_kd'] = kd
+                models[f'{name}/final'] = recover(start)
             matched, _ = retain_finetune(original, rw[target], steps + kd_steps, cfg, seed)
             models[f'{name}/retain_matched_local'] = matched
-            models[f'{name}/retain_matched'] = recover(matched)
-            method_info[name] = {'stop_rule': rule, 'stop_target': stop, 'stop_reached': logs[-1]['stop_reached'],
-                                 'local_gradient_batches': steps, 'kd_steps': kd_steps}
+            # Same recovery schedule (seeds and total rounds) as the FU candidate.
+            models[f'{name}/retain_matched'] = fedavg(matched, rw, fl, rounds, seed + RECOVERY_SEED_OFFSET)[0]
+            method_info[name] = {'stop_rule': rule, 'stop_check': cfg.get('stop_check', 'local'), 'stop_target': stop,
+                                 'stop_reached': logs[-1]['stop_reached'], 'local_gradient_batches': steps,
+                                 'kd_steps': kd_steps, 'recovery_rounds': rounds}
             dump(case_dir/f'{name}_local_log.json', logs)
             timing[f'{case_id}/{name}'] = time.perf_counter() - t
 
@@ -266,26 +340,20 @@ def run(data_path, config_path, output, smoke=False):
                             forget_nonmember=test['row_id'][fn], retained=train['row_id'][c_eval],
                             retained_nonmember=test['row_id'][rn])
 
-        # OUT-only shadows: no member query record and no exact encoded duplicate of one. Whole
-        # connected groups are not excluded: ToN-IoT components reach ~39k rows, which would leave
-        # shadows far weaker than the target. Near-duplicates kept in shadows make the attack conservative.
+        # OUT-only shadows: no member query record and no exact encoded duplicate of one (optionally no
+        # near duplicate). Whole connected groups are not excluded: ToN-IoT components reach ~39k rows,
+        # which would leave shadows far weaker than the target.
         t = time.perf_counter()
         lira = config['lira']
-        pool = np.flatnonzero(~np.isin(signatures, signatures[np.union1d(f, c_eval)]))
+        near = near_duplicates(near_index, X[np.union1d(f_eval, c_eval)], near_radius) if near_index is not None else None
+        pool = shadow_pool(signatures, np.union1d(f, c_eval), near)
         if set(y[pool]) != {0, 1}:
             raise AssertionError('Shadow pool lost a class; lower lira.cap_per_class')
         query_x = np.concatenate([X[f_eval], X[c_eval], test['X'], calibration['X']])
         query_y = np.concatenate([y[f_eval], y[c_eval], test['y'], calibration['y']])
         cuts = np.cumsum([len(f_eval), len(c_eval), len(test['y'])])
-        shadow_phi, shadow_retries = [], []
-        for k in range(lira['shadows']):
-            s = seed + SHADOW_SEED_OFFSET + k
-            subset = np.sort(np.random.default_rng(s).choice(pool, int(lira['subset_fraction'] * len(pool)), replace=False))
-            parts, retries = shadow_partition(y[subset], s, lira.get('alpha', config['alpha']), n_clients)
-            shadow_retries.append(retries)
-            parts = [subset[p] for p in parts]
-            shadow, _ = fedavg(model(dim, hidden, s), workers(parts), fl, lira.get('rounds', fl['rounds']), s)
-            shadow_phi.append(logit_confidence(query_y, predict(shadow, query_x)))
+        shadow_phi, shadow_retries = train_shadows(X, y, train['row_id'], pool, query_x, query_y, lira, seed,
+                                                   lira.get('alpha', config['alpha']), n_clients, fl, dim, hidden)
         mu, sd = out_statistics(shadow_phi, lira.get('global_variance', True))
         timing[f'{case_id}/shadows'] = time.perf_counter() - t
 
@@ -319,13 +387,16 @@ def run(data_path, config_path, output, smoke=False):
         retrain_metrics = [metrics['retrain']] + [evaluate(m, j) for j, m in enumerate(retrains) if j]
         retrain_auc_f = float(np.mean([r['lira_forget']['mia_auc'] for r in retrain_metrics]))
         retrain_f1 = float(np.mean([r['utility_test']['macro_f1'] for r in retrain_metrics]))
-        case_decisions = [{'case': case_id, 'scenario': scenario, 'seed': seed, 'target': target,
-                           **decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, config['gate'], smoke)}
-                          for name, cfg in config['methods'].items()]
+        case_decisions = [{'case': case_id, 'scenario': scenario, 'seed': seed, 'target': target, **decision}
+                          for name, cfg in config['methods'].items()
+                          for decision in decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, config['gate'], smoke)]
         dump(case_dir/'metrics.json', {'models': metrics, 'retrain_ensemble': retrain_metrics,
                                        'noise_floor_F': noise, 'noise_floor_test': noise_test,
-                                       'stop_references': references, 'methods': method_info,
+                                       'stop_references': references, 'proxy': proxy_info, 'methods': method_info,
                                        'lira': {'shadows': lira['shadows'], 'pool_rows': len(pool),
+                                                'pool_labels': np.bincount(y[pool], minlength=2),
+                                                'near_radius': near_radius,
+                                                'near_duplicates_excluded': 0 if near is None else len(near),
                                                 'shadow_partition_retries': shadow_retries,
                                                 'thresholds': lira_thresholds,
                                                 'retrain_mean_forget_auc': retrain_auc_f},

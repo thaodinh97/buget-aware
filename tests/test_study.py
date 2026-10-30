@@ -11,12 +11,13 @@ import torch
 from torch import nn
 
 from src.data.scenarios import exclusive_family_partition, family_request, unique_feature_rows, atypical_request
-from src.eval.lira import logit_confidence, out_statistics, lira_scores, attack_summary
+from src.eval.lira import logit_confidence, out_statistics, lira_scores, attack_summary, near_duplicate_index, near_duplicates
 from src.eval.metrics import matched_indices
 from src.eval.noise_floor import retrain_noise, distance_to_retrains, margin, identifiable
 from src.fl.fedavg_core import ClientWorker, batches, model
 from src.fu.baselines import retain_finetune
 from src.fu.conpfu_inspired import alternating, distill, forget_loss, forget_step, gradient_batches, mean_ce
+from src.fu.recovery_check import forget_with_recovery_check
 
 LEGACY = {'cycles': 1, 'batch_size': 16, 'forget_lr': .0005, 'retain_lr': .0005, 'regularization': .001,
           'clip': 1., 'kd_epochs': 1, 'kd_lr': .001, 'temperature': 2., 'hard_weight': .5}
@@ -157,6 +158,59 @@ class ForgetStageTests(unittest.TestCase):
         self.assertGreater(moved(adam), 3 * moved(LEGACY))
 
 
+class RecoveryCheckTests(unittest.TestCase):
+    def setUp(self):
+        torch.set_num_threads(1)
+        torch.use_deterministic_algorithms(True)
+        x, y = toy(3)
+        self.original = trained(x, y, 3)
+        self.forget = ClientWorker(0, x[:40], y[:40], np.arange(40))
+        self.retain = ClientWorker(0, x[40:], y[40:], np.arange(40, 120))
+        self.config = {**LEGACY, 'forget_objective': 'uniform', 'forget_optimizer': 'adam', 'forget_lr': .01,
+                       'retain_steps_per_cycle': 1, 'stop_rule': 'proxy_calibrated', 'max_outer': 6}
+
+    def test_check_runs_on_recovered_model(self):
+        calls = []
+        def undo(m, step):  # a "recovery" that always restores the original: never reaches the target
+            calls.append(step)
+            return copy.deepcopy(self.original)
+        target = mean_ce(self.original, self.forget.x, self.forget.y) + .1
+        final, first, logs = forget_with_recovery_check(self.original, self.forget, self.retain, self.config, 0, target, undo)
+        self.assertEqual(calls, list(range(6)))
+        self.assertFalse(logs[-1]['stop_reached'])
+        self.assertTrue(params_equal(final, self.original))
+        self.assertFalse(params_equal(first, self.original))  # the first local cycle did move the model
+        self.assertEqual(logs[-1]['gradient_batches'], sum(e['local_gradient_batches'] for e in logs[:-1]))
+
+    def test_stops_once_recovered_model_reaches_target(self):
+        target = mean_ce(self.original, self.forget.x, self.forget.y) + .1
+        final, _, logs = forget_with_recovery_check(self.original, self.forget, self.retain, self.config, 0, target,
+                                                    lambda m, step: m)
+        self.assertTrue(logs[-1]['stop_reached'])
+        self.assertLess(logs[-1]['outer_steps'], 6)
+        self.assertGreaterEqual(mean_ce(final, self.forget.x, self.forget.y), target)
+
+    def test_rejects_kd_and_missing_target(self):
+        with self.assertRaises(ValueError):
+            forget_with_recovery_check(self.original, self.forget, self.retain, self.config, 0, None, lambda m, s: m)
+        with self.assertRaises(ValueError):
+            forget_with_recovery_check(self.original, self.forget, self.retain, {**self.config, 'kd_mode': 'full_local'},
+                                       0, 1., lambda m, s: m)
+
+    def test_anchor_model_pulls_back_to_original(self):
+        start = copy.deepcopy(self.original)
+        with torch.no_grad():
+            for p in start.parameters():
+                p.add_(.5)
+        config = {**LEGACY, 'regularization': 10., 'forget_lr': .001, 'retain_lr': 0., 'clip': 1e6}
+        dist = lambda m: sum((p - q).square().sum() for p, q in zip(m.parameters(), self.original.parameters())).item()
+        anchored, _ = alternating(start, self.forget, self.retain, config, 0, anchor_model=self.original)
+        free, _ = alternating(start, self.forget, self.retain, config, 0)
+        self.assertLess(dist(anchored), dist(start))
+        self.assertGreater(dist(anchored), 0)
+        self.assertLess(dist(anchored), dist(free))
+
+
 class DistillationTests(unittest.TestCase):
     def setUp(self):
         torch.set_num_threads(1)
@@ -253,6 +307,36 @@ class ControlAndMetricTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             out_statistics(shadow[:1])
 
+    def test_near_duplicates_use_nonmember_distance_radius(self):
+        train_x = np.array([[0.], [.05], [1.], [3.]])
+        index, radius = near_duplicate_index(train_x, np.array([[2.], [2.2], [2.4]]), .5)
+        self.assertAlmostEqual(radius, .8)  # median distance of 2.0/2.2/2.4 to the nearest train row
+        np.testing.assert_array_equal(near_duplicates(index, np.array([[0.]]), radius), [0, 1])
+        np.testing.assert_array_equal(near_duplicates(index, np.array([[1.9]]), .5), [])
+
+    def test_decide_adds_pre_recovery_candidate_only_for_local_checks(self):
+        from scripts.run_study import decide, summarize
+        def entry(distance, f1=.9, fpr=.2, auc=.6):
+            return {'distance_F': distance, 'utility_test': {'macro_f1': f1, 'fpr': fpr},
+                    'lira_forget': {'mia_auc': auc}, 'lira_retained_control': {'mia_auc': .6}}
+        metrics = {'original': entry(.05), 'retain_only': entry(.03), 'm/after_local': entry(.01, f1=.8),
+                   'm/final': entry(.02), 'm/retain_matched': entry(.03), 'm/retain_matched_local': entry(.04)}
+        noise = {'mean': .005, 'sd': .001, 'max': .007}
+        gate = {'margin_sd_factor': 2, 'minimum_margin': 1e-4, 'identifiability_sd': 3, 'minimum_retained_lira_auc': .55,
+                'minimum_macro_f1': .65, 'maximum_f1_drop': .03, 'maximum_fpr_increase': .02}
+        final, pre = decide('m', {'stop_rule': 'proxy_calibrated'}, metrics, noise, .55, .9, gate, False)
+        self.assertEqual((final['candidate'], final['matched_model']), ('final', 'm/retain_matched'))
+        self.assertTrue(final['passed'])
+        self.assertEqual((pre['candidate'], pre['matched_model']), ('pre_recovery', 'm/retain_matched_local'))
+        self.assertAlmostEqual(pre['improvement_over_matched'], .03)
+        self.assertFalse(pre['checks']['utility_preserved'])  # closer to retrain but F1 dropped 0.1
+        self.assertFalse(pre['passed'])
+        only = decide('m', {'stop_rule': 'proxy_calibrated', 'stop_check': 'after_recovery'}, metrics, noise, .55, .9, gate, False)
+        self.assertEqual([d['candidate'] for d in only], ['final'])
+        summary = summarize([final, pre], {'gate': {**gate, 'confidence': .95, 'minimum_valid_cases': 1,
+                                                    'minimum_pass_rate': 1.}, 'methods': {'m': {}}}, False)
+        self.assertEqual(set(summary), {'m@final', 'm@pre_recovery'})
+
     def test_matched_indices_optional_class(self):
         member, nonmember = np.ones(10, dtype=int), np.tile([0, 1], 10)
         with self.assertRaises(ValueError):
@@ -333,6 +417,31 @@ class StudySmokeTest(unittest.TestCase):
                 self.assertIn('uniform_adam_bad_teacher/retain_matched', metrics['models'])
                 info = metrics['methods']['uniform_adam_bad_teacher']
                 self.assertGreater(info['local_gradient_batches'] + info['kd_steps'], 0)
+
+    def test_v3_smoke_proxy_recovery_check_and_near_exclusion(self):
+        from scripts.make_synthetic_toniot import synthetic
+        from src.data.prepare import prepare
+        from scripts.run_study import run
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            synthetic().to_csv(tmp/'raw.csv', index=False)
+            prepare(tmp/'raw.csv', Path('configs/data_connected.json'), tmp/'data')
+            config = json.loads(Path('configs/study_v3.json').read_text())
+            config['methods'] = {k: config['methods'][k] for k in ['neggrad_plus_proxy', 'neggrad_plus_proxy_recovery']}
+            config['lira'].update({'exclude': 'near', 'subset_fraction': 1.})
+            config['smoke']['scenarios'] = config['smoke']['scenarios'][:1]
+            (tmp/'study.json').write_text(json.dumps(config))
+            run(tmp/'data', tmp/'study.json', tmp/'run', smoke=True)
+            gate = json.loads((tmp/'run'/'gate.json').read_text())
+            self.assertEqual(set(gate['methods']), {'neggrad_plus_proxy@final', 'neggrad_plus_proxy@pre_recovery',
+                                                    'neggrad_plus_proxy_recovery@final'})
+            case = next((tmp/'run'/'cases').iterdir())
+            metrics = json.loads((case/'metrics.json').read_text())
+            self.assertIn('proxy_calibrated', metrics['stop_references'])
+            self.assertGreater(metrics['lira']['near_duplicates_excluded'], 0)
+            info = metrics['methods']['neggrad_plus_proxy_recovery']
+            self.assertEqual(info['stop_check'], 'after_recovery')
+            self.assertGreaterEqual(info['recovery_rounds'], 1)
 
 
 if __name__ == '__main__':
