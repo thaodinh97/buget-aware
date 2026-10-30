@@ -190,3 +190,22 @@ Gate tổng hợp tính riêng theo cặp `method@candidate`. Với `after_recov
 - `neggrad_plus_oracle_recovery`: chỉ để chẩn đoán.
 
 Kịch bản, seed, target, gate, số retrain và số shadow giữ nguyên như v2. Hyperparameter là preset, không tune.
+
+### Kết quả chẩn đoán LiRA (`runs/lira_diag_v2`, tóm tắt ở `results/lira_diag_v2/`)
+
+- Chạy 12 case random và 2 case family, mất 10,6 phút.
+- Tổ hợp (0,5; exact) tái lập đúng AUC của v2, sai khác bằng 0.
+- **Không tổ hợp nào đạt control ≥ 0,55 ở bất kỳ case random nào.** Tỷ lệ đạt bằng 0 ở cả 4 tổ hợp; AUC control trung bình 0,469–0,477.
+- Theo quy tắc, v3 giữ tổ hợp của v2: `subset_fraction` 0,5, `exclude` exact. Kịch bản random vẫn inconclusive về MIA.
+
+**Phát hiện về dữ liệu.** Bán kính "gần trùng" tính được là 1,46e-7. So với dòng train gần nhất:
+- 33,9% số dòng test có khoảng cách float bằng 0; 91,8% nằm trong khoảng 1e-3; 96,7% nằm trong khoảng 1e-2.
+- Chênh lệch tối đa giữa các cặp này khoảng 1e-8, chỉ ở feature `duration` đã chuẩn hóa.
+- Nhãn của hàng xóm gần nhất trùng với nhãn test ở 98,4% số dòng.
+
+Audit overlap encoded chỉ so hash chính xác nên không bắt được các bản gần trùng này. Hệ quả:
+1. Nonmember trong test gần như luôn có bản gần trùng trong train, nên một MIA dựa trên độ tự tin không thể tách member khỏi nonmember ở thang mẫu.
+2. Loại bản gần trùng khỏi shadow xóa mất 64–92k dòng train, vì các cụm gần trùng rất lớn.
+3. Holdout hiện tại không phải dữ liệu "mới" trong không gian feature. Mọi kết luận về utility và MIA đều phải đọc với điều kiện này.
+
+Sửa preprocessing (gộp bản gần trùng vào cùng group trước khi chia split, hoặc lượng tử hóa `duration`) là một thay đổi protocol cần quyết định riêng, chưa áp dụng cho v3.
