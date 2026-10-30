@@ -8,6 +8,8 @@
 
 **Run `study_v2` trên ToN-IoT thật (30 case, 3 seed): không method nào qua gate.** Bước quên mới có tác động trước recovery, nhưng không vượt ổn định retain-only cùng compute với margin lớn hơn nhiễu. Kịch bản random không có MIA hợp lệ (LiRA control < 0,5). Xem [báo cáo](docs/study_report_v2.md); tóm tắt kết quả ở `results/study_v2/`.
 
+**Run `study_v3` (stop rule proxy, kiểm tra sau recovery, ứng viên trước recovery, chẩn đoán LiRA): vẫn không qua gate.** Ngưỡng proxy ước lượng CE retrain tốt hơn hẳn; NegGrad+ trước recovery thắng retain-only local cùng compute 6/10, thua 0/10, nhưng kém retain-only có recovery. Phát hiện dữ liệu: 92% dòng test nằm trong khoảng 1e-3 so với một dòng train (audit hash không thấy). Xem [báo cáo v3](docs/study_report_v3.md).
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
