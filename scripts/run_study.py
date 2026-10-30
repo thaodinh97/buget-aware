@@ -3,6 +3,7 @@ identifiable deletion scenarios and offline LiRA. The locked pilot stays in run_
 A completed study can still fail its gate."""
 import argparse
 import copy
+import hashlib
 import json
 import platform
 import sys
@@ -154,6 +155,8 @@ def run(data_path, config_path, output, smoke=False):
     test, validation, calibration = data['test'], data['validation'], data['calibration']
     dim, hidden, fl, n_clients = X.shape[1], config['hidden'], config['fl'], config['clients']
     unique_mask = unique_feature_rows(X)
+    # Encoded-vector identity, as in prepare.py's encoded overlap audit.
+    signatures = np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in np.ascontiguousarray(X)])
     output.mkdir(parents=True)
     (output/'cases').mkdir()
     started = time.perf_counter()
@@ -168,7 +171,8 @@ def run(data_path, config_path, output, smoke=False):
                                 'recovery': f'seed + {RECOVERY_SEED_OFFSET} for every recovery'},
                 'compute_matching': 'retain_matched = retain-only local steps equal to FU local minibatch gradient '
                                     'evaluations (forget + retain + KD), then the same recovery',
-                'mia': 'offline LiRA, OUT-only FedAvg shadows excluding every query record group; '
+                'mia': 'offline LiRA, OUT-only FedAvg shadows excluding every forget/control record and its '
+                       'exact encoded duplicates; '
                        'thresholds from original on calibration nonmembers only'}
     dump(output/'manifest.json', manifest)
 
@@ -248,10 +252,12 @@ def run(data_path, config_path, output, smoke=False):
                             forget_nonmember=test['row_id'][fn], retained=train['row_id'][c_eval],
                             retained_nonmember=test['row_id'][rn])
 
-        # OUT-only shadows: no query record and none of its connected group.
+        # OUT-only shadows: no member query record and no exact encoded duplicate of one. Whole
+        # connected groups are not excluded: ToN-IoT components reach ~39k rows, which would leave
+        # shadows far weaker than the target. Near-duplicates kept in shadows make the attack conservative.
         t = time.perf_counter()
         lira = config['lira']
-        pool = np.flatnonzero(~np.isin(groups, np.union1d(groups[f], groups[c_eval])))
+        pool = np.flatnonzero(~np.isin(signatures, signatures[np.union1d(f, c_eval)]))
         if set(y[pool]) != {0, 1}:
             raise AssertionError('Shadow pool lost a class; lower lira.cap_per_class')
         query_x = np.concatenate([X[f_eval], X[c_eval], test['X'], calibration['X']])

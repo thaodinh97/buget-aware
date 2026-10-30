@@ -76,7 +76,8 @@ Các case cùng seed dùng chung mô hình gốc nên không độc lập; CI ch
   - Lưu ý: chọn F theo confidence thấp làm lệch MIA trên F (AUC có thể < 0,5). Ở kịch bản này chỉ nên đọc MIA ở dạng so sánh với retrain.
 
 **LiRA offline (`src/eval/lira.py`, Carlini et al. 2022):**
-- K shadow model được train bằng FedAvg (Dirichlet trên một nửa pool ngẫu nhiên). Pool = train trừ mọi connected group chạm F hoặc retained control, nên mọi shadow đều OUT với mọi query.
+- K shadow model được train bằng FedAvg (Dirichlet trên một nửa pool ngẫu nhiên). Pool = train trừ mọi bản ghi F, mọi retained control và mọi bản trùng encoded vector của chúng, nên mọi shadow đều OUT với mọi query.
+- Không loại cả connected group. Trên ToN-IoT thật, 14.705 dòng ransomware nằm trong 2 component có tổng 55.145 dòng, và với mức quên 50% thì các group chạm F chứa khoảng 99k/114k dòng train. Loại cả group sẽ chỉ còn 9–20k dòng cho shadow, khiến shadow yếu hơn hẳn target. Các bản gần trùng còn lại trong shadow làm attack thận trọng hơn (AUC thấp hơn), không làm thổi phồng membership.
 - Mỗi bản ghi có thống kê φ = logit(p_y) dưới các shadow OUT (μ và một phương sai chung). Score = (φ_target − μ)/σ.
 - Cách này hiệu chỉnh độ khó của từng bản ghi, nên tách được membership khỏi distribution shift, thứ làm attack loss cố định của pilot ra AUC 0,47 trên control.
 - Ngưỡng operating point: phân vị 99 theo lớp trên calibration nonmembers của mô hình gốc.
