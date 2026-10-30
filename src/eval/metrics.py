@@ -35,12 +35,14 @@ def calibrate_mia(y, p):
     return [float(np.quantile(score[y == c], .99, method='higher')) for c in [0, 1]]
 
 
-def matched_indices(member_y, nonmember_y, seed, cap=2000):
+def matched_indices(member_y, nonmember_y, seed, cap=2000, require_all_classes=True):
     rng = np.random.default_rng(seed)
     mi, ni = [], []
     for c in [0, 1]:
         m, n = np.flatnonzero(member_y == c), np.flatnonzero(nonmember_y == c)
         size = min(len(m), len(n), cap)
+        if not size and not len(m) and not require_all_classes:
+            continue  # e.g. family deletion: F holds attack rows only
         if not size:
             raise ValueError('MIA class matching has no samples')
         mi.extend(rng.permutation(m)[:size]); ni.extend(rng.permutation(n)[:size])
