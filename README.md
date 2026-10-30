@@ -6,6 +6,8 @@
 
 **Nghiên cứu tiếp theo đã triển khai, chưa chạy trên ToN-IoT thật:** bước quên có objective bị chặn/Adam/NegGrad+ và stop rule, KD có tín hiệu quên (full-local, bad-teacher), nhiễu nền từ N retrain khác seed, retain-only cùng compute, kịch bản quên cả họ attack/atypical, LiRA với shadow OUT. Xem [protocol nghiên cứu](docs/study_protocol.md).
 
+**Run `study_v2` trên ToN-IoT thật (30 case, 3 seed): không method nào qua gate.** Bước quên mới có tác động trước recovery, nhưng không vượt ổn định retain-only cùng compute với margin lớn hơn nhiễu. Kịch bản random không có MIA hợp lệ (LiRA control < 0,5). Xem [báo cáo](docs/study_report_v2.md); tóm tắt kết quả ở `results/study_v2/`.
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
