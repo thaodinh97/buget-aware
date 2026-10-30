@@ -337,6 +337,22 @@ class ControlAndMetricTests(unittest.TestCase):
                                                     'minimum_pass_rate': 1.}, 'methods': {'m': {}}}, False)
         self.assertEqual(set(summary), {'m@final', 'm@pre_recovery'})
 
+    def test_mia_not_required_ignores_mia_checks(self):
+        from scripts.run_study import decide
+        entry = lambda distance, auc: {'distance_F': distance, 'utility_test': {'macro_f1': .9, 'fpr': .2},
+                                       'lira_forget': {'mia_auc': auc}, 'lira_retained_control': {'mia_auc': .45}}
+        metrics = {'original': entry(.05, .6), 'retain_only': entry(.03, .6), 'm/after_local': entry(.01, .9),
+                   'm/final': entry(.01, .9), 'm/retain_matched': entry(.03, .6), 'm/retain_matched_local': entry(.04, .6)}
+        noise = {'mean': .005, 'sd': .001, 'max': .007}
+        gate = {'margin_sd_factor': 2, 'minimum_margin': 1e-4, 'identifiability_sd': 3, 'minimum_retained_lira_auc': .55,
+                'minimum_macro_f1': .65, 'maximum_f1_drop': .03, 'maximum_fpr_increase': .02}
+        strict = decide('m', {}, metrics, noise, .6, .9, gate, False)[0]
+        self.assertFalse(strict['valid_case'])
+        relaxed = decide('m', {}, metrics, noise, .6, .9, {**gate, 'mia_required': False}, False)[0]
+        self.assertTrue(relaxed['valid_case'])
+        self.assertFalse(relaxed['checks']['mia_positive_control'] or relaxed['checks']['mia_closer_to_retrain'])
+        self.assertTrue(relaxed['passed'])
+
     def test_matched_indices_optional_class(self):
         member, nonmember = np.ones(10, dtype=int), np.tile([0, 1], 10)
         with self.assertRaises(ValueError):

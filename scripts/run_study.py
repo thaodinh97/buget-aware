@@ -139,6 +139,7 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
     final: after recovery, against retain_matched (same local steps and recovery rounds).
     pre_recovery (local stop check only): the local FU model before any recovery, against
     retain_matched_local (same local steps, no recovery); it must pass the same utility gate.
+    With gate['mia_required'] false, MIA checks are reported but neither define validity nor passing.
     """
     d = lambda key: metrics[key]['distance_F']
     pre = f'{name}/after_kd' if f'{name}/after_kd' in metrics else f'{name}/after_local'
@@ -164,14 +165,17 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
                   'mia_closer_to_retrain': abs(candidate['lira_forget']['mia_auc'] - retrain_auc_f)
                                            <= abs(original['lira_forget']['mia_auc'] - retrain_auc_f)}
         checks = {k: bool(v) for k, v in checks.items()}
-        valid = checks['identifiable'] and checks['mia_positive_control']
+        mia_required = gate.get('mia_required', True)
+        required = {k: v for k, v in checks.items() if mia_required or not k.startswith('mia_')}
+        valid = checks['identifiable'] and (checks['mia_positive_control'] or not mia_required)
         decisions.append({'method': name, 'candidate': candidate_name, 'model': key, 'matched_model': matched,
                           'checks': checks, 'valid_case': valid, 'margin': mg,
                           'distance_original': d('original'), 'distance_pre_recovery': d(pre),
                           'distance_candidate': d(key), 'distance_final': d(f'{name}/final'),
                           'distance_retain_matched': d(matched), 'distance_retain_only': d('retain_only'),
                           'improvement_over_matched': d(matched) - d(key),
-                          'passed': bool(valid and all(checks.values()) and not smoke)})
+                          'mia_required': mia_required,
+                          'passed': bool(valid and all(required.values()) and not smoke)})
     return decisions
 
 

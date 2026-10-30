@@ -31,6 +31,19 @@ class PreprocessingTests(unittest.TestCase):
         self.assertEqual(test[1, 0], 0.)
         self.assertEqual(before, json.dumps(state))
 
+    def test_log1p_counts_fit_on_train_and_keep_legacy_state(self):
+        train = pd.DataFrame({"bytes": [0., np.e - 1, np.nan], "duration": [1., 3., 5.], "proto": ["tcp"] * 3})
+        state = fit_transformer(train, ["bytes", "duration"], ["proto"], ["bytes"])
+        self.assertEqual(state["log1p"], ["bytes"])
+        self.assertAlmostEqual(state["median"]["bytes"], .5)  # median of log1p values 0 and 1
+        self.assertEqual(state["mean"]["duration"], 3.)       # untouched feature stays linear
+        out = transform(pd.DataFrame({"bytes": [40., 44.], "duration": [3., 3.], "proto": ["tcp", "tcp"]}), state)
+        self.assertGreater(out[1, 0] - out[0, 0], .1)        # 40 vs 44 bytes stay distinguishable
+        legacy = {k: v for k, v in state.items() if k != "log1p"}
+        self.assertEqual(transform(train, legacy).shape, (3, 5))
+        with self.assertRaises(ValueError):
+            fit_transformer(pd.DataFrame({"bytes": [-1., 2.], "proto": ["tcp"] * 2}), ["bytes"], ["proto"], ["bytes"])
+
     def test_invalid_split_fails(self):
         with self.assertRaises(ValueError):
             split_groups(np.arange(2), dict(train=.6, validation=.15, calibration=.1, test=.15), 42)

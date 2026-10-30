@@ -209,3 +209,20 @@ Audit overlap encoded chỉ so hash chính xác nên không bắt được các 
 3. Holdout hiện tại không phải dữ liệu "mới" trong không gian feature. Mọi kết luận về utility và MIA đều phải đọc với điều kiện này.
 
 Sửa preprocessing (gộp bản gần trùng vào cùng group trước khi chia split, hoặc lượng tử hóa `duration`) là một thay đổi protocol cần quyết định riêng, chưa áp dụng cho v3.
+
+## v5 — phương án C + log1p cho feature đếm (khóa trước khi chạy, 2026-10-30)
+
+Quyết định: chọn phương án C trong `docs/preprocessing_near_duplicates.md`. Giữ cách group/split của v3, và **thêm log1p, fit chỉ trên train, cho 7 feature đếm** trước khi chuẩn hóa. Các feature đó là `src_bytes`, `dst_bytes`, `missed_bytes`, `src_pkts`, `src_ip_bytes`, `dst_pkts`, `dst_ip_bytes`.
+
+- Config `configs/data_log1p.json`, data `data/processed/connected_log1p_v5_seed42`.
+- `duration` không phải feature đếm nên giữ tuyến tính. Đổi `duration` sẽ là một thay đổi riêng.
+- Gán split **trùng 100%** với v3 (190.474/190.474 row ID cùng split), với 2 lần refinement và component lớn nhất 38.869 như cũ. Vì vậy so sánh v3/v5 chỉ khác ở biến đổi feature.
+- Độ lệch chuẩn sau biến đổi: `src_bytes` từ 1,7e7 xuống 2,29; `dst_ip_bytes` từ 2,5e4 xuống 2,59.
+
+**Gate (`configs/study_v5.json`).** Giống v3, trừ `mia_required: false`.
+- Ở mức mẫu, MIA không đánh giá được trên dataset này: 92% test nằm trong bán kính 1e-3 của train, và mọi biến thể LiRA đều có control < 0,55.
+- Vì vậy LiRA vẫn được tính và báo cáo, nhưng `mia_positive_control` và `mia_closer_to_retrain` không còn quyết định tính hợp lệ hay việc qua case.
+- Case hợp lệ khi và chỉ khi identifiable theo nhiễu nền retrain. Mọi check khoảng cách, utility và FPR giữ nguyên.
+- Đây là nới lỏng có chủ đích. Kết quả v5 vì vậy không so trực tiếp được số case hợp lệ với v2/v3.
+
+Methods, kịch bản, seed, target, số retrain/shadow và hyperparameter giữ nguyên như v3. Run: pilot `runs/pilot_v5` và study `runs/study_v5`.

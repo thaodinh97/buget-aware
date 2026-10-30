@@ -95,8 +95,15 @@ def balanced_group_split(groups, fractions, seed):
     return np.array([mapping[g] for g in groups])
 
 
-def numeric_frame(frame, columns):
-    return frame[columns].apply(pd.to_numeric, errors="raise").replace([np.inf, -np.inf], np.nan)
+def numeric_frame(frame, columns, log1p=()):
+    values = frame[columns].apply(pd.to_numeric, errors="raise").replace([np.inf, -np.inf], np.nan)
+    if log1p:
+        # Heavy-tailed counts: z-scoring raw bytes (sd ~1e7) makes 40 vs 44 bytes indistinguishable.
+        log1p = list(log1p)
+        if (values[log1p] < 0).any().any():
+            raise ValueError("log1p features must be non-negative")
+        values[log1p] = np.log1p(values[log1p])
+    return values
 
 
 def categorical_values(series):
@@ -104,8 +111,8 @@ def categorical_values(series):
     return series.astype("string").fillna("__MISSING__").replace("-", "__MISSING__")
 
 
-def fit_transformer(train, numeric, categorical):
-    values = numeric_frame(train, numeric)
+def fit_transformer(train, numeric, categorical, log1p=()):
+    values = numeric_frame(train, numeric, log1p)
     median = values.median()
     if median.isna().any():
         raise ValueError("Training numeric feature has no finite observations")
@@ -118,14 +125,14 @@ def fit_transformer(train, numeric, categorical):
             raise ValueError("Input collides with reserved category tokens")
         vocabulary[col] = ["__MISSING__", "__UNKNOWN__"] + sorted(
             set(categorical_values(train[col])) - {"__MISSING__"})
-    return {"numeric": numeric, "categorical": categorical,
+    return {"numeric": numeric, "categorical": categorical, "log1p": list(log1p),
             "median": median.to_dict(), "mean": values.mean().to_dict(),
             "scale": scale.to_dict(), "vocabulary": vocabulary,
             "feature_names": numeric + [f"{c}={v}" for c in categorical for v in vocabulary[c]]}
 
 
 def transform(frame, state):
-    values = numeric_frame(frame, state["numeric"]).fillna(state["median"])
+    values = numeric_frame(frame, state["numeric"], state.get("log1p", [])).fillna(state["median"])
     arrays = [((values - pd.Series(state["mean"])) / pd.Series(state["scale"])).to_numpy(dtype=np.float32)]
     for col in state["categorical"]:
         vocab = state["vocabulary"][col]
@@ -159,6 +166,9 @@ def prepare(input_path, config_path, output_dir):
     connected = ['connected_bidirectional_features', 'connected_bidirectional_features_near_duplicates']
     if config['group_policy'] not in ['directed_five_tuple', *connected]:
         raise ValueError('Unsupported group policy')
+    log1p = config.get('log1p_features', [])
+    if not set(log1p) <= set(config['numeric_features']) or len(log1p) != len(set(log1p)):
+        raise ValueError('log1p_features must be distinct numeric predictors')
     near = config.get('near_duplicate')
     if (config['group_policy'] == connected[1]) != (near is not None):
         raise ValueError('near_duplicate settings must be given exactly with the near-duplicate group policy')
@@ -201,7 +211,7 @@ def prepare(input_path, config_path, output_dir):
         for name in config["split_fractions"]:
             if set(frame.loc[splits == name, "label"].unique()) != {0, 1}:
                 raise ValueError(f"Single-class/empty split: {name}; no seed fallback")
-        state = fit_transformer(frame.loc[splits == "train"], numeric, categorical)
+        state = fit_transformer(frame.loc[splits == "train"], numeric, categorical, log1p)
         encoded = transform(frame, state)
         encoded_signatures = np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in encoded])
         encoded_overlap = overlaps(encoded_signatures, splits)
