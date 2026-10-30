@@ -10,6 +10,8 @@
 
 **Run `study_v3` (stop rule proxy, kiểm tra sau recovery, ứng viên trước recovery, chẩn đoán LiRA): vẫn không qua gate.** Ngưỡng proxy ước lượng CE retrain tốt hơn hẳn; NegGrad+ trước recovery thắng retain-only local cùng compute 6/10, thua 0/10, nhưng kém retain-only có recovery. Phát hiện dữ liệu: 92% dòng test nằm trong khoảng 1e-3 so với một dòng train (audit hash không thấy). Xem [báo cáo v3](docs/study_report_v3.md).
 
+**Preprocessing gộp bản gần trùng (`configs/data_near_duplicates.json`, data v4) đã triển khai nhưng chưa dùng làm mặc định:** không còn test trùng khít train, nhưng split bị chia theo họ attack (pilot: macro-F1 0,755, FPR 0,63). Xem [phân tích và các phương án](docs/preprocessing_near_duplicates.md).
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
@@ -41,6 +43,8 @@ Output run/preprocessing phải chưa tồn tại. Runner từ chối data audit
 - `scripts/verify_run.py`: artifact hashes, ownership, nested requests, retained counts, no-op.
 - `scripts/run_study.py`, `configs/study.json`: nhiều seed/target/kịch bản, gate theo margin nhiễu và CI.
 - `scripts/make_synthetic_toniot.py`: CSV tổng hợp cùng schema, chỉ để smoke pipeline.
+- `scripts/diagnose_lira.py`: lưới 2×2 shadow subset × near-duplicate exclusion trên checkpoint của một run.
+- `scripts/audit_holdout_novelty.py`: khoảng cách láng giềng gần nhất test→train trong không gian encoded.
 
 ## Artifacts thực tế
 
