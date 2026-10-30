@@ -262,6 +262,20 @@ class ControlAndMetricTests(unittest.TestCase):
         self.assertTrue((nonmember[ni] == 1).all())
 
 
+class ShadowPartitionTests(unittest.TestCase):
+    def test_shadow_partition_retries_deterministically(self):
+        from scripts.run_study import shadow_partition
+        y = np.r_[np.zeros(10, dtype=int), np.ones(400, dtype=int)]
+        parts, retries = shadow_partition(y, 0, 1., 5)
+        again, same = shadow_partition(y, 0, 1., 5)
+        self.assertGreater(retries, 0)
+        self.assertEqual(retries, same)
+        self.assertTrue(all(np.array_equal(a, b) for a, b in zip(parts, again)))
+        self.assertTrue(all(set(y[p]) == {0, 1} for p in parts))
+        with self.assertRaises(ValueError):
+            shadow_partition(np.r_[np.zeros(2, dtype=int), np.ones(400, dtype=int)], 0, .1, 5)
+
+
 class ScenarioTests(unittest.TestCase):
     def test_exclusive_family_partition_and_request(self):
         y = np.tile([0, 1], 2000)

@@ -74,6 +74,20 @@ def resolve_targets(spec, sizes):
     return [int(t) for t in spec]
 
 
+def shadow_partition(y, seed, alpha, clients, attempts=10):
+    """Attacker-side shadow federation: deterministic retries on degenerate Dirichlet draws.
+
+    Unlike the experimental partition (no automatic repartition), a shadow only simulates the
+    attacker, so a recorded retry with a derived seed does not touch the target experiment.
+    """
+    for attempt in range(attempts):
+        try:
+            return partition(y, seed + 7919 * attempt, alpha, clients), attempt
+        except ValueError:
+            continue
+    raise ValueError(f'Shadow partition degenerate after {attempts} attempts')
+
+
 def nonmember_reference(original, x, y, forget_y):
     """Class-weighted CE of the original on validation nonmembers, weighted like F."""
     weights = np.bincount(forget_y, minlength=2) / len(forget_y)
@@ -263,11 +277,13 @@ def run(data_path, config_path, output, smoke=False):
         query_x = np.concatenate([X[f_eval], X[c_eval], test['X'], calibration['X']])
         query_y = np.concatenate([y[f_eval], y[c_eval], test['y'], calibration['y']])
         cuts = np.cumsum([len(f_eval), len(c_eval), len(test['y'])])
-        shadow_phi = []
+        shadow_phi, shadow_retries = [], []
         for k in range(lira['shadows']):
             s = seed + SHADOW_SEED_OFFSET + k
             subset = np.sort(np.random.default_rng(s).choice(pool, int(lira['subset_fraction'] * len(pool)), replace=False))
-            parts = [subset[p] for p in partition(y[subset], s, lira.get('alpha', config['alpha']), n_clients)]
+            parts, retries = shadow_partition(y[subset], s, lira.get('alpha', config['alpha']), n_clients)
+            shadow_retries.append(retries)
+            parts = [subset[p] for p in parts]
             shadow, _ = fedavg(model(dim, hidden, s), workers(parts), fl, lira.get('rounds', fl['rounds']), s)
             shadow_phi.append(logit_confidence(query_y, predict(shadow, query_x)))
         mu, sd = out_statistics(shadow_phi, lira.get('global_variance', True))
@@ -310,6 +326,7 @@ def run(data_path, config_path, output, smoke=False):
                                        'noise_floor_F': noise, 'noise_floor_test': noise_test,
                                        'stop_references': references, 'methods': method_info,
                                        'lira': {'shadows': lira['shadows'], 'pool_rows': len(pool),
+                                                'shadow_partition_retries': shadow_retries,
                                                 'thresholds': lira_thresholds,
                                                 'retrain_mean_forget_auc': retrain_auc_f},
                                        'decisions': case_decisions})
