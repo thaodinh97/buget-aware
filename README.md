@@ -12,6 +12,8 @@
 
 **Preprocessing gộp bản gần trùng (`configs/data_near_duplicates.json`, data v4) đã triển khai nhưng chưa dùng làm mặc định:** không còn test trùng khít train, nhưng split bị chia theo họ attack (pilot: macro-F1 0,755, FPR 0,63). Xem [phân tích và các phương án](docs/preprocessing_near_duplicates.md).
 
+**Phương án C + log1p cho 7 feature đếm (data v5, split giống v3, MIA chỉ báo cáo): `study_v5` vẫn không qua gate.** log1p cải thiện utility (pilot macro-F1 0,901, FPR 0,243), nhưng FU không vượt ổn định retain-only có recovery; tín hiệu trước recovery của v3 không lặp lại. Xem [báo cáo v5](docs/study_report_v5.md).
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
