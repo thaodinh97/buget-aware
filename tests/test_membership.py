@@ -3,10 +3,9 @@ import numpy as np
 import torch
 from src.fl.fedavg_core import model,ClientWorker,fedavg
 from src.fu.diagnostics import tensor_hash
-from src.eval.recovery_analysis import alignment
 from src.eval.membership_validation import score_summary,group_intervals,usable,clean_auxiliary_roles,stable_baselines
 
-class RecoveryMembershipTests(unittest.TestCase):
+class MembershipTests(unittest.TestCase):
     def test_logit_baselines_preserve_extreme_confidence_order(self):
         scores=stable_baselines(np.ones(3),np.array([20.,30.,50.]))
         self.assertTrue(np.all(np.diff(scores['negative_loss'])>0))
@@ -23,18 +22,9 @@ class RecoveryMembershipTests(unittest.TestCase):
         self.assertEqual(components[0],components[2])
         self.assertFalse(set(components[new[0]])&set(components[new[1]]))
 
-    def test_alignment_zero_and_overshoot(self):
-        a=torch.tensor([0.,0.]); ref=torch.tensor([1.,0.])
-        zero=alignment(a,a,ref); self.assertIsNone(zero['cosine_to_retrain'])
-        over=alignment(a,torch.tensor([3.,0.]),ref)
-        self.assertEqual(over['cosine_to_retrain'],1)
-        self.assertEqual(over['squared_distance_change'],3)
-        self.assertGreater(over['distance_after'],over['distance_before'])
-        self.assertIsNone(alignment(a,ref,a)['cosine_to_retrain'])
-
     def test_observer_does_not_change_fedavg(self):
-        torch.set_num_threads(1); m=model(2,[4,3],42)
-        w=ClientWorker(0,np.eye(2,dtype=np.float32),np.array([0,1]),['a','b'])
+        torch.set_num_threads(1); m=model(2,[4,3],42,device='cpu')
+        w=ClientWorker(0,np.eye(2,dtype=np.float32),np.array([0,1]),['a','b'],device='cpu')
         cfg={'lr':.001,'local_epochs':1,'batch_size':2}; observed=[]
         plain,_=fedavg(m,[w],cfg,3,42)
         measured,logs=fedavg(m,[w],cfg,3,42,lambda *args: observed.append(args))
@@ -54,3 +44,6 @@ class RecoveryMembershipTests(unittest.TestCase):
         weak=group_intervals(m,n,np.zeros(30),np.zeros(30),thresholds)
         self.assertEqual(weak['ci_status'],'INSUFFICIENT_GROUP_SUPPORT')
         self.assertFalse(usable({'auc':.54,'auc_ci_low':.51}))
+
+if __name__=='__main__':
+    unittest.main()

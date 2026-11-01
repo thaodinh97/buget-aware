@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy.special import expit
-from scripts.experiment_context import Context
+from scripts.experiment_context import Context,use_run_device
 from src.data.canary import trigger_dims,stamp,make_canaries
 from src.data.prepare import digest
 from src.eval.membership_validation import logit_margin,stable_baselines
@@ -17,6 +17,7 @@ from src.fl.fedavg_core import model,fedavg,ClientWorker
 from src.fu.strong_forget import ga_adam,neggrad_plus
 
 def verify(run):
+    use_run_device(run)
     hashes=json.loads((run/'artifact_hashes.json').read_text())
     for name,sha in hashes.items(): assert digest(run/name)==sha,name
     status=json.loads((run/'status.json').read_text()); assert status['completed']

@@ -14,7 +14,7 @@ import pandas as pd
 import torch
 from scripts.run_pilot import load_data
 from scripts.verify_run import verify
-from scripts.run_controlled_diagnostics import family_match
+from src.eval.membership_validation import family_match
 from src.data.prepare import digest,write_json
 from src.data.federated import ids_hash
 from src.data.request_sensitivity import build_request

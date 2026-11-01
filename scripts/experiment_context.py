@@ -1,5 +1,6 @@
 """Read and verify existing experiment inputs without changing artifacts."""
 import json
+import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -52,6 +53,14 @@ class Context:
             'device':str(get_device()),
             'sources':{str(p):digest(p) for root in ['src','scripts'] for p in Path(root).rglob('*.py')},
             'torch':torch.__version__,'numpy':np.__version__,'split_regenerated':False,'target_seed_count':1})
+
+def use_run_device(run):
+    """Re-execute on the device that produced a run: CPU and CUDA kernels differ in the last bits,
+    so bit-for-bit re-execution checks only hold on the recorded device."""
+    device=json.loads((Path(run)/'manifest.json').read_text()).get('device')
+    if device is None: raise ValueError(f'{run} records no device; re-execution would be ambiguous')
+    os.environ['FL_DEVICE']=device
+    return device
 
 def finalize(output):
     write_json(output/'artifact_hashes.json',{str(p.relative_to(output)):digest(p)

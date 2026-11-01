@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import torch
-from src.data.canary import trigger_dims,stamp,make_canaries
+from src.data.canary import trigger_dims,stamp,make_canaries,matched_nonmembers
 from src.fu.strong_forget import ga_adam,neggrad_plus
 from src.fl.fedavg_core import model,ClientWorker
 
@@ -20,6 +20,14 @@ class CanaryTests(unittest.TestCase):
         np.testing.assert_array_equal(cx[:,0],x[picked,0]); self.assertTrue(np.all(cx[:,2:]==1))
         self.assertTrue(np.all(x[:,2:]==0))  # source untouched
         with self.assertRaises(ValueError): make_canaries(x,y,np.arange(10),6,np.array([2]),seed=0)
+
+    def test_matched_nonmembers_exclude_canary_sources(self):
+        x=np.zeros((20,4),np.float32); x[:,0]=np.arange(20); y=np.array([0,1]*10); dims=np.array([2,3])
+        _,_,src=make_canaries(x,y,np.arange(20),3,dims,seed=0)
+        nx,ny,picked=matched_nonmembers(x,y,np.arange(20),src,4,dims,seed=1)
+        self.assertTrue(np.all(y[picked]==1)); self.assertFalse(set(picked)&set(src)); np.testing.assert_array_equal(ny,0)
+        self.assertTrue(np.all(nx[:,2:]==1)); np.testing.assert_array_equal(nx[:,0],x[picked,0])
+        with self.assertRaises(ValueError): matched_nonmembers(x,y,np.arange(20),src,8,dims,seed=1)
 
 class StrongForgetTests(unittest.TestCase):
     def setUp(self):

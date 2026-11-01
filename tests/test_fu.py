@@ -47,7 +47,7 @@ class FUTests(unittest.TestCase):
         with self.assertRaises(ValueError): retained_partition(clients,target,np.array([-1]))
 
     def test_ascent_sign_noop_and_fresh_initialization(self):
-        m=model(2,[4,3],42)
+        m=model(2,[4,3],42,device='cpu')
         x=torch.tensor([[1.,0.],[0.,1.]])
         y=torch.tensor([0,1])
         old=copy.deepcopy(m)
@@ -56,7 +56,7 @@ class FUTests(unittest.TestCase):
         self.assertGreater(torch.nn.functional.cross_entropy(m(x),y).item(),before)
         noop,logs=fedavg(old,[],{},0,42)
         self.assertEqual(logs,[])
-        fresh=model(2,[4,3],42)
+        fresh=model(2,[4,3],42,device='cpu')
         for k,v in state(old).items():
             self.assertTrue(torch.equal(v,state(noop)[k]))
             self.assertTrue(torch.equal(v,state(fresh)[k]))

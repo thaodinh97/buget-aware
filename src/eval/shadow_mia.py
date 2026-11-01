@@ -8,7 +8,7 @@ from sklearn.metrics import roc_auc_score
 from src.fl.fedavg_core import model,ClientWorker,fedavg,predict,state,get_device
 from src.data.prepare import write_json
 from src.profiling import CostProfile
-from scripts.run_controlled_diagnostics import family_match
+from src.eval.membership_validation import family_match
 
 
 def auxiliary_buckets(groups,seed):

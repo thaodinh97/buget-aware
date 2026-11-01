@@ -25,3 +25,12 @@ def make_canaries(x, y, candidates, n, dims, seed):
     if len(pool) < n: raise ValueError('Not enough attack rows for canaries')
     picked = np.sort(np.random.default_rng(seed).choice(pool, n, replace=False))
     return stamp(np.asarray(x)[picked], dims), np.zeros(n, dtype=np.int64), picked
+
+
+def matched_nonmembers(x, y, candidates, sources, n, dims, seed):
+    """n attack rows of the same candidates that were not canary sources, stamped and relabelled 0 (normal).
+    Canary sources and these rows are uniform draws from the same pool, so training membership is the only difference."""
+    pool = np.setdiff1d(np.asarray(candidates)[np.asarray(y)[candidates] == 1], np.asarray(sources))
+    if len(pool) < n: raise ValueError('Not enough attack rows for matched nonmembers')
+    picked = np.sort(np.random.default_rng(seed).choice(pool, n, replace=False))
+    return stamp(np.asarray(x)[picked], dims), np.zeros(n, dtype=np.int64), picked

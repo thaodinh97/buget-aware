@@ -7,12 +7,13 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import pandas as pd
 import torch
-from scripts.experiment_context import Context,CASES
+from scripts.experiment_context import Context,use_run_device,CASES
 from src.data.prepare import connected_groups,digest
 from src.eval.lira import lira_signal
 from src.fl.fedavg_core import model
 
 def verify(run,checked_shadows=3):
+    use_run_device(run)
     hashes=json.loads((run/'artifact_hashes.json').read_text())
     for name,sha in hashes.items(): assert digest(run/name)==sha,name
     status=json.loads((run/'status.json').read_text()); assert status['completed']

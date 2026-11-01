@@ -8,7 +8,7 @@ from src.fl.fedavg_core import model,ClientWorker
 from src.fu.conpfu_inspired import alternating,distill
 from src.fu.diagnostics import Observer,tensor_hash,loss_gradient
 from src.eval.metrics import mia,calibrate_mia
-from scripts.run_controlled_diagnostics import family_match
+from src.eval.membership_validation import family_match
 
 
 class DiagnosticTests(unittest.TestCase):

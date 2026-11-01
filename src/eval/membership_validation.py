@@ -12,6 +12,20 @@ def logit_margin(model,x,batch_size=4096):
             values.append((logits[:,1]-logits[:,0]).cpu().numpy())
     return np.concatenate(values)
 
+def family_match(member_indices, train, test, types, seed):
+    """Label- and attack-family-matched member/nonmember indices, at most 500 per stratum; coverage records every stratum."""
+    rng=np.random.default_rng(seed); mi=[]; ni=[]; coverage=[]
+    for label in [0,1]:
+        for family in sorted(set(types['train'][member_indices])):
+            m=member_indices[(train['y'][member_indices]==label)&(types['train'][member_indices]==family)]
+            n=np.flatnonzero((test['y']==label)&(types['test']==family))
+            if not len(m): continue
+            count=min(len(m),len(n),500)
+            coverage.append({'label':label,'type':family,'available_members':len(m),'available_nonmembers':len(n),'selected_each':count})
+            mi.extend(rng.permutation(m)[:count]); ni.extend(rng.permutation(n)[:count])
+    if not mi: raise ValueError('No family-matched MIA support')
+    return np.array(mi,dtype=int),np.array(ni,dtype=int),coverage
+
 def stable_baselines(y,margin):
     return {'negative_loss':-np.logaddexp(0,-(2*np.asarray(y)-1)*margin),
             'confidence':np.abs(margin)} # strictly monotone in max softmax confidence

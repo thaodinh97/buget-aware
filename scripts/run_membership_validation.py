@@ -16,7 +16,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from scripts.experiment_context import Context,CASES,finalize
-from scripts.run_controlled_diagnostics import family_match
+from src.eval.membership_validation import family_match
 from src.eval.shadow_mia import auxiliary_buckets,features
 from src.eval.membership_validation import score_summary,group_intervals,usable,roc_data,clean_auxiliary_roles,equivalence_components,logit_margin,stable_baselines
 from src.eval.metrics import utility,membership_score
