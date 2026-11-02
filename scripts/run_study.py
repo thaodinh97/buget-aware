@@ -23,8 +23,8 @@ from src.fl.fedavg_core import ClientWorker, model, state, fedavg, predict
 from src.fu.conpfu_inspired import alternating, distill, gradient_batches, mean_ce
 from src.fu.baselines import retain_finetune
 from src.fu.recovery_check import forget_with_recovery_check
-from src.eval.metrics import utility, calibrate_mia, matched_indices, mia
-from src.eval.noise_floor import retrain_noise, distance_to_retrains, margin, identifiable
+from src.eval.metrics import utility, calibrate_mia, matched_indices, mia, operating_threshold, detection_by_type
+from src.eval.noise_floor import retrain_noise, distance_to_retrains, margin, identifiable, disagreement_to_retrains
 from src.eval.lira import (logit_confidence, out_statistics, lira_scores, calibrate_thresholds, attack_summary,
                            near_duplicate_index, near_duplicates)
 from scripts.run_pilot import load_data
@@ -34,6 +34,7 @@ SHADOW_SEED_OFFSET = 15485863
 RECOVERY_SEED_OFFSET = 900000
 PROXY_SEED_OFFSET = 31337
 ROUND_SEED_STRIDE = 10000  # fedavg's per-round seed stride, so split recoveries keep one schedule
+REPEAT_SEED_STRIDE = 7777  # repeat r reruns every unlearning/recovery step with seed + r*stride
 
 
 def builtin(obj):
@@ -48,8 +49,8 @@ def builtin(obj):
         return bool(obj)
     if isinstance(obj, np.integer):
         return int(obj)
-    if isinstance(obj, np.floating):
-        return float(obj)
+    if isinstance(obj, (float, np.floating)):
+        return float(obj) if np.isfinite(obj) else None  # NaN marks "not measured" (e.g. LiRA disabled)
     return obj
 
 
@@ -133,18 +134,39 @@ def ci_low(values, confidence):
     return float(values.mean() - stats.t.ppf(.5 + confidence/2, len(values)-1) * values.std(ddof=1) / np.sqrt(len(values)))
 
 
-def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
+def condense(entries, gate):
+    """Gate view of one model key: means over repeats of distance, utility (fixed 0.5 or the
+    validation-chosen operating point) and LiRA AUCs (NaN when LiRA is disabled)."""
+    source = gate.get('utility_source', 'fixed')
+    pick = (lambda e: e['operating_point']['test']) if source == 'operating_point' else (lambda e: e['utility_test'])
+    auc = lambda e, k: e[k]['mia_auc'] if e.get(k) else np.nan
+    mean = lambda f: float(np.mean([f(e) for e in entries]))
+    alert = [e.get('forgotten_type_alert') for e in entries]
+    return {'distance_F': mean(lambda e: e['distance_F']),
+            'distance_F_repeats': [e['distance_F'] for e in entries],
+            'utility_test': {'macro_f1': mean(lambda e: pick(e)['macro_f1']), 'fpr': mean(lambda e: pick(e)['fpr'])},
+            'lira_forget': {'mia_auc': mean(lambda e: auc(e, 'lira_forget'))},
+            'lira_retained_control': {'mia_auc': mean(lambda e: auc(e, 'lira_retained_control'))},
+            'forgotten_type_alert': None if alert[0] is None else float(np.mean(alert))}
+
+
+def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke, retrain_alert=None):
     """Gate decisions for each candidate of one method in one case.
 
     final: after recovery, against retain_matched (same local steps and recovery rounds).
     pre_recovery (local stop check only): the local FU model before any recovery, against
     retain_matched_local (same local steps, no recovery); it must pass the same utility gate.
     With gate['mia_required'] false, MIA checks are reported but neither define validity nor passing.
+    Checks prefixed report_ never decide passing. gate['relative_floor'] lowers the absolute F1 floor to
+    original F1 - maximum_f1_drop when the original itself is below it.
     """
     d = lambda key: metrics[key]['distance_F']
     pre = f'{name}/after_kd' if f'{name}/after_kd' in metrics else f'{name}/after_local'
     mg = margin(noise, gate['margin_sd_factor'], gate['minimum_margin'])
     original = metrics['original']
+    floor = gate['minimum_macro_f1']
+    if gate.get('relative_floor') and original['utility_test']['macro_f1'] < floor:
+        floor = original['utility_test']['macro_f1'] - gate['maximum_f1_drop']
     shared = {'identifiable': identifiable(d('original'), noise, gate['identifiability_sd']),
               'mia_positive_control': original['lira_retained_control']['mia_auc'] >= gate['minimum_retained_lira_auc'],
               'local_effect_before_recovery': d('original') - d(pre) > mg,
@@ -159,14 +181,18 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
         checks = {**shared,
                   'beats_retain_only_matched': d(matched) - d(key) > mg,
                   'beats_retain_only_recovery': d('retain_only') - d(key) > mg,
-                  'utility_floor': f1 >= gate['minimum_macro_f1'],
+                  'utility_floor': f1 >= floor,
                   'utility_preserved': f1 >= max(original['utility_test']['macro_f1'], retrain_f1) - gate['maximum_f1_drop'],
                   'fpr_preserved': candidate['utility_test']['fpr'] <= original['utility_test']['fpr'] + gate['maximum_fpr_increase'],
                   'mia_closer_to_retrain': abs(candidate['lira_forget']['mia_auc'] - retrain_auc_f)
                                            <= abs(original['lira_forget']['mia_auc'] - retrain_auc_f)}
+        if retrain_alert is not None and candidate.get('forgotten_type_alert') is not None:
+            checks['report_family_detection_closer_to_retrain'] = (
+                abs(candidate['forgotten_type_alert'] - retrain_alert) <= abs(original['forgotten_type_alert'] - retrain_alert))
         checks = {k: bool(v) for k, v in checks.items()}
         mia_required = gate.get('mia_required', True)
-        required = {k: v for k, v in checks.items() if mia_required or not k.startswith('mia_')}
+        required = {k: v for k, v in checks.items()
+                    if not k.startswith('report_') and (mia_required or not k.startswith('mia_'))}
         valid = checks['identifiable'] and (checks['mia_positive_control'] or not mia_required)
         decisions.append({'method': name, 'candidate': candidate_name, 'model': key, 'matched_model': matched,
                           'checks': checks, 'valid_case': valid, 'margin': mg,
@@ -174,6 +200,10 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
                           'distance_candidate': d(key), 'distance_final': d(f'{name}/final'),
                           'distance_retain_matched': d(matched), 'distance_retain_only': d('retain_only'),
                           'improvement_over_matched': d(matched) - d(key),
+                          'improvement_over_retain_only': d('retain_only') - d(key),
+                          'improvement_over_matched_repeats': list(np.subtract(metrics[matched].get('distance_F_repeats', [d(matched)]),
+                                                                               candidate.get('distance_F_repeats', [d(key)]))),
+                          'utility_floor_used': floor, 'macro_f1': f1, 'fpr': candidate['utility_test']['fpr'],
                           'mia_required': mia_required,
                           'passed': bool(valid and all(required.values()) and not smoke)})
     return decisions
@@ -181,6 +211,7 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke):
 
 def summarize(decisions, config, smoke):
     gate, summary = config['gate'], {}
+    decisions = [d for d in decisions if d.get('role', 'evaluation') == 'evaluation']
     for name, candidate in dict.fromkeys((d['method'], d['candidate']) for d in decisions):
         rows = [d for d in decisions if d['method'] == name and d['candidate'] == candidate]
         valid = [d for d in rows if d['valid_case']]
@@ -217,6 +248,9 @@ def run(data_path, config_path, output, smoke=False):
         train = {k: v[keep] for k, v in train.items()}
     X, y, groups, types = train['X'], train['y'], train['group_id'], train['type']
     test, validation, calibration = data['test'], data['validation'], data['calibration']
+    test_types = load_types(data_path, test['row_id'])
+    if not config['lira'].get('enabled', True) and config['gate'].get('mia_required', True):
+        raise ValueError('LiRA disabled requires gate.mia_required = false')
     dim, hidden, fl, n_clients = X.shape[1], config['hidden'], config['fl'], config['clients']
     unique_mask = unique_feature_rows(X)
     signatures = encoded_signatures(X)
@@ -255,7 +289,7 @@ def run(data_path, config_path, output, smoke=False):
             originals[key] = (m, predict(m, X))
         return originals[key]
 
-    def run_case(case_id, scenario, seed, clients, target, f, original):
+    def run_case(case_id, scenario, seed, clients, target, f, original, scenario_kind='random', scenario_role='evaluation'):
         case_dir = output/'cases'/case_id
         case_dir.mkdir()
         case_start = time.perf_counter()
@@ -279,9 +313,7 @@ def run(data_path, config_path, output, smoke=False):
             m, _ = fedavg(model(dim, hidden, s), rw, fl, fl['rounds'], s)
             retrains.append(m)
         timing[f'{case_id}/retrains'] = time.perf_counter() - t
-        recover = lambda start: fedavg(start, rw, fl, config['recovery_rounds'], seed + RECOVERY_SEED_OFFSET)[0]
-        models = {'original': original, 'no_op': copy.deepcopy(original), 'retrain': retrains[0],
-                  'retain_only': recover(original)}
+        models = {'original': original, 'no_op': copy.deepcopy(original), 'retrain': retrains[0]}
         references = {'nonmember': nonmember_reference(original, validation['X'], validation['y'], y[f]),
                       'oracle_retrain': float(np.mean([mean_ce(m, fw.x, fw.y) for m in retrains]))}
         proxy_info = None
@@ -301,38 +333,44 @@ def run(data_path, config_path, output, smoke=False):
             proxy_info = {'forget_ce': proxy_f, 'validation_ce': proxy_validation, 'steps': proxy_log['steps'],
                           'seconds': time.perf_counter() - t, 'counted_in_retain_matched': False}
         method_info = {}
-        for name, cfg in config['methods'].items():
-            t = time.perf_counter()
-            rule = cfg.get('stop_rule', 'none')
-            stop = None if rule == 'none' else references[rule] * cfg.get('stop_scale', 1.)
-            kd_steps, rounds = 0, config['recovery_rounds']
-            if cfg.get('stop_check', 'local') == 'after_recovery':
-                per = cfg['check_rounds']
-                step_recovery = lambda m, k: fedavg(m, rw, fl, per, seed + RECOVERY_SEED_OFFSET + k * per * ROUND_SEED_STRIDE)[0]
-                final, first_local, logs = forget_with_recovery_check(original, fw, rw[target], cfg, seed, stop, step_recovery)
-                steps, rounds = logs[-1]['gradient_batches'], logs[-1]['outer_steps'] * per
-                models[f'{name}/after_local'] = first_local
-                models[f'{name}/final'] = final
-            else:
-                local, logs = alternating(original, fw, rw[target], cfg, seed, stop)
-                steps, start = gradient_batches(logs), local
-                models[f'{name}/after_local'] = local
-                if cfg.get('kd_mode'):
-                    incompetent = model(dim, hidden, seed + 7) if cfg.get('kd_incompetent') == 'random_init' else None
-                    kd, losses = distill(original, local, rw[target], cfg, seed, fw, incompetent,
-                                         stop if cfg.get('kd_stop') else None)
-                    kd_steps, start = len(losses), kd
-                    models[f'{name}/after_kd'] = kd
-                models[f'{name}/final'] = recover(start)
-            matched, _ = retain_finetune(original, rw[target], steps + kd_steps, cfg, seed)
-            models[f'{name}/retain_matched_local'] = matched
-            # Same recovery schedule (seeds and total rounds) as the FU candidate.
-            models[f'{name}/retain_matched'] = fedavg(matched, rw, fl, rounds, seed + RECOVERY_SEED_OFFSET)[0]
-            method_info[name] = {'stop_rule': rule, 'stop_check': cfg.get('stop_check', 'local'), 'stop_target': stop,
-                                 'stop_reached': logs[-1]['stop_reached'], 'local_gradient_batches': steps,
-                                 'kd_steps': kd_steps, 'recovery_rounds': rounds}
-            dump(case_dir/f'{name}_local_log.json', logs)
-            timing[f'{case_id}/{name}'] = time.perf_counter() - t
+        repeats = config.get('repeats', 1)
+        for r in range(repeats):
+            # Repeat 0 is the original seed schedule; later repeats rerun every stochastic step.
+            tag, sr = ('' if r == 0 else f'#r{r}'), seed + REPEAT_SEED_STRIDE * r
+            recover = lambda start: fedavg(start, rw, fl, config['recovery_rounds'], sr + RECOVERY_SEED_OFFSET)[0]
+            models['retain_only' + tag] = recover(original)
+            for name, cfg in config['methods'].items():
+                t = time.perf_counter()
+                rule = cfg.get('stop_rule', 'none')
+                stop = None if rule == 'none' else references[rule] * cfg.get('stop_scale', 1.)
+                kd_steps, rounds = 0, config['recovery_rounds']
+                if cfg.get('stop_check', 'local') == 'after_recovery':
+                    per = cfg['check_rounds']
+                    step_recovery = lambda m, k: fedavg(m, rw, fl, per, sr + RECOVERY_SEED_OFFSET + k * per * ROUND_SEED_STRIDE)[0]
+                    final, first_local, logs = forget_with_recovery_check(original, fw, rw[target], cfg, sr, stop, step_recovery)
+                    steps, rounds = logs[-1]['gradient_batches'], logs[-1]['outer_steps'] * per
+                    models[f'{name}/after_local{tag}'] = first_local
+                    models[f'{name}/final{tag}'] = final
+                else:
+                    local, logs = alternating(original, fw, rw[target], cfg, sr, stop)
+                    steps, start = gradient_batches(logs), local
+                    models[f'{name}/after_local{tag}'] = local
+                    if cfg.get('kd_mode'):
+                        incompetent = model(dim, hidden, seed + 7) if cfg.get('kd_incompetent') == 'random_init' else None
+                        kd, losses = distill(original, local, rw[target], cfg, sr, fw, incompetent,
+                                             stop if cfg.get('kd_stop') else None)
+                        kd_steps, start = len(losses), kd
+                        models[f'{name}/after_kd{tag}'] = kd
+                    models[f'{name}/final{tag}'] = recover(start)
+                matched, _ = retain_finetune(original, rw[target], steps + kd_steps, cfg, sr)
+                models[f'{name}/retain_matched_local{tag}'] = matched
+                # Same recovery schedule (seeds and total rounds) as the FU candidate.
+                models[f'{name}/retain_matched{tag}'] = fedavg(matched, rw, fl, rounds, sr + RECOVERY_SEED_OFFSET)[0]
+                method_info[name + tag] = {'stop_rule': rule, 'stop_check': cfg.get('stop_check', 'local'),
+                                           'stop_target': stop, 'stop_reached': logs[-1]['stop_reached'],
+                                           'local_gradient_batches': steps, 'kd_steps': kd_steps, 'recovery_rounds': rounds}
+                dump(case_dir/f'{name}_local_log{tag}.json', logs)
+                timing[f'{case_id}/{name}{tag}'] = time.perf_counter() - t
 
         # Evaluation sets: F and retained controls (groups disjoint from F) vs class-matched test.
         cap = config['lira'].get('cap_per_class', 2000)
@@ -344,60 +382,91 @@ def run(data_path, config_path, output, smoke=False):
                             forget_nonmember=test['row_id'][fn], retained=train['row_id'][c_eval],
                             retained_nonmember=test['row_id'][rn])
 
-        # OUT-only shadows: no member query record and no exact encoded duplicate of one (optionally no
-        # near duplicate). Whole connected groups are not excluded: ToN-IoT components reach ~39k rows,
-        # which would leave shadows far weaker than the target.
-        t = time.perf_counter()
         lira = config['lira']
-        near = near_duplicates(near_index, X[np.union1d(f_eval, c_eval)], near_radius) if near_index is not None else None
-        pool = shadow_pool(signatures, np.union1d(f, c_eval), near)
-        if set(y[pool]) != {0, 1}:
-            raise AssertionError('Shadow pool lost a class; lower lira.cap_per_class')
-        query_x = np.concatenate([X[f_eval], X[c_eval], test['X'], calibration['X']])
-        query_y = np.concatenate([y[f_eval], y[c_eval], test['y'], calibration['y']])
-        cuts = np.cumsum([len(f_eval), len(c_eval), len(test['y'])])
-        shadow_phi, shadow_retries = train_shadows(X, y, train['row_id'], pool, query_x, query_y, lira, seed,
-                                                   lira.get('alpha', config['alpha']), n_clients, fl, dim, hidden)
-        mu, sd = out_statistics(shadow_phi, lira.get('global_variance', True))
-        timing[f'{case_id}/shadows'] = time.perf_counter() - t
+        lira_on = lira.get('enabled', True)
+        near, pool, shadow_retries, lira_thresholds = None, np.array([], dtype=np.int64), [], None
+        if lira_on:
+            # OUT-only shadows: no member query record and no exact encoded duplicate of one (optionally no
+            # near duplicate). Whole connected groups are not excluded: ToN-IoT components reach ~39k rows,
+            # which would leave shadows far weaker than the target.
+            t = time.perf_counter()
+            near = near_duplicates(near_index, X[np.union1d(f_eval, c_eval)], near_radius) if near_index is not None else None
+            pool = shadow_pool(signatures, np.union1d(f, c_eval), near)
+            if set(y[pool]) != {0, 1}:
+                raise AssertionError('Shadow pool lost a class; lower lira.cap_per_class')
+            query_x = np.concatenate([X[f_eval], X[c_eval], test['X'], calibration['X']])
+            query_y = np.concatenate([y[f_eval], y[c_eval], test['y'], calibration['y']])
+            cuts = np.cumsum([len(f_eval), len(c_eval), len(test['y'])])
+            shadow_phi, shadow_retries = train_shadows(X, y, train['row_id'], pool, query_x, query_y, lira, seed,
+                                                       lira.get('alpha', config['alpha']), n_clients, fl, dim, hidden)
+            mu, sd = out_statistics(shadow_phi, lira.get('global_variance', True))
+            timing[f'{case_id}/shadows'] = time.perf_counter() - t
 
-        def lira_split(m):
-            parts = np.split(lira_scores(logit_confidence(query_y, predict(m, query_x)), mu, sd), cuts)
-            return dict(zip(['forget', 'control', 'test', 'calibration'], parts))
+            def lira_split(m):
+                parts = np.split(lira_scores(logit_confidence(query_y, predict(m, query_x)), mu, sd), cuts)
+                return dict(zip(['forget', 'control', 'test', 'calibration'], parts))
 
-        original_lira = lira_split(original)
-        lira_thresholds = calibrate_thresholds(calibration['y'], original_lira['calibration'])
+            lira_thresholds = calibrate_thresholds(calibration['y'], lira_split(original)['calibration'])
         loss_thresholds = calibrate_mia(calibration['y'], predict(original, calibration['X']))
         retrain_f = [predict(m, X[f]) for m in retrains]
+        retrain_r = [predict(m, X[retained_ids]) for m in retrains]
         retrain_test = [predict(m, test['X']) for m in retrains]
-        noise, noise_test = retrain_noise(retrain_f), retrain_noise(retrain_test)
+        noise, noise_r, noise_test = retrain_noise(retrain_f), retrain_noise(retrain_r), retrain_noise(retrain_test)
+        rule = config.get('utility', {}).get('operating_point')
+        forgotten_type = pd.Series(types[f]).mode()[0] if scenario_kind == 'family' else None
 
         def evaluate(m, loo=None):
-            p_f, p_test = predict(m, X[f]), predict(m, test['X'])
-            scores = lira_split(m)
-            refs_f = retrain_f if loo is None else retrain_f[:loo] + retrain_f[loo+1:]
-            refs_test = retrain_test if loo is None else retrain_test[:loo] + retrain_test[loo+1:]
-            return {'distance_F': distance_to_retrains(p_f, refs_f),
-                    'distance_test': distance_to_retrains(p_test, refs_test),
-                    'utility_test': utility(test['y'], p_test),
-                    'utility_validation': utility(validation['y'], predict(m, validation['X'])),
-                    'forget_ce': mean_ce(m, fw.x, fw.y),
-                    'lira_forget': attack_summary(y[f_eval], scores['forget'], test['y'][fn], scores['test'][fn], lira_thresholds),
-                    'lira_retained_control': attack_summary(y[c_eval], scores['control'], test['y'][rn],
-                                                            scores['test'][rn], lira_thresholds),
-                    'loss_mia_forget': mia(y[f_eval], predict(m, X[f_eval]), test['y'][fn], p_test[fn], loss_thresholds)}
+            p_f, p_r, p_test = predict(m, X[f]), predict(m, X[retained_ids]), predict(m, test['X'])
+            p_validation = predict(m, validation['X'])
+            refs = lambda preds: preds if loo is None else preds[:loo] + preds[loo+1:]
+            result = {'distance_F': distance_to_retrains(p_f, refs(retrain_f)),
+                      'distance_R': distance_to_retrains(p_r, refs(retrain_r)),
+                      'distance_test': distance_to_retrains(p_test, refs(retrain_test)),
+                      'disagreement_F': disagreement_to_retrains(p_f, refs(retrain_f)),
+                      'disagreement_R': disagreement_to_retrains(p_r, refs(retrain_r)),
+                      'utility_test': utility(test['y'], p_test),
+                      'utility_validation': utility(validation['y'], p_validation),
+                      'forget_ce': mean_ce(m, fw.x, fw.y),
+                      'loss_mia_forget': mia(y[f_eval], predict(m, X[f_eval]), test['y'][fn], p_test[fn], loss_thresholds),
+                      'lira_forget': None, 'lira_retained_control': None, 'operating_point': None,
+                      'forgotten_type_alert': None}
+            if rule:
+                threshold = operating_threshold(validation['y'], p_validation, rule)
+                by_type = detection_by_type(test_types, p_test, threshold)
+                result['operating_point'] = {'rule': rule, 'threshold': threshold,
+                                             'test': utility(test['y'], p_test, threshold),
+                                             'validation': utility(validation['y'], p_validation, threshold),
+                                             'detection_by_type_test': by_type}
+                if forgotten_type is not None and forgotten_type in by_type:
+                    result['forgotten_type_alert'] = by_type[forgotten_type]['alert_rate']
+            if lira_on:
+                scores = lira_split(m)
+                result['lira_forget'] = attack_summary(y[f_eval], scores['forget'], test['y'][fn], scores['test'][fn],
+                                                       lira_thresholds)
+                result['lira_retained_control'] = attack_summary(y[c_eval], scores['control'], test['y'][rn],
+                                                                 scores['test'][rn], lira_thresholds)
+            return result
 
         metrics = {key: evaluate(m, 0 if key == 'retrain' else None) for key, m in models.items()}
         retrain_metrics = [metrics['retrain']] + [evaluate(m, j) for j, m in enumerate(retrains) if j]
-        retrain_auc_f = float(np.mean([r['lira_forget']['mia_auc'] for r in retrain_metrics]))
-        retrain_f1 = float(np.mean([r['utility_test']['macro_f1'] for r in retrain_metrics]))
-        case_decisions = [{'case': case_id, 'scenario': scenario, 'seed': seed, 'target': target, **decision}
+        gate = config['gate']
+        base_keys = [k for k in metrics if '#r' not in k]
+        condensed = {k: condense([metrics[k]] + [metrics[f'{k}#r{r}'] for r in range(1, repeats) if f'{k}#r{r}' in metrics],
+                                 gate) for k in base_keys}
+        retrain_view = condense(retrain_metrics, gate)
+        retrain_auc_f = retrain_view['lira_forget']['mia_auc']
+        retrain_f1 = retrain_view['utility_test']['macro_f1']
+        role = scenario_role
+        case_decisions = [{'case': case_id, 'scenario': scenario, 'role': role, 'seed': seed, 'target': target, **decision}
                           for name, cfg in config['methods'].items()
-                          for decision in decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, config['gate'], smoke)]
-        dump(case_dir/'metrics.json', {'models': metrics, 'retrain_ensemble': retrain_metrics,
-                                       'noise_floor_F': noise, 'noise_floor_test': noise_test,
+                          for decision in decide(name, cfg, condensed, noise, retrain_auc_f, retrain_f1, gate, smoke,
+                                                 retrain_view['forgotten_type_alert'])]
+        dump(case_dir/'metrics.json', {'models': metrics, 'condensed': condensed, 'retrain_ensemble': retrain_metrics,
+                                       'retrain_condensed': retrain_view, 'forgotten_type': forgotten_type,
+                                       'noise_floor_F': noise, 'noise_floor_R': noise_r, 'noise_floor_test': noise_test,
                                        'stop_references': references, 'proxy': proxy_info, 'methods': method_info,
-                                       'lira': {'shadows': lira['shadows'], 'pool_rows': len(pool),
+                                       'lira': {'enabled': lira_on, 'shadows': lira['shadows'] if lira_on else 0,
+                                                'pool_rows': len(pool),
                                                 'pool_labels': np.bincount(y[pool], minlength=2),
                                                 'near_radius': near_radius,
                                                 'near_duplicates_excluded': 0 if near is None else len(near),
@@ -406,16 +475,28 @@ def run(data_path, config_path, output, smoke=False):
                                                 'retrain_mean_forget_auc': retrain_auc_f},
                                        'decisions': case_decisions})
         if config.get('save_checkpoints', True):
-            torch.save({'state_dicts': {k: state(m) for k, m in models.items()},
+            torch.save({'state_dicts': {k: state(m) for k, m in models.items() if '#r' not in k},
                         'retrains': [state(m) for m in retrains], 'input_dim': dim, 'hidden': hidden},
                        case_dir/'checkpoints.pt')
         for key, r in metrics.items():
-            flat.append({'case': case_id, 'scenario': scenario, 'seed': seed, 'target': target, 'forget_rows': len(f),
-                         'model': key, 'distance_F': r['distance_F'], 'distance_test': r['distance_test'],
+            op = r['operating_point']
+            flat.append({'case': case_id, 'scenario': scenario, 'role': role, 'seed': seed, 'target': target,
+                         'forget_rows': len(f), 'model': key.split('#')[0],
+                         'repeat': int(key.split('#r')[1]) if '#r' in key else 0,
+                         'distance_F': r['distance_F'], 'distance_R': r['distance_R'], 'distance_test': r['distance_test'],
+                         'disagreement_F': r['disagreement_F'], 'disagreement_R': r['disagreement_R'],
                          'noise_mean_F': noise['mean'], 'noise_sd_F': noise['sd'],
+                         'noise_mean_R': noise_r['mean'], 'noise_sd_R': noise_r['sd'],
                          'macro_f1': r['utility_test']['macro_f1'], 'fpr': r['utility_test']['fpr'],
-                         'forget_ce': r['forget_ce'], 'lira_auc_F': r['lira_forget']['mia_auc'],
-                         'lira_auc_control': r['lira_retained_control']['mia_auc'],
+                         'roc_auc': r['utility_test']['roc_auc'], 'pr_auc_ap': r['utility_test']['pr_auc_ap'],
+                         'op_threshold': op['threshold'] if op else None,
+                         'op_macro_f1': op['test']['macro_f1'] if op else None,
+                         'op_fpr': op['test']['fpr'] if op else None,
+                         'op_recall_attack': op['test']['recall_attack'] if op else None,
+                         'forgotten_type_alert': r['forgotten_type_alert'],
+                         'forget_ce': r['forget_ce'],
+                         'lira_auc_F': r['lira_forget']['mia_auc'] if r['lira_forget'] else None,
+                         'lira_auc_control': r['lira_retained_control']['mia_auc'] if r['lira_retained_control'] else None,
                          'loss_mia_auc_F': r['loss_mia_forget']['mia_auc']})
         decisions.extend(case_decisions)
         timing[f'{case_id}/total'] = time.perf_counter() - case_start
@@ -467,7 +548,8 @@ def run(data_path, config_path, output, smoke=False):
                             original = original_for(key, clients, seed)[0]
                             print(f'Case {case_id}: {len(request[0])} forgotten records', flush=True)
                             try:
-                                run_case(case_id, sname, seed, clients, target, request[0], original)
+                                run_case(case_id, sname, seed, clients, target, request[0], original, kind,
+                                         scenario.get('role', 'evaluation'))
                             except ValueError as error:
                                 if str(error) != 'A retained client lost a class':
                                     raise

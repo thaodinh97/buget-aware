@@ -462,3 +462,58 @@ class StudySmokeTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class OperatingPointAndCondenseTests(unittest.TestCase):
+    def test_fpr_threshold_respects_budget_with_float32_ties(self):
+        from src.eval.metrics import operating_threshold, utility
+        y = np.r_[np.zeros(1000, dtype=int), np.ones(100, dtype=int)]
+        p = np.r_[np.full(200, .7), np.linspace(0, .6, 800), np.full(100, .9)].astype(np.float32)
+        threshold = operating_threshold(y, p, {'type': 'fpr', 'max_fpr': .05})
+        self.assertLessEqual(utility(y, p, threshold)['fpr'], .05)  # 200 tied negatives must stay below
+        self.assertEqual(utility(y, p, threshold)['recall_attack'], 1.)
+        best = operating_threshold(y, p, {'type': 'max_f1'})
+        self.assertGreaterEqual(utility(y, p, best)['macro_f1'], utility(y, p, .5)['macro_f1'])
+        with self.assertRaises(ValueError):
+            operating_threshold(y, p, {'type': 'unknown'})
+
+    def test_detection_by_type_and_disagreement(self):
+        from src.eval.metrics import detection_by_type
+        from src.eval.noise_floor import disagreement_to_retrains
+        out = detection_by_type(['normal', 'normal', 'dos', 'dos'], np.array([.1, .8, .9, .2], dtype=np.float32), .5)
+        self.assertEqual(out['normal'], {'alert_rate': .5, 'rows': 2})
+        self.assertEqual(out['dos']['alert_rate'], .5)
+        self.assertAlmostEqual(disagreement_to_retrains(np.array([.9, .1]), [np.array([.9, .9]), np.array([.1, .1])]), .5)
+
+    def test_condense_averages_repeats_and_uses_operating_point(self):
+        from scripts.run_study import condense
+        def entry(distance, f1, op_f1):
+            return {'distance_F': distance, 'utility_test': {'macro_f1': f1, 'fpr': .3},
+                    'operating_point': {'test': {'macro_f1': op_f1, 'fpr': .05}},
+                    'lira_forget': None, 'lira_retained_control': None, 'forgotten_type_alert': .4}
+        view = condense([entry(.01, .8, .9), entry(.03, .8, .7)], {'utility_source': 'operating_point'})
+        self.assertAlmostEqual(view['distance_F'], .02)
+        self.assertEqual(view['distance_F_repeats'], [.01, .03])
+        self.assertAlmostEqual(view['utility_test']['macro_f1'], .8)
+        self.assertEqual(view['utility_test']['fpr'], .05)
+        self.assertTrue(np.isnan(view['lira_forget']['mia_auc']))
+        self.assertEqual(condense([entry(.01, .8, .9)], {})['utility_test']['macro_f1'], .8)
+
+    def test_relative_floor_and_report_checks(self):
+        from scripts.run_study import decide
+        def entry(distance, f1, alert):
+            return {'distance_F': distance, 'utility_test': {'macro_f1': f1, 'fpr': .05},
+                    'lira_forget': {'mia_auc': np.nan}, 'lira_retained_control': {'mia_auc': np.nan},
+                    'forgotten_type_alert': alert}
+        metrics = {'original': entry(.05, .60, .9), 'retain_only': entry(.03, .60, .5), 'm/after_local': entry(.01, .59, .9),
+                   'm/final': entry(.01, .59, .95), 'm/retain_matched': entry(.03, .60, .5),
+                   'm/retain_matched_local': entry(.04, .6, .5)}
+        noise = {'mean': .005, 'sd': .001, 'max': .007}
+        gate = {'margin_sd_factor': 2, 'minimum_margin': 1e-4, 'identifiability_sd': 3, 'minimum_retained_lira_auc': .55,
+                'minimum_macro_f1': .65, 'maximum_f1_drop': .03, 'maximum_fpr_increase': .02, 'mia_required': False}
+        absolute = decide('m', {}, metrics, noise, np.nan, .6, gate, False, retrain_alert=.2)[0]
+        self.assertFalse(absolute['checks']['utility_floor'])
+        relative = decide('m', {}, metrics, noise, np.nan, .6, {**gate, 'relative_floor': True}, False, retrain_alert=.2)[0]
+        self.assertAlmostEqual(relative['utility_floor_used'], .57)
+        self.assertFalse(relative['checks']['report_family_detection_closer_to_retrain'])
+        self.assertTrue(relative['passed'])  # report_ checks never decide passing

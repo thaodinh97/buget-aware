@@ -29,3 +29,9 @@ def margin(noise, sd_factor, minimum):
 def identifiable(original_distance, noise, sd_factor):
     """F influence is identifiable only if the original is farther than every retrain and k sd."""
     return bool(original_distance > noise['max'] and original_distance - noise['mean'] >= sd_factor * noise['sd'])
+
+
+def disagreement_to_retrains(p, retrain_predictions, threshold=.5):
+    """Mean share of rows whose 0.5-thresholded label differs from each retrain's."""
+    labels = np.asarray(p) >= threshold
+    return float(np.mean([np.mean(labels != (np.asarray(r) >= threshold)) for r in retrain_predictions]))

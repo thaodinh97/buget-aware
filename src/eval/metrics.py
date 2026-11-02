@@ -1,12 +1,14 @@
 """Offline utility, retraining similarity and fixed loss-based membership attack."""
 import numpy as np
+import pandas as pd
 from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score, log_loss,
                              balanced_accuracy_score, roc_curve)
 
 
-def utility(y, p):
-    pred = p >= .5
+def utility(y, p, threshold=.5):
+    # float64 comparison: numpy 2 would compare float32 scores in float32 and round the threshold onto ties.
+    pred = np.asarray(p, dtype=float) >= threshold
     tn, fp, fn, tp = confusion_matrix(y, pred, labels=[0, 1]).ravel()
     return {'macro_f1': f1_score(y, pred, average='macro'),
             'precision_attack': precision_score(y, pred, zero_division=0),
@@ -14,6 +16,32 @@ def utility(y, p):
             'pr_auc_ap': average_precision_score(y, p), 'fpr': float(fp/(fp+tn)),
             'roc_auc': roc_auc_score(y, p), 'log_loss': log_loss(y, p, labels=[0,1]),
             'confusion_matrix': [[int(tn), int(fp)], [int(fn), int(tp)]]}
+
+
+def operating_threshold(y, p, rule):
+    """Detection threshold chosen on validation only.
+
+    fpr: lowest threshold whose validation false-positive rate stays within max_fpr.
+    max_f1: threshold maximising validation macro-F1 over the observed score quantiles.
+    """
+    y, p = np.asarray(y), np.asarray(p, dtype=float)
+    if rule['type'] == 'fpr':
+        negatives = np.sort(p[y == 0])
+        allowed = int(np.floor(rule['max_fpr'] * len(negatives)))
+        # Strictly above the (allowed+1)-th largest negative score: at most `allowed` false positives.
+        return float(np.nextafter(negatives[len(negatives) - allowed - 1], np.inf))
+    if rule['type'] == 'max_f1':
+        candidates = np.unique(np.quantile(p, np.linspace(0, 1, 513)))
+        scores = [f1_score(y, p >= t, average='macro') for t in candidates]
+        return float(candidates[int(np.argmax(scores))])
+    raise ValueError(f"Unknown operating point rule: {rule['type']}")
+
+
+def detection_by_type(types, p, threshold):
+    """Share of rows predicted as attack per traffic type: recall for attacks, FPR for normal."""
+    frame = pd.DataFrame({'type': np.asarray(types), 'alert': np.asarray(p, dtype=float) >= threshold})
+    grouped = frame.groupby('type').alert.agg(['mean', 'size'])
+    return {t: {'alert_rate': float(r['mean']), 'rows': int(r['size'])} for t, r in grouped.iterrows()}
 
 
 def similarity(p, q):
