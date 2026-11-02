@@ -1,0 +1,16 @@
+{
+  "base": "configs/study_v6.json",
+  "seeds": [100, 101, 102],
+  "scenarios": [
+    {"name": "random", "kind": "random", "fractions": [0.5], "targets": {"largest": 1}},
+    {"name": "atypical", "kind": "atypical", "fractions": [0.05], "targets": {"largest": 1}},
+    {"name": "family", "kind": "family", "families": ["ransomware", "mitm"], "fractions": [1.0], "targets": {"largest": 1}}
+  ],
+  "noise_floor": {"retrains": 4},
+  "repeats": 1,
+  "grid": {
+    "neggrad_plus_proxy": {"forget_lr": [0.0003, 0.001, 0.003], "neggrad_retain_weight": [0.3, 0.5, 0.7], "cycles": [3, 10]},
+    "uniform_bad_teacher_proxy": {"forget_lr": [0.0003, 0.001, 0.003], "kd_lr": [0.0003, 0.001, 0.003], "kd_epochs": [1, 2]}
+  },
+  "selection": {"maximum_f1_drop": 0.03, "maximum_fpr_increase": 0.02}
+}

@@ -226,3 +226,43 @@ Quyết định: chọn phương án C trong `docs/preprocessing_near_duplicates
 - Đây là nới lỏng có chủ đích. Kết quả v5 vì vậy không so trực tiếp được số case hợp lệ với v2/v3.
 
 Methods, kịch bản, seed, target, số retrain/shadow và hyperparameter giữ nguyên như v3. Run: pilot `runs/pilot_v5` và study `runs/study_v5`.
+
+## v6 — hoàn thiện utility và khoảng cách tới retrain (khóa trước khi chạy, 2026-11-02)
+
+Mục tiêu: có một bảng chất lượng đáng tin (utility, khoảng cách tới retrain) cho từng lựa chọn unlearning, làm đầu vào cho DT. Bảng này không phụ thuộc vào việc FU thắng hay thua. Data: `connected_log1p_v5_seed42`. Privacy/MIA nằm ngoài v6, nên LiRA tắt (`lira.enabled: false`, `mia_required: false`).
+
+### Utility
+- Ngưỡng phát hiện được chọn **cho từng mô hình, chỉ trên validation**: ngưỡng thấp nhất có FPR trên validation ≤ 5% (`utility.operating_point`).
+- Báo cáo:
+  - Tại ngưỡng đó: macro-F1, FPR, recall attack trên test.
+  - Không phụ thuộc ngưỡng: ROC-AUC, PR-AUC.
+  - Để đối chiếu: các chỉ số tại ngưỡng cố định 0,5.
+- Gate utility dùng chỉ số tại ngưỡng đã chọn (`utility_source: operating_point`).
+- **Detection theo họ attack** (`detection_by_type`): tỷ lệ báo động trên test theo từng `type`. Ở kịch bản family có thêm check *chỉ báo cáo* `report_family_detection_closer_to_retrain`: tỷ lệ báo động trên họ bị quên phải gần retrain hơn so với mô hình gốc.
+- **Sàn F1 tương đối** (`relative_floor`): nếu chính mô hình gốc có F1 dưới 0,65, sàn của case đó là F1 gốc − 0,03.
+- Sửa lỗi: so sánh xác suất với ngưỡng ở float64. Numpy 2 so sánh ở float32 và làm tròn ngưỡng trùng đúng các điểm số hòa nhau. Lỗi này không ảnh hưởng ngưỡng 0,5 của các run trước.
+
+### Khoảng cách tới retrain
+- 10 retrain mỗi case để tính nhiễu nền (trước đây là 4).
+- `repeats: 3`: chạy lại mọi bước ngẫu nhiên của FU, retain-only và `retain_matched` với seed `seed + 7777·r`. Gate dùng trung bình qua 3 lần; Δ ghép cặp được lưu theo từng lần.
+- Báo cáo thêm D trên R (toàn bộ dòng còn lại) có nhiễu nền riêng, và tỷ lệ đổi nhãn (ở ngưỡng 0,5) trên F và R.
+- Xóa ngẫu nhiên 10% đóng vai trò **negative control** (`role`): kỳ vọng không identifiable, không tính vào gate của method, báo cáo riêng.
+
+### Tune trên seed riêng (`scripts/tune_fu.py`, `configs/tune_v6.json`)
+- Seed tune 100–102, rời hẳn seed đánh giá 42–46. Kịch bản tune: random 50%, atypical 5%, family (ransomware, mitm), mỗi loại với target lớn nhất. 4 retrain, 1 lần lặp.
+- Lưới tìm kiếm:
+  - NegGrad+ proxy: `forget_lr` ∈ {3e-4, 1e-3, 3e-3} × `neggrad_retain_weight` ∈ {0,3; 0,5; 0,7} × `cycles` ∈ {3, 10}.
+  - Bad-teacher proxy: `forget_lr` ∈ {3e-4, 1e-3, 3e-3} × `kd_lr` ∈ {3e-4, 1e-3, 3e-3} × `kd_epochs` ∈ {1, 2}.
+  - Preset cũ nằm trong lưới. `legacy_retain_kd` không tune, giữ làm tham chiếu pilot.
+- **Quy tắc chọn:** cấu hình có D_F(final) trung bình nhỏ nhất, trong số các cấu hình thỏa: mức tụt macro-F1 *trên validation* tại ngưỡng đã chọn ≤ 0,03, và mức tăng FPR validation ≤ 0,02 (đều so với mô hình gốc cùng case, lấy trung bình qua các case tune). Bằng nhau thì chọn theo tên cấu hình.
+- Không đọc metric test khi tune. Cấu hình chọn được ghi nguyên văn vào `configs/study_v6.json` trước khi chạy đánh giá.
+
+### Đánh giá (`configs/study_v6.json`)
+- Seed 42–46. Kịch bản: random_control 10% (negative control), random 50%, atypical 5%, family (ransomware, mitm). Mỗi kịch bản với 2 target lớn nhất.
+- Methods: `legacy_retain_kd`, cùng `neggrad_plus_proxy` và `uniform_bad_teacher_proxy` đã tune. Ứng viên `final` và `pre_recovery`.
+- Gate case: như v5, cộng thêm utility tại ngưỡng đã chọn và sàn tương đối.
+- Báo cáo (`scripts/report_study.py`): **tách theo kịch bản**.
+  - Δ ghép cặp so với `retain_matched` và so với retain-only, kèm CI 95% (phân phối t).
+  - Wilcoxon signed-rank, hiệu chỉnh Holm trong từng kịch bản và từng loại so sánh.
+  - Số case thắng/thua vượt margin; utility tại ngưỡng đã chọn; detection trên họ bị quên.
+- Để tiết kiệm thời gian, có thể chạy song song theo nhóm seed rồi gộp khi báo cáo.
