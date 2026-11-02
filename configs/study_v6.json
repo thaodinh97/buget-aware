@@ -4,7 +4,9 @@
     43,
     44,
     45,
-    46
+    46,
+    47,
+    48
   ],
   "alpha": 0.5,
   "clients": 5,
@@ -226,5 +228,6 @@
       102
     ],
     "rule": "Per method: smallest mean D_F(final) among settings whose mean validation macro-F1 drop and FPR\nincrease at the operating point (vs the original, same case) stay within the rule's limits."
-  }
+  },
+  "seed_amendment": "45 and 46 give degenerate Dirichlet partitions (invalid_request, no repartition); 47 and 48 are the next seeds in order, added before any v6 evaluation result was read."
 }
