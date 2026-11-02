@@ -266,3 +266,13 @@ Mục tiêu: có một bảng chất lượng đáng tin (utility, khoảng các
   - Wilcoxon signed-rank, hiệu chỉnh Holm trong từng kịch bản và từng loại so sánh.
   - Số case thắng/thua vượt margin; utility tại ngưỡng đã chọn; detection trên họ bị quên.
 - Để tiết kiệm thời gian, có thể chạy song song theo nhóm seed rồi gộp khi báo cáo.
+
+### Kết quả tune v6 (`runs/tune_v6`, `results/tune_v6/selection.json`), khóa trước khi đánh giá
+
+- Mất 37,4 phút cho 12/12 case. Cả 36 cấu hình đều thỏa giới hạn utility trên validation.
+- Cấu hình được chọn:
+  - `neggrad_plus_proxy`: `forget_lr` 0,003, `neggrad_retain_weight` 0,7, `cycles` 3. D_F trung bình 0,0253; cả lưới dao động 0,0253–0,0288.
+  - `uniform_bad_teacher_proxy`: `forget_lr` 0,003, `kd_lr` 3e-4, `kd_epochs` 2. D_F 0,0270; cả lưới 0,0270–0,0311.
+- Đối chiếu trên các case tune: mô hình gốc 0,0404, retain-only 0,0261, nhiễu nền 0,0236.
+- Lưu ý: `forget_lr` được chọn nằm ở biên trên của lưới, nên điểm tối ưu có thể nằm ngoài lưới. Không tune lại trong v6.
+- Hai cấu hình trên đã được ghi nguyên văn vào `configs/study_v6.json` (khóa `tuning`). Đánh giá chạy song song hai nhóm seed: {42, 43, 44} và {45, 46}.

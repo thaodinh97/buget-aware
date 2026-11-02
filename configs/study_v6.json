@@ -100,21 +100,21 @@
     "neggrad_plus_proxy": {
       "batch_size": 512,
       "forget_optimizer": "adam",
-      "forget_lr": 0.001,
+      "forget_lr": 0.003,
       "retain_optimizer": "adam",
       "retain_lr": 0.001,
       "retain_steps_per_cycle": 50,
       "regularization": 0.001,
       "clip": 1.0,
-      "cycles": 10,
+      "cycles": 3,
       "forget_objective": "neggrad_plus",
-      "neggrad_retain_weight": 0.5,
+      "neggrad_retain_weight": 0.7,
       "stop_rule": "proxy_calibrated"
     },
     "uniform_bad_teacher_proxy": {
       "batch_size": 512,
       "forget_optimizer": "adam",
-      "forget_lr": 0.001,
+      "forget_lr": 0.003,
       "retain_optimizer": "adam",
       "retain_lr": 0.001,
       "retain_steps_per_cycle": 50,
@@ -128,8 +128,8 @@
       "kd_incompetent": "uniform",
       "kd_stop": true,
       "kd_optimizer": "adam",
-      "kd_epochs": 1,
-      "kd_lr": 0.001,
+      "kd_epochs": 2,
+      "kd_lr": 0.0003,
       "temperature": 2.0,
       "hard_weight": 0.5
     }
@@ -213,5 +213,18 @@
       "type": "fpr",
       "max_fpr": 0.05
     }
+  },
+  "tuning": {
+    "source": "runs/tune_v6/selection.json",
+    "chosen": {
+      "neggrad_plus_proxy": "neggrad_plus_proxy__08",
+      "uniform_bad_teacher_proxy": "uniform_bad_teacher_proxy__15"
+    },
+    "tuning_seeds": [
+      100,
+      101,
+      102
+    ],
+    "rule": "Per method: smallest mean D_F(final) among settings whose mean validation macro-F1 drop and FPR\nincrease at the operating point (vs the original, same case) stay within the rule's limits."
   }
 }

@@ -229,12 +229,18 @@ def summarize(decisions, config, smoke):
     return summary
 
 
-def run(data_path, config_path, output, smoke=False):
+def run(data_path, config_path, output, smoke=False, seeds=None):
     if output.exists():
         raise FileExistsError(f'Refusing overwrite: {output}')
     config = json.loads(config_path.read_text())
     if smoke:
         config = merge(config, config.get('smoke', {}))
+    if seeds:
+        # Seed groups of one study may run in parallel; the manifest records the subset.
+        if not set(seeds) <= set(config['seeds']):
+            raise ValueError('Seed subset must come from the configured seeds')
+        config['seed_subset_of'] = config['seeds']
+        config['seeds'] = seeds
     torch.set_num_threads(config['threads'])
     torch.use_deterministic_algorithms(True)
     data = load_data(data_path)
@@ -580,5 +586,6 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=Path, default=Path('configs/study.json'))
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--smoke', action='store_true')
+    parser.add_argument('--seeds', type=int, nargs='*', help='run a subset of the configured seeds')
     args = parser.parse_args()
-    run(args.data, args.config, args.output, args.smoke)
+    run(args.data, args.config, args.output, args.smoke, args.seeds)
