@@ -11,6 +11,7 @@
 | 5. Forget signal | [forget_signal_plan.md](forget_signal_plan.md), [forget_signal_results.md](forget_signal_results.md) |
 | 6. **Deployable forget (tốt nhất)** | [deployable_forget_plan.md](deployable_forget_plan.md), [deployable_forget_results.md](deployable_forget_results.md) |
 | 7. MIA canary | [canary_mia.md](canary_mia.md) |
+| 8. Utility chi tiết và xác nhận | [confirmation_plan.md](confirmation_plan.md) (kết quả: chưa chạy) |
 | Shadow MIA và LiRA | [membership_validation_results.md](membership_validation_results.md), [lira_plan.md](lira_plan.md), [lira_results.md](lira_results.md) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 

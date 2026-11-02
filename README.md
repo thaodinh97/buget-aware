@@ -50,6 +50,7 @@ Mỗi bước đọc artifact của bước trước ở **đường dẫn cố 
 | 5 | Forget signal | `python scripts/run_forget_signal.py --output runs/forget_signal_seed42` | canary client 0/4, quy tắc quyết định | `verify_forget_signal.py` (khoảng 42 phút) |
 | 6 | **Deployable forget** | `python scripts/run_deployable_forget.py --output runs/deployable_forget_seed42` | **phương pháp tốt nhất** | `verify_deployable_forget.py` (khoảng 100 phút) |
 | 7 | MIA canary | `python scripts/run_canary_mia.py --output runs/canary_mia_seed42` | membership inference trên các model của bước 6 | `verify_canary_mia.py` |
+| 8 | **Utility chi tiết và xác nhận** | `python scripts/run_confirmation.py --mode existing --output runs/confirmation_existing_seed42`, sau đó `--mode confirm --output runs/confirmation_p43` | FPR và F1 theo client, control cùng pool, baseline reset, canary trigger tổ hợp, partition và seed mới | `verify_confirmation.py`; protocol ở [docs/confirmation_plan.md](docs/confirmation_plan.md) |
 | — | Shadow MIA và LiRA | `python scripts/run_membership_validation.py --output runs/membership_validation_v3_seed42`, sau đó `python scripts/run_lira.py --output runs/lira_seed42` | kiểm tra sức mạnh của MIA | `verify_lira.py` |
 
 Mọi verifier đều nhận `--run <thư mục>`; riêng `verify_run.py` cần thêm `--data`. Chạy test bằng `python -m unittest discover -s tests -v`.
@@ -61,16 +62,19 @@ Mọi verifier đều nhận `--run <thư mục>`; riêng `verify_run.py` cần 
 - `src/data/`
   - `prepare.py`: tiền xử lý.
   - `federated.py`: chia Dirichlet và tạo request.
-  - `canary.py`: backdoor canary và nonmember khớp phân phối.
+  - `canary.py`: backdoor canary (trigger zero-dim và trigger tổ hợp) và nonmember khớp phân phối.
   - `request_sensitivity.py`: mô tả request.
 - `src/fl/`
   - `fedavg_core.py`: MLP, client worker, FedAvg, chọn thiết bị.
   - `distributed.py`: prototype phân tán.
 - `src/fu/`
   - **Phương pháp tốt nhất:** `bounded_forget.py` (toán tử quên, stop rule, control cùng compute), `projection.py` (retain-orthogonal projection), `neighbor_reference.py` (reference kNN), `recovery_schedule.py` (recovery xen kẽ).
+  - **Baseline:** `reset_baseline.py` (reset cột W1 của các chiều input không được dùng).
   - **Toán tử cũ dùng ở bước 1–5:** `forget_kd.py`, `strong_forget.py`, `conpfu_inspired.py`, `step_budget.py`, `diagnostics.py`.
 - `src/eval/`
   - `fu_decision.py`: noise floor và quy tắc quyết định.
+  - `confirmation_decision.py`: quy tắc của bước 8 (control cùng pool, utility theo FPR và theo client).
+  - `utility_breakdown.py`: FPR, recall, F1 từng lớp, metric theo client.
   - `seed_floor.py`: prediction interval và placement.
   - `metrics.py`: utility và độ tương đồng.
   - `membership_validation.py`: điểm MIA, ghép cohort, bootstrap.
