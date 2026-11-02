@@ -33,6 +33,28 @@
 | uniform_bad_teacher_proxy@final | 0.0072 | 0.0007 | 0.88 | — | — | — |
 | uniform_bad_teacher_proxy@pre_recovery | -0.0002 | 0.0003 | 0.75 | — | — | — |
 
+### Utility non-inferiority (F1 drop < 0.03, FPR increase < 0.02, on 95% CI bounds)
+
+| key | n | op_f1_delta | f1_delta_ci_low | f1_noninferior | op_fpr_delta | fpr_delta_ci_high | fpr_noninferior |
+|---|---|---|---|---|---|---|---|
+| legacy_retain_kd@final | 8 | 0.0070 | -0.0085 | yes | 0.0008 | 0.0025 | yes |
+| legacy_retain_kd@pre_recovery | 8 | 0.0000 | -0.0000 | yes | -0.0000 | 0.0000 | yes |
+| neggrad_plus_proxy@final | 8 | 0.0078 | -0.0075 | yes | 0.0008 | 0.0026 | yes |
+| neggrad_plus_proxy@pre_recovery | 8 | -0.0039 | -0.0105 | yes | 0.0001 | 0.0008 | yes |
+| uniform_bad_teacher_proxy@final | 8 | 0.0072 | -0.0082 | yes | 0.0007 | 0.0024 | yes |
+| uniform_bad_teacher_proxy@pre_recovery | 8 | -0.0002 | -0.0017 | yes | 0.0003 | 0.0011 | yes |
+
+### Share of cases within retrain noise (distance <= leave-one-out retrain maximum)
+
+| key | n | within_noise | retain_only_within_noise | original_within_noise |
+|---|---|---|---|---|
+| legacy_retain_kd@final | 8 | 0.75 | 0.75 | 0.00 |
+| legacy_retain_kd@pre_recovery | 8 | 0.00 | 0.75 | 0.00 |
+| neggrad_plus_proxy@final | 8 | 0.75 | 0.75 | 0.00 |
+| neggrad_plus_proxy@pre_recovery | 8 | 0.00 | 0.75 | 0.00 |
+| uniform_bad_teacher_proxy@final | 8 | 0.62 | 0.75 | 0.00 |
+| uniform_bad_teacher_proxy@pre_recovery | 8 | 0.12 | 0.75 | 0.00 |
+
 ## family (n valid = 8)
 
 ### Distance to retrain
@@ -56,6 +78,28 @@
 | neggrad_plus_proxy@pre_recovery | 0.0002 | 0.0009 | 1.00 | 0.3628 | 0.3641 | 0.3014 |
 | uniform_bad_teacher_proxy@final | 0.0016 | 0.0025 | 1.00 | 0.3218 | 0.3641 | 0.3014 |
 | uniform_bad_teacher_proxy@pre_recovery | -0.0007 | 0.0020 | 1.00 | 0.3177 | 0.3641 | 0.3014 |
+
+### Utility non-inferiority (F1 drop < 0.03, FPR increase < 0.02, on 95% CI bounds)
+
+| key | n | op_f1_delta | f1_delta_ci_low | f1_noninferior | op_fpr_delta | fpr_delta_ci_high | fpr_noninferior |
+|---|---|---|---|---|---|---|---|
+| legacy_retain_kd@final | 8 | 0.0006 | -0.0011 | yes | 0.0019 | 0.0049 | yes |
+| legacy_retain_kd@pre_recovery | 8 | 0.0001 | -0.0002 | yes | 0.0000 | 0.0004 | yes |
+| neggrad_plus_proxy@final | 8 | 0.0017 | -0.0003 | yes | 0.0021 | 0.0051 | yes |
+| neggrad_plus_proxy@pre_recovery | 8 | 0.0002 | -0.0026 | yes | 0.0009 | 0.0037 | yes |
+| uniform_bad_teacher_proxy@final | 8 | 0.0016 | -0.0002 | yes | 0.0025 | 0.0058 | yes |
+| uniform_bad_teacher_proxy@pre_recovery | 8 | -0.0007 | -0.0019 | yes | 0.0020 | 0.0044 | yes |
+
+### Share of cases within retrain noise (distance <= leave-one-out retrain maximum)
+
+| key | n | within_noise | retain_only_within_noise | original_within_noise |
+|---|---|---|---|---|
+| legacy_retain_kd@final | 8 | 0.38 | 0.38 | 0.00 |
+| legacy_retain_kd@pre_recovery | 8 | 0.00 | 0.38 | 0.00 |
+| neggrad_plus_proxy@final | 8 | 0.62 | 0.38 | 0.00 |
+| neggrad_plus_proxy@pre_recovery | 8 | 0.38 | 0.38 | 0.00 |
+| uniform_bad_teacher_proxy@final | 8 | 0.50 | 0.38 | 0.00 |
+| uniform_bad_teacher_proxy@pre_recovery | 8 | 0.25 | 0.38 | 0.00 |
 
 ## random (n valid = 6)
 
@@ -81,6 +125,28 @@
 | uniform_bad_teacher_proxy@final | 0.0148 | 0.0028 | 1.00 | — | — | — |
 | uniform_bad_teacher_proxy@pre_recovery | 0.0085 | 0.0042 | 1.00 | — | — | — |
 
+### Utility non-inferiority (F1 drop < 0.03, FPR increase < 0.02, on 95% CI bounds)
+
+| key | n | op_f1_delta | f1_delta_ci_low | f1_noninferior | op_fpr_delta | fpr_delta_ci_high | fpr_noninferior |
+|---|---|---|---|---|---|---|---|
+| legacy_retain_kd@final | 6 | 0.0095 | -0.0114 | yes | 0.0005 | 0.0020 | yes |
+| legacy_retain_kd@pre_recovery | 6 | 0.0000 | -0.0001 | yes | -0.0000 | 0.0000 | yes |
+| neggrad_plus_proxy@final | 6 | 0.0117 | -0.0064 | yes | 0.0018 | 0.0040 | yes |
+| neggrad_plus_proxy@pre_recovery | 6 | -0.0028 | -0.0371 | no | 0.0013 | 0.0050 | yes |
+| uniform_bad_teacher_proxy@final | 6 | 0.0148 | -0.0111 | yes | 0.0028 | 0.0054 | yes |
+| uniform_bad_teacher_proxy@pre_recovery | 6 | 0.0085 | -0.0132 | yes | 0.0042 | 0.0114 | yes |
+
+### Share of cases within retrain noise (distance <= leave-one-out retrain maximum)
+
+| key | n | within_noise | retain_only_within_noise | original_within_noise |
+|---|---|---|---|---|
+| legacy_retain_kd@final | 6 | 0.33 | 0.33 | 0.00 |
+| legacy_retain_kd@pre_recovery | 6 | 0.00 | 0.33 | 0.00 |
+| neggrad_plus_proxy@final | 6 | 0.33 | 0.33 | 0.00 |
+| neggrad_plus_proxy@pre_recovery | 6 | 0.00 | 0.33 | 0.00 |
+| uniform_bad_teacher_proxy@final | 6 | 0.17 | 0.33 | 0.00 |
+| uniform_bad_teacher_proxy@pre_recovery | 6 | 0.00 | 0.33 | 0.00 |
+
 ## ALL (n valid = 22)
 
 ### Distance to retrain
@@ -104,3 +170,25 @@
 | neggrad_plus_proxy@pre_recovery | -0.0021 | 0.0007 | 0.86 | 0.3628 | 0.3641 | 0.3014 |
 | uniform_bad_teacher_proxy@final | 0.0072 | 0.0019 | 0.95 | 0.3218 | 0.3641 | 0.3014 |
 | uniform_bad_teacher_proxy@pre_recovery | 0.0020 | 0.0020 | 0.91 | 0.3177 | 0.3641 | 0.3014 |
+
+### Utility non-inferiority (F1 drop < 0.03, FPR increase < 0.02, on 95% CI bounds)
+
+| key | n | op_f1_delta | f1_delta_ci_low | f1_noninferior | op_fpr_delta | fpr_delta_ci_high | fpr_noninferior |
+|---|---|---|---|---|---|---|---|
+| legacy_retain_kd@final | 22 | 0.0054 | -0.0013 | yes | 0.0011 | 0.0022 | yes |
+| legacy_retain_kd@pre_recovery | 22 | 0.0000 | -0.0001 | yes | -0.0000 | 0.0001 | yes |
+| neggrad_plus_proxy@final | 22 | 0.0067 | 0.0004 | yes | 0.0016 | 0.0028 | yes |
+| neggrad_plus_proxy@pre_recovery | 22 | -0.0021 | -0.0095 | yes | 0.0007 | 0.0019 | yes |
+| uniform_bad_teacher_proxy@final | 22 | 0.0072 | -0.0003 | yes | 0.0019 | 0.0032 | yes |
+| uniform_bad_teacher_proxy@pre_recovery | 22 | 0.0020 | -0.0028 | yes | 0.0020 | 0.0038 | yes |
+
+### Share of cases within retrain noise (distance <= leave-one-out retrain maximum)
+
+| key | n | within_noise | retain_only_within_noise | original_within_noise |
+|---|---|---|---|---|
+| legacy_retain_kd@final | 22 | 0.50 | 0.50 | 0.00 |
+| legacy_retain_kd@pre_recovery | 22 | 0.00 | 0.50 | 0.00 |
+| neggrad_plus_proxy@final | 22 | 0.59 | 0.50 | 0.00 |
+| neggrad_plus_proxy@pre_recovery | 22 | 0.14 | 0.50 | 0.00 |
+| uniform_bad_teacher_proxy@final | 22 | 0.45 | 0.50 | 0.00 |
+| uniform_bad_teacher_proxy@pre_recovery | 22 | 0.14 | 0.50 | 0.00 |

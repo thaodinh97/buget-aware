@@ -532,3 +532,25 @@ class ReportStatisticsTests(unittest.TestCase):
 def stats_t_half_width():
     from scipy import stats
     return stats.t.ppf(.975, 2) * 1. / np.sqrt(3)
+
+
+class ConfirmatoryAnalysisTests(unittest.TestCase):
+    def test_confirmatory_requires_every_condition(self):
+        from scripts.report_study import confirmatory
+        n = 16
+        rng = np.random.default_rng(0)
+        frame = pd.DataFrame({'role': 'evaluation', 'valid_case': True, 'scenario': 'family',
+                              'key': 'm@final', 'delta_retain_only': .02 + rng.normal(0, .005, n),
+                              'delta_matched': .01 + rng.normal(0, .003, n), 'margin': .01,
+                              'op_f1': .9, 'op_f1_original': .9, 'op_fpr': .05, 'op_fpr_original': .05,
+                              'within_noise': True})
+        gate = {'maximum_f1_drop': .03, 'maximum_fpr_increase': .02}
+        analysis = {'primary': {'scenario': 'family', 'method': 'm', 'candidate': 'final'},
+                    'minimum_valid_cases': 15, 'practical_share': .5}
+        self.assertTrue(confirmatory(frame, analysis, gate)['hypotheses'][0]['confirmed'])
+        few = confirmatory(frame.iloc[:10], analysis, gate)['hypotheses'][0]
+        self.assertFalse(few['enough_cases'] or few['confirmed'])
+        worse = frame.assign(op_f1=.85)
+        self.assertFalse(confirmatory(worse, analysis, gate)['hypotheses'][0]['confirmed'])
+        small = frame.assign(margin=.05)  # beats retain-only, but not beyond the noise margin
+        self.assertFalse(confirmatory(small, analysis, gate)['hypotheses'][0]['practical'])

@@ -62,6 +62,41 @@ Vì sao NegGrad+@final ở family vẫn không qua case dù gần retrain hơn r
 - Ứng viên `pre_recovery`: `utility_preserved` từ 75% (atypical) đến 100% (family).
 - **Detection trên họ bị quên (family, case hợp lệ):** tỷ lệ báo động trên test của họ đó ở mô hình gốc là 0,364, ở retrain là 0,301. Sau unlearning: NegGrad+ final 0,329, bad-teacher final 0,322, retain-only/legacy 0,337. Unlearning đưa detection về phía retrain. Đồng thời, ngay cả retrain chưa từng thấy họ đó vẫn phát hiện được khoảng 30% nhờ tổng quát hóa từ các họ attack khác.
 
+## Bảng bổ sung 1 — Utility không tệ hơn mô hình gốc (non-inferiority)
+
+Chênh lệch so với mô hình gốc tại ngưỡng chọn trên validation, trên các case hợp lệ. "Không tệ hơn" được xét trên cận CI 95% (phân phối t), theo đúng giới hạn của gate: cận dưới của ΔF1 > −0,03 và cận trên của ΔFPR < +0,02.
+
+| Kịch bản | Ứng viên | n | ΔF1 | Cận dưới CI | ΔFPR | Cận trên CI | Không tệ hơn |
+|---|---|---:|---:|---:|---:|---:|:---:|
+| atypical | neggrad_plus_proxy@final | 8 | +0,0078 | −0,0075 | +0,0008 | +0,0026 | có |
+| atypical | uniform_bad_teacher_proxy@final | 8 | +0,0072 | −0,0082 | +0,0007 | +0,0024 | có |
+| atypical | legacy_retain_kd@final | 8 | +0,0070 | −0,0085 | +0,0008 | +0,0025 | có |
+| family | neggrad_plus_proxy@final | 8 | +0,0017 | −0,0003 | +0,0021 | +0,0051 | có |
+| family | uniform_bad_teacher_proxy@final | 8 | +0,0016 | −0,0002 | +0,0025 | +0,0058 | có |
+| family | legacy_retain_kd@final | 8 | +0,0006 | −0,0011 | +0,0019 | +0,0049 | có |
+| random 50% | neggrad_plus_proxy@final | 6 | +0,0117 | −0,0064 | +0,0018 | +0,0040 | có |
+| random 50% | uniform_bad_teacher_proxy@final | 6 | +0,0148 | −0,0111 | +0,0028 | +0,0054 | có |
+| random 50% | legacy_retain_kd@final | 6 | +0,0095 | −0,0114 | +0,0005 | +0,0020 | có |
+| random 50% | neggrad_plus_proxy@pre_recovery | 6 | −0,0028 | **−0,0371** | +0,0013 | +0,0050 | **không** (F1) |
+| Gộp | neggrad_plus_proxy@final | 22 | +0,0067 | +0,0004 | +0,0016 | +0,0028 | có |
+| Gộp | uniform_bad_teacher_proxy@final | 22 | +0,0072 | −0,0003 | +0,0019 | +0,0032 | có |
+| Gộp | neggrad_plus_proxy@pre_recovery | 22 | −0,0021 | −0,0095 | +0,0007 | +0,0019 | có |
+
+Mọi ứng viên `final` đều không tệ hơn mô hình gốc ở mọi kịch bản. Riêng NegGrad+@final khi gộp còn có cận dưới ΔF1 > 0. Ứng viên trước recovery thì không đạt ở kịch bản random. Lưu ý: utility tuyệt đối đo trên một holdout có bản gần trùng với train, nên phát biểu "không tệ hơn" là phát biểu *tương đối* (cùng tập test cho mọi mô hình).
+
+## Bảng bổ sung 2 — Tỷ lệ case đã nằm trong vùng nhiễu retrain
+
+Một ứng viên được coi là "không phân biệt được với retrain" ở một case khi D_F ≤ khoảng cách leave-one-out lớn nhất giữa 10 retrain của case đó.
+
+| Kịch bản | n | Mô hình gốc | Retain-only | NegGrad+@final | Bad-teacher@final | Legacy@final | NegGrad+@pre_recovery |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| atypical | 8 | 0% | 75% | 75% | 62% | 75% | 0% |
+| family | 8 | 0% | 38% | **62%** | 50% | 38% | 38% |
+| random 50% | 6 | 0% | 33% | 33% | 17% | 33% | 0% |
+| Gộp | 22 | 0% | 50% | **59%** | 45% | 50% | 14% |
+
+Mô hình gốc không nằm trong vùng nhiễu ở case hợp lệ nào, đúng theo định nghĩa identifiable. Sau recovery, khoảng một nửa số case về tới mức retrain. NegGrad+@final cao hơn retain-only ở family (62% so với 38%) và ngang ở hai kịch bản còn lại. Đồng thời, 41% case vẫn còn phân biệt được với retrain, nên chưa thể nói FU "đạt mức retrain" nói chung.
+
 ## Diễn giải
 
 1. Sau khi tune và đo kỹ, **FU có tín hiệu thật nhưng nhỏ**, và nó chỉ xuất hiện khi kết hợp với recovery. NegGrad+@final thắng retain-only cùng compute một cách nhất quán (6 thắng, 0 thua, p Holm 0,042). Riêng ở kịch bản family, nó gần retrain hơn retain-only ở 7/8 case.
