@@ -169,7 +169,9 @@ def decide(name, cfg, metrics, noise, retrain_auc_f, retrain_f1, gate, smoke, re
         floor = original['utility_test']['macro_f1'] - gate['maximum_f1_drop']
     shared = {'identifiable': identifiable(d('original'), noise, gate['identifiability_sd']),
               'mia_positive_control': original['lira_retained_control']['mia_auc'] >= gate['minimum_retained_lira_auc'],
-              'local_effect_before_recovery': d('original') - d(pre) > mg,
+              # gate['local_effect_required'] false reports it only: FU is local step + recovery by design.
+              ('local_effect_before_recovery' if gate.get('local_effect_required', True)
+               else 'report_local_effect_before_recovery'): d('original') - d(pre) > mg,
               'not_oracle_stop': cfg.get('stop_rule', 'none') != 'oracle_retrain'}
     candidates = [('final', f'{name}/final', f'{name}/retain_matched')]
     if cfg.get('stop_check', 'local') == 'local':

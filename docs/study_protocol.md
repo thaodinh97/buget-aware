@@ -280,3 +280,61 @@ Mục tiêu: có một bảng chất lượng đáng tin (utility, khoảng các
 ### Sửa đổi protocol v6 (2026-11-02, trước khi đọc bất kỳ kết quả đánh giá nào)
 
 Seed 45 và 46 cho partition Dirichlet suy biến (client 3 và client 1). Theo quy tắc không tự chia lại, chúng được ghi `invalid_request` trong `runs/study_v6_b`. Protocol v6 chưa có quy tắc thay thế seed, nên bổ sung: **dùng các seed kế tiếp theo thứ tự (47, 48)** cho đến khi đủ 5 seed có partition hợp lệ. Lựa chọn chỉ dựa trên tính khả thi của partition, không dựa trên kết quả nào; lúc này nhóm 42–44 vẫn đang chạy và chưa có kết quả nào được đọc. `configs/study_v6.json` liệt kê seed 42–48 kèm khóa `seed_amendment`. Run `runs/study_v6_b2` dùng seed 47 và 48.
+
+## v7 — nghiên cứu xác nhận cho kịch bản quên trọn họ attack (khóa trước khi chạy, 2026-11-02)
+
+### Vì sao cần v7
+
+Giả thuyết "NegGrad+@final gần retrain hơn retain-only khi quên trọn một họ attack" **được sinh ra từ dữ liệu v6**: ở family, 7/8 case thắng nhưng CI chứa 0, vì chỉ có n = 8 case hợp lệ. Muốn xác nhận thì phải kiểm định trên dữ liệu không dùng để sinh giả thuyết, với đủ số case. v7 chỉ phục vụ việc đó. Không tune lại, không đổi method.
+
+### Giữ nguyên so với v6
+
+- Data `connected_log1p_v5_seed42`.
+- Ba method với cấu hình đã khóa sau khi tune trên seed 100–102 (`configs/study_v6.json`).
+- 10 retrain mỗi case, 3 lần lặp mỗi method, ngưỡng chọn trên validation với FPR ≤ 5%, LiRA tắt.
+- Recovery 2 round, tiêu chí identifiable, margin = 2 sd của nhiễu nền.
+
+### Thay đổi (`configs/study_v7.json`)
+
+1. **Seed mới 49, 50, 51, 52**: các seed hợp lệ kế tiếp sau 48. Chúng tách khỏi seed đánh giá v6 (42–48) và seed tune (100–102). Seed được chọn theo thứ tự và theo tính khả thi của partition, không theo kết quả.
+2. **Cả 9 họ attack** có trong train (`backdoor`, `scanning`, `dos`, `ransomware`, `xss`, `ddos`, `injection`, `password`, `mitm`), với 2 target lớn nhất. Quy tắc chọn là "mọi họ attack" nên không có bước chọn họ theo kết quả.
+   - Kiểm tra khả thi trên metadata: 70/72 case khả thi. `xss` ở seed 52 (target 0 và 2) cho partition suy biến và sẽ được ghi `invalid_request`.
+   - Thêm một negative control: random 10%, 1 target mỗi seed.
+3. **`local_effect_before_recovery` chuyển thành chỉ báo cáo** (`gate.local_effect_required: false`). Lý do: method được định nghĩa là bước local + recovery. Ở v6, lợi ích chỉ xuất hiện sau recovery, nên điều kiện này đánh giá một mô hình trung gian chứ không phải đầu ra. Ứng viên `pre_recovery` vẫn được báo cáo riêng, với baseline đối chứng riêng.
+4. **Quyết định bằng phân tích xác nhận đã khóa trước** (`analysis` trong config, `confirmatory()` trong `scripts/report_study.py`). Gate từng case vẫn được tính để liên tục với các vòng trước, nhưng không phải quy tắc quyết định.
+
+### Giả thuyết và quy tắc quyết định
+
+**Giả thuyết chính**, NegGrad+ proxy @final ở kịch bản family, trên các case hợp lệ. Giả thuyết được **xác nhận** khi và chỉ khi đạt tất cả các điều kiện:
+
+- (a) Có ít nhất 15 case hợp lệ.
+- (b) Δ so với retain-only có recovery 2 round, với Δ = D(retain-only) − D(ứng viên): cận dưới CI 95% (t) > 0 và Wilcoxon p < 0,05.
+- (c) Δ so với `retain_matched` (cùng số bước local và cùng recovery): cận dưới CI 95% > 0 và Wilcoxon p < 0,05.
+- (d) Ý nghĩa thực tế: ít nhất 50% số case có Δ so với retain-only lớn hơn margin nhiễu của case đó.
+- (e) Utility không tệ hơn mô hình gốc: cận dưới CI 95% của ΔF1 > −0,03 và cận trên CI 95% của ΔFPR < +0,02, tại ngưỡng chọn trên validation.
+
+**Giả thuyết phụ:** bad-teacher proxy @final ở family, cùng các tiêu chí, với p-value hiệu chỉnh Holm trong nhóm giả thuyết phụ.
+
+**Cách đọc kết quả:**
+- Không đạt (a) → **inconclusive**: không kết luận âm, và không thêm seed sau khi đã thấy kết quả.
+- Đạt (a) nhưng không đạt (b)–(e) → không xác nhận được giả thuyết.
+
+**Chỉ báo cáo, không quyết định:** tỷ lệ case nằm trong vùng nhiễu retrain, detection trên họ bị quên, D trên R, ứng viên trước recovery, legacy, negative control, và gate từng case.
+
+### Cỡ mẫu
+
+Ở v6 family, Δ so với retain-only có trung bình +0,0106 và sd khoảng 0,0153 (suy ra từ CI với n = 8). Nếu hiệu ứng giữ nguyên, n = 15 cho nửa độ rộng CI khoảng 2,145 × 0,0153 / √15 ≈ 0,0085, nhỏ hơn 0,0106. Ước lượng từ 8 case vẫn bất định, nên hiệu ứng thật có thể nhỏ hơn.
+
+Với tỷ lệ case hợp lệ 40% như ở v6, 70 case khả thi dự kiến cho khoảng 28 case hợp lệ. Tỷ lệ này chưa biết với 7 họ mới.
+
+### Lưu ý độc lập
+
+Mỗi (seed, họ, target) có một mô hình gốc riêng, nhưng các case cùng seed chia sẻ phần partition Dirichlet của dữ liệu còn lại. p-value coi các case là độc lập, nên đây là giả định cần nêu khi báo cáo.
+
+### Kế hoạch chạy
+
+Hai tiến trình song song: seed {49, 50} → `runs/study_v7_a`, seed {51, 52} → `runs/study_v7_b`. Ước tính khoảng 75 phút, dựa trên khoảng 92 giây mỗi case family ở v6. Báo cáo bằng:
+
+`scripts/report_study.py --runs runs/study_v7_a runs/study_v7_b --output results/study_v7`
+
+Smoke `runs/study_v7_smoke` đã chạy hết 3/3 case.

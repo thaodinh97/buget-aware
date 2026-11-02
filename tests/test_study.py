@@ -554,3 +554,20 @@ class ConfirmatoryAnalysisTests(unittest.TestCase):
         self.assertFalse(confirmatory(worse, analysis, gate)['hypotheses'][0]['confirmed'])
         small = frame.assign(margin=.05)  # beats retain-only, but not beyond the noise margin
         self.assertFalse(confirmatory(small, analysis, gate)['hypotheses'][0]['practical'])
+
+
+class LocalEffectOptionTests(unittest.TestCase):
+    def test_local_effect_can_be_report_only(self):
+        from scripts.run_study import decide
+        entry = lambda distance: {'distance_F': distance, 'utility_test': {'macro_f1': .9, 'fpr': .05},
+                                  'lira_forget': {'mia_auc': np.nan}, 'lira_retained_control': {'mia_auc': np.nan},
+                                  'forgotten_type_alert': None}
+        metrics = {'original': entry(.05), 'retain_only': entry(.03), 'm/after_local': entry(.06), 'm/final': entry(.01),
+                   'm/retain_matched': entry(.03), 'm/retain_matched_local': entry(.06)}
+        noise = {'mean': .005, 'sd': .001, 'max': .007}
+        gate = {'margin_sd_factor': 2, 'minimum_margin': 1e-4, 'identifiability_sd': 3, 'minimum_retained_lira_auc': .55,
+                'minimum_macro_f1': .65, 'maximum_f1_drop': .03, 'maximum_fpr_increase': .02, 'mia_required': False}
+        self.assertFalse(decide('m', {}, metrics, noise, np.nan, .9, gate, False)[0]['passed'])
+        relaxed = decide('m', {}, metrics, noise, np.nan, .9, {**gate, 'local_effect_required': False}, False)[0]
+        self.assertFalse(relaxed['checks']['report_local_effect_before_recovery'])
+        self.assertTrue(relaxed['passed'])
