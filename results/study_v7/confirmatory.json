@@ -1,0 +1,42 @@
+{
+  "rule": "Pre-registered hypotheses: candidate closer to retrain than retain-only recovery and than\ncompute-matched retain-only (95% t-CI lower bound > 0 and Wilcoxon p < alpha), beyond the\nnoise margin in at least `practical_share` of cases, utility non-inferior on CI bounds, with\nat least `minimum_valid_cases` valid cases. Secondary hypotheses use Holm-adjusted p-values.",
+  "alpha": 0.05,
+  "hypotheses": [
+    {
+      "role": "primary",
+      "scenario": "family",
+      "key": "neggrad_plus_proxy@final",
+      "n": 38,
+      "enough_cases": true,
+      "delta_retain_only": 0.0013243119143373338,
+      "ci_low_retain_only": 0.0005848892449482005,
+      "p_retain_only": 4.626635927706957e-07,
+      "delta_matched": 0.0004487401882837051,
+      "ci_low_matched": 5.69350362067837e-05,
+      "p_matched": 7.977876185406998e-05,
+      "share_beyond_margin": 0.34210526315789475,
+      "utility_noninferior": true,
+      "within_noise": 0.42105263157894735,
+      "practical": false,
+      "confirmed": false
+    },
+    {
+      "role": "secondary",
+      "scenario": "family",
+      "key": "uniform_bad_teacher_proxy@final",
+      "n": 38,
+      "enough_cases": true,
+      "delta_retain_only": 0.0007338407167065214,
+      "ci_low_retain_only": -9.87982186960632e-05,
+      "p_retain_only": 0.004043195811391342,
+      "delta_matched": 0.00043948914606930427,
+      "ci_low_matched": -0.00015592698603140108,
+      "p_matched": 0.1252131458822987,
+      "share_beyond_margin": 0.13157894736842105,
+      "utility_noninferior": true,
+      "within_noise": 0.23684210526315788,
+      "practical": false,
+      "confirmed": false
+    }
+  ]
+}
