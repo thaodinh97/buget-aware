@@ -14,6 +14,8 @@
 
 **Phương án C + log1p cho 7 feature đếm (data v5, split giống v3, MIA chỉ báo cáo): `study_v5` vẫn không qua gate.** log1p cải thiện utility (pilot macro-F1 0,901, FPR 0,243), nhưng FU không vượt ổn định retain-only có recovery; tín hiệu trước recovery của v3 không lặp lại. Xem [báo cáo v5](docs/study_report_v5.md).
 
+**`study_v6` (utility tại ngưỡng chọn trên validation, 10 retrain, 3 lần lặp, tune trên seed riêng, 5 seed): gate vẫn không đạt.** NegGrad+@final (đã tune) gần retrain hơn retain-only cùng compute một cách có ý nghĩa thống kê khi gộp mọi kịch bản (Δ +0,0023, CI [+0,0002; +0,0045], p Holm 0,042). Ở kịch bản quên trọn họ attack, nó gần retrain hơn retain-only có recovery ở 7/8 case; utility được bảo toàn. Xem [báo cáo v6](docs/study_report_v6.md) và `results/study_v6/`.
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
