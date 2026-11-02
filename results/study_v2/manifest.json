@@ -1,0 +1,295 @@
+{
+  "config": {
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "alpha": 0.5,
+    "clients": 5,
+    "hidden": [
+      64,
+      32
+    ],
+    "threads": 2,
+    "fl": {
+      "rounds": 15,
+      "local_epochs": 1,
+      "batch_size": 512,
+      "lr": 0.001
+    },
+    "recovery_rounds": 2,
+    "save_checkpoints": true,
+    "noise_floor": {
+      "retrains": 4
+    },
+    "lira": {
+      "shadows": 8,
+      "subset_fraction": 0.5,
+      "global_variance": true,
+      "cap_per_class": 2000
+    },
+    "scenarios": [
+      {
+        "name": "random",
+        "kind": "random",
+        "fractions": [
+          0.1,
+          0.5
+        ],
+        "targets": {
+          "largest": 2
+        }
+      },
+      {
+        "name": "atypical",
+        "kind": "atypical",
+        "fractions": [
+          0.05
+        ],
+        "targets": {
+          "largest": 2
+        }
+      },
+      {
+        "name": "family",
+        "kind": "family",
+        "families": [
+          "ransomware",
+          "mitm"
+        ],
+        "fractions": [
+          1.0
+        ],
+        "targets": {
+          "largest": 2
+        }
+      }
+    ],
+    "methods": {
+      "legacy_no_kd": {
+        "cycles": 1,
+        "batch_size": 512,
+        "forget_objective": "neg_ce",
+        "forget_optimizer": "sgd",
+        "forget_lr": 0.0005,
+        "retain_optimizer": "sgd",
+        "retain_lr": 0.0005,
+        "regularization": 0.001,
+        "clip": 1.0
+      },
+      "legacy_retain_kd": {
+        "cycles": 1,
+        "batch_size": 512,
+        "forget_objective": "neg_ce",
+        "forget_optimizer": "sgd",
+        "forget_lr": 0.0005,
+        "retain_optimizer": "sgd",
+        "retain_lr": 0.0005,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "kd_mode": "retain_only",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      },
+      "neggrad_plus_adam": {
+        "cycles": 10,
+        "batch_size": 512,
+        "forget_objective": "neggrad_plus",
+        "neggrad_retain_weight": 0.5,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_rule": "nonmember"
+      },
+      "uniform_adam_bad_teacher": {
+        "cycles": 10,
+        "batch_size": 512,
+        "forget_objective": "uniform",
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_rule": "nonmember",
+        "kd_mode": "bad_teacher",
+        "kd_student": "unlearned",
+        "kd_incompetent": "uniform",
+        "kd_stop": true,
+        "kd_optimizer": "adam",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      },
+      "random_label_adam_full_kd": {
+        "cycles": 10,
+        "batch_size": 512,
+        "forget_objective": "random_label",
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_rule": "nonmember",
+        "kd_mode": "full_local",
+        "kd_student": "original",
+        "kd_optimizer": "adam",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      },
+      "uniform_adam_bad_teacher_oracle": {
+        "cycles": 10,
+        "batch_size": 512,
+        "forget_objective": "uniform",
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_rule": "oracle_retrain",
+        "kd_mode": "bad_teacher",
+        "kd_student": "unlearned",
+        "kd_incompetent": "uniform",
+        "kd_stop": true,
+        "kd_optimizer": "adam",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      }
+    },
+    "gate": {
+      "minimum_macro_f1": 0.65,
+      "maximum_f1_drop": 0.03,
+      "maximum_fpr_increase": 0.02,
+      "identifiability_sd": 3.0,
+      "margin_sd_factor": 2.0,
+      "minimum_margin": 0.0001,
+      "minimum_retained_lira_auc": 0.55,
+      "minimum_valid_cases": 6,
+      "minimum_pass_rate": 0.8,
+      "confidence": 0.95
+    },
+    "smoke": {
+      "seeds": [
+        42
+      ],
+      "cap_per_type": {
+        "normal": 1500,
+        "default": 300
+      },
+      "fl": {
+        "rounds": 10
+      },
+      "recovery_rounds": 1,
+      "noise_floor": {
+        "retrains": 3
+      },
+      "lira": {
+        "shadows": 2,
+        "rounds": 10,
+        "cap_per_class": 100,
+        "alpha": 100
+      },
+      "scenarios": [
+        {
+          "name": "random",
+          "kind": "random",
+          "fractions": [
+            0.5
+          ],
+          "targets": {
+            "largest": 1
+          }
+        },
+        {
+          "name": "atypical",
+          "kind": "atypical",
+          "fractions": [
+            0.1
+          ],
+          "targets": {
+            "largest": 1
+          }
+        },
+        {
+          "name": "family",
+          "kind": "family",
+          "families": [
+            "ransomware"
+          ],
+          "fractions": [
+            1.0
+          ],
+          "targets": {
+            "largest": 1
+          }
+        }
+      ],
+      "gate": {
+        "minimum_valid_cases": 1
+      }
+    }
+  },
+  "smoke_only": false,
+  "data_manifest_sha256": "1ed282e885a303ceddd48d81042211c837d22fd5e62c7f91e6c3bfaa68db0df3",
+  "source_hashes": {
+    "src/fl/fedavg_core.py": "30304f63e88fab40299226280e2d5d54be6783cca0d940e5cb7d4b4efb2f06aa",
+    "src/data/scenarios.py": "51e7370c2f8b33fd8a49e671a7f08b1d0ca11283fae1deaef8d50a6da17455ff",
+    "src/data/federated.py": "f65647a9f25d93f381e84ccf3bb376e0b701fc887187f3e9f100989a59a8902b",
+    "src/data/prepare.py": "90736019aa87f3146a3690bdcaa4b848395ae471d1ebd54c1d42f03833326506",
+    "src/fu/conpfu_inspired.py": "3b73b0714b0eab227c5638ead69801e1cdb944dc6459fb38937ff3de11fd03f7",
+    "src/fu/baselines.py": "fb6fb5eb56f513ab243acf3adfe4fc1f7b647d107da5a863e1c0ce7beb4b1406",
+    "src/eval/noise_floor.py": "52e1624206e39d9c93344948cbf70f5e9566dec1de62d91bdeb72fda954ec511",
+    "src/eval/metrics.py": "57f9e616f81e922ab0a82eb4e40cffb57da5608fea59019fe5ecb27a38e00bda",
+    "src/eval/lira.py": "95b4dea784e085906e47e5019a9c1f938b3f346ff1b2d3c439dd43c7465bd462",
+    "scripts/make_synthetic_toniot.py": "3a4aeaeee380c02bd1b527bd3d90a105f5720fb925976e4dea5c8b5aeb28e0ba",
+    "scripts/plot_results.py": "42fecd091b98c997bebc685f0b7b7e6aab78352468b3724e677ccbac14e7136d",
+    "scripts/verify_run.py": "bb49b176f6ac426a7d02fa363e3e6f2ae160e171be3b8eb135cd93f918c12802",
+    "scripts/run_study.py": "d39b553516c571f8c76b358f85c0daf2a3e46f16c3739a07644cac1b9b647daa",
+    "scripts/run_pilot.py": "a579e1bf95f0c03ea4332ef14b7d76a62ed0cfa21c7aa2779c25a32f82caea09"
+  },
+  "python": "3.13.17",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.5.4",
+  "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "device": "cpu",
+  "timing": "time.perf_counter; sequential logical workers",
+  "code_revision": null,
+  "train_rows": 114284,
+  "train_types": {
+    "normal": 22534,
+    "backdoor": 18618,
+    "scanning": 16512,
+    "dos": 16194,
+    "ransomware": 14705,
+    "xss": 9226,
+    "ddos": 6090,
+    "injection": 5173,
+    "password": 4955,
+    "mitm": 277
+  },
+  "seed_policy": {
+    "retrain_j": "seed + 104729*j (j=0 is the original init seed)",
+    "shadow_k": "seed + 15485863 + k",
+    "recovery": "seed + 900000 for every recovery"
+  },
+  "compute_matching": "retain_matched = retain-only local steps equal to FU local minibatch gradient evaluations (forget + retain + KD), then the same recovery",
+  "mia": "offline LiRA, OUT-only FedAvg shadows excluding every forget/control record and its exact encoded duplicates; thresholds from original on calibration nonmembers only"
+}

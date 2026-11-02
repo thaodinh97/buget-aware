@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.data.prepare import fit_transformer, overlaps, prepare, split_groups, transform
+from src.data.prepare import fit_transformer, near_duplicate_keys, overlaps, prepare, split_groups, transform
 
 
 class PreprocessingTests(unittest.TestCase):
@@ -30,6 +30,19 @@ class PreprocessingTests(unittest.TestCase):
         self.assertEqual(test[1, 1], 1.)  # missing
         self.assertEqual(test[1, 0], 0.)
         self.assertEqual(before, json.dumps(state))
+
+    def test_log1p_counts_fit_on_train_and_keep_legacy_state(self):
+        train = pd.DataFrame({"bytes": [0., np.e - 1, np.nan], "duration": [1., 3., 5.], "proto": ["tcp"] * 3})
+        state = fit_transformer(train, ["bytes", "duration"], ["proto"], ["bytes"])
+        self.assertEqual(state["log1p"], ["bytes"])
+        self.assertAlmostEqual(state["median"]["bytes"], .5)  # median of log1p values 0 and 1
+        self.assertEqual(state["mean"]["duration"], 3.)       # untouched feature stays linear
+        out = transform(pd.DataFrame({"bytes": [40., 44.], "duration": [3., 3.], "proto": ["tcp", "tcp"]}), state)
+        self.assertGreater(out[1, 0] - out[0, 0], .1)        # 40 vs 44 bytes stay distinguishable
+        legacy = {k: v for k, v in state.items() if k != "log1p"}
+        self.assertEqual(transform(train, legacy).shape, (3, 5))
+        with self.assertRaises(ValueError):
+            fit_transformer(pd.DataFrame({"bytes": [-1., 2.], "proto": ["tcp"] * 2}), ["bytes"], ["proto"], ["bytes"])
 
     def test_invalid_split_fails(self):
         with self.assertRaises(ValueError):
@@ -68,6 +81,40 @@ class PreprocessingTests(unittest.TestCase):
                     seen_ids.update(a["row_id"])
                     self.assertTrue(np.isfinite(a["X"]).all())
             self.assertEqual(len(seen_ids), 200)
+
+    def test_near_duplicate_keys_chain_only_jitter_feature(self):
+        frame = pd.DataFrame({"duration": [0.0, 0.005, 0.012, 0.5, 0.0, np.nan, np.nan],
+                              "src_bytes": [10, 10, 10, 10, 11, 10, 10], "proto": ["tcp"] * 7})
+        keys = near_duplicate_keys(frame, ["duration", "src_bytes"], ["proto"], "duration", .01)
+        self.assertEqual(len(set(keys[:3])), 1)          # log1p gaps 0.0050 and 0.0069 chain
+        self.assertEqual(len(set(keys)), 5)
+        self.assertNotIn(keys[3], keys[:3])             # gap 0.39 breaks the chain
+        self.assertNotIn(keys[4], keys[:4])             # another predictor differs
+        self.assertNotEqual(keys[5], keys[6])           # missing jitter never chains
+
+    def test_near_duplicate_policy_keeps_jitter_copies_in_one_split(self):
+        from scripts.make_synthetic_toniot import synthetic
+        cfg = json.loads(Path("configs/data_near_duplicates.json").read_text())
+        raw = synthetic(rows_per_family=150, normal_rows=900, rare_rows=60)
+        copies = raw.sample(200, random_state=0).copy()
+        copies["duration"] += 1e-6
+        copies["src_port"] = 1  # new connection, so only the near-duplicate rule can link them
+        raw = pd.concat([raw, copies], ignore_index=True)
+        with tempfile.TemporaryDirectory(dir=".") as tmp:
+            root = Path(tmp)
+            raw.to_csv(root / "raw.csv", index=False)
+            audit = prepare(root / "raw.csv", "configs/data_near_duplicates.json", root / "near")
+            self.assertTrue(audit["training_ready"])
+            self.assertFalse(any(audit["near_duplicate_audit"]["cross_split_overlap"].values()))
+            self.assertGreaterEqual(audit["near_duplicate_audit"]["rows_in_near_duplicate_sets"], 400)
+            meta = pd.read_csv(root / "near/metadata.csv")
+            split = dict(zip(meta.row_id.str.split(":").str[1].astype(int), meta.split))
+            copied = np.arange(len(raw) - len(copies), len(raw))  # copies were appended after the originals
+            self.assertTrue(all(split[a] == split[b] for a, b in zip(copies.index, copied)))
+            cfg.pop("near_duplicate")
+            (root / "bad.json").write_text(json.dumps(cfg))
+            with self.assertRaises(ValueError):
+                prepare(root / "raw.csv", root / "bad.json", root / "bad")
 
     def test_forbidden_label_feature_and_overwrite_fail(self):
         cfg = json.loads(Path("configs/data.json").read_text())

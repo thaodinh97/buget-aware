@@ -63,6 +63,24 @@ def connected_groups(*keys):
     return np.array([str(root(i)) for i in range(len(parent))])
 
 
+def near_duplicate_keys(frame, numeric, categorical, jitter, delta):
+    """Rows equal in every predictor but `jitter` whose log1p(jitter) values chain with gaps <= delta share a key.
+
+    ToN-IoT near duplicates differ only in duration, by microseconds, so a single jitter dimension
+    lets the transitive closure be computed exactly by sorting. Missing jitter values never chain.
+    """
+    others = signatures(frame[[c for c in numeric + categorical if c != jitter]])
+    values = np.log1p(numeric_frame(frame, [jitter])[jitter].clip(lower=0).to_numpy(dtype=float))
+    missing = np.isnan(values)
+    order = np.lexsort((np.where(missing, 0, values), missing, others))
+    s_others, s_values, s_missing = others[order], values[order], missing[order]
+    start = np.ones(len(order), dtype=bool)
+    start[1:] = (s_others[1:] != s_others[:-1]) | s_missing[1:] | s_missing[:-1] | (np.diff(s_values) > delta)
+    keys = np.empty(len(order), dtype=object)
+    keys[order] = np.char.add("near:", np.cumsum(start).astype(str))
+    return keys.astype(str)
+
+
 def balanced_group_split(groups, fractions, seed):
     unique, counts = np.unique(groups, return_counts=True)
     order = np.random.default_rng(seed).permutation(len(unique))
@@ -77,8 +95,15 @@ def balanced_group_split(groups, fractions, seed):
     return np.array([mapping[g] for g in groups])
 
 
-def numeric_frame(frame, columns):
-    return frame[columns].apply(pd.to_numeric, errors="raise").replace([np.inf, -np.inf], np.nan)
+def numeric_frame(frame, columns, log1p=()):
+    values = frame[columns].apply(pd.to_numeric, errors="raise").replace([np.inf, -np.inf], np.nan)
+    if log1p:
+        # Heavy-tailed counts: z-scoring raw bytes (sd ~1e7) makes 40 vs 44 bytes indistinguishable.
+        log1p = list(log1p)
+        if (values[log1p] < 0).any().any():
+            raise ValueError("log1p features must be non-negative")
+        values[log1p] = np.log1p(values[log1p])
+    return values
 
 
 def categorical_values(series):
@@ -86,8 +111,8 @@ def categorical_values(series):
     return series.astype("string").fillna("__MISSING__").replace("-", "__MISSING__")
 
 
-def fit_transformer(train, numeric, categorical):
-    values = numeric_frame(train, numeric)
+def fit_transformer(train, numeric, categorical, log1p=()):
+    values = numeric_frame(train, numeric, log1p)
     median = values.median()
     if median.isna().any():
         raise ValueError("Training numeric feature has no finite observations")
@@ -100,14 +125,14 @@ def fit_transformer(train, numeric, categorical):
             raise ValueError("Input collides with reserved category tokens")
         vocabulary[col] = ["__MISSING__", "__UNKNOWN__"] + sorted(
             set(categorical_values(train[col])) - {"__MISSING__"})
-    return {"numeric": numeric, "categorical": categorical,
+    return {"numeric": numeric, "categorical": categorical, "log1p": list(log1p),
             "median": median.to_dict(), "mean": values.mean().to_dict(),
             "scale": scale.to_dict(), "vocabulary": vocabulary,
             "feature_names": numeric + [f"{c}={v}" for c in categorical for v in vocabulary[c]]}
 
 
 def transform(frame, state):
-    values = numeric_frame(frame, state["numeric"]).fillna(state["median"])
+    values = numeric_frame(frame, state["numeric"], state.get("log1p", [])).fillna(state["median"])
     arrays = [((values - pd.Series(state["mean"])) / pd.Series(state["scale"])).to_numpy(dtype=np.float32)]
     for col in state["categorical"]:
         vocab = state["vocabulary"][col]
@@ -138,8 +163,17 @@ def prepare(input_path, config_path, output_dir):
                 "transform_fit": "train_only"}
     if any(config.get(key) != value for key, value in expected.items()):
         raise ValueError("Unsupported policy: implementation must match manifest")
-    if config['group_policy'] not in ['directed_five_tuple', 'connected_bidirectional_features']:
+    connected = ['connected_bidirectional_features', 'connected_bidirectional_features_near_duplicates']
+    if config['group_policy'] not in ['directed_five_tuple', *connected]:
         raise ValueError('Unsupported group policy')
+    log1p = config.get('log1p_features', [])
+    if not set(log1p) <= set(config['numeric_features']) or len(log1p) != len(set(log1p)):
+        raise ValueError('log1p_features must be distinct numeric predictors')
+    near = config.get('near_duplicate')
+    if (config['group_policy'] == connected[1]) != (near is not None):
+        raise ValueError('near_duplicate settings must be given exactly with the near-duplicate group policy')
+    if near and (near['jitter_feature'] not in config['numeric_features'] or near['log1p_delta'] <= 0):
+        raise ValueError('Near-duplicate jitter must be a numeric predictor with a positive tolerance')
     numeric, categorical = config["numeric_features"], config["categorical_features"]
     features = numeric + categorical
     if len(features) != len(set(features)) or set(features) & FORBIDDEN:
@@ -164,8 +198,11 @@ def prepare(input_path, config_path, output_dir):
     reverse = frame[GROUP_COLUMNS].copy()
     reverse.columns = ["dst_ip", "dst_port", "src_ip", "src_port", "proto"]
     bidirectional = np.array([min(a, b) for a, b in zip(groups, signatures(reverse[GROUP_COLUMNS]))])
-    if config['group_policy'] == 'connected_bidirectional_features':
-        groups = connected_groups(bidirectional, feature_signature)
+    near_keys = None
+    if near:
+        near_keys = near_duplicate_keys(frame, numeric, categorical, near['jitter_feature'], near['log1p_delta'])
+    if config['group_policy'] in connected:
+        groups = connected_groups(bidirectional, feature_signature, *([near_keys] if near else []))
         splits = balanced_group_split(groups, config['split_fractions'], config['seed'])
     else:
         splits = split_groups(groups, config["split_fractions"], config["seed"])
@@ -174,7 +211,7 @@ def prepare(input_path, config_path, output_dir):
         for name in config["split_fractions"]:
             if set(frame.loc[splits == name, "label"].unique()) != {0, 1}:
                 raise ValueError(f"Single-class/empty split: {name}; no seed fallback")
-        state = fit_transformer(frame.loc[splits == "train"], numeric, categorical)
+        state = fit_transformer(frame.loc[splits == "train"], numeric, categorical, log1p)
         encoded = transform(frame, state)
         encoded_signatures = np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in encoded])
         encoded_overlap = overlaps(encoded_signatures, splits)
@@ -195,7 +232,19 @@ def prepare(input_path, config_path, output_dir):
     reverse_overlap = overlaps(bidirectional, splits)
     if any(group_overlap.values()):
         raise AssertionError("Cross-split group leakage")
+    near_audit = None
+    if near:
+        # Rows sharing a key under tolerance d but sitting in different splits; zero at the configured d
+        # by construction, other tolerances show sensitivity.
+        near_audit = {"jitter_feature": near['jitter_feature'], "log1p_delta": near['log1p_delta'],
+                      "rows_in_near_duplicate_sets": int(pd.Series(near_keys).duplicated(keep=False).sum()),
+                      "cross_split_overlap": overlaps(near_keys, splits),
+                      "sensitivity_cross_split_overlap": {
+                          str(d): overlaps(near_duplicate_keys(frame, numeric, categorical, near['jitter_feature'], d), splits)
+                          for d in [1e-3, 1e-2, 5e-2]}}
     warnings = []
+    if near_audit and any(near_audit["cross_split_overlap"].values()):
+        warnings.append('NEAR_DUPLICATE_OVERLAP_REQUIRES_PROTOCOL_REVIEW')
     if any(encoded_overlap.values()):
         warnings.append('ENCODED_FEATURE_OVERLAP_REQUIRES_PROTOCOL_REVIEW')
     if any(signature_overlap.values()):
@@ -231,6 +280,7 @@ def prepare(input_path, config_path, output_dir):
              "largest_group_rows": int(pd.Series(groups).value_counts().max()),
              "encoded_overlap_refinement_rounds": refinement_rounds,
              "cross_split_encoded_overlap": encoded_overlap,
+             "near_duplicate_audit": near_audit,
              "warnings": warnings, "training_ready": not any('OVERLAP' in w for w in warnings)}
     write_json(output_dir / "audit.json", audit)
     manifest = {"config": config, "dataset_path": str(Path(input_path).resolve()),

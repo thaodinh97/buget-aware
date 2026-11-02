@@ -1,0 +1,264 @@
+{
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "alpha": 0.5,
+  "clients": 5,
+  "hidden": [
+    64,
+    32
+  ],
+  "threads": 2,
+  "fl": {
+    "rounds": 15,
+    "local_epochs": 1,
+    "batch_size": 512,
+    "lr": 0.001
+  },
+  "recovery_rounds": 2,
+  "save_checkpoints": true,
+  "noise_floor": {
+    "retrains": 4
+  },
+  "lira": {
+    "shadows": 8,
+    "subset_fraction": 0.5,
+    "global_variance": true,
+    "cap_per_class": 2000,
+    "exclude": "exact",
+    "near_quantile": 0.5
+  },
+  "scenarios": [
+    {
+      "name": "random",
+      "kind": "random",
+      "fractions": [
+        0.1,
+        0.5
+      ],
+      "targets": {
+        "largest": 2
+      }
+    },
+    {
+      "name": "atypical",
+      "kind": "atypical",
+      "fractions": [
+        0.05
+      ],
+      "targets": {
+        "largest": 2
+      }
+    },
+    {
+      "name": "family",
+      "kind": "family",
+      "families": [
+        "ransomware",
+        "mitm"
+      ],
+      "fractions": [
+        1.0
+      ],
+      "targets": {
+        "largest": 2
+      }
+    }
+  ],
+  "methods": {
+    "legacy_retain_kd": {
+      "cycles": 1,
+      "batch_size": 512,
+      "forget_objective": "neg_ce",
+      "forget_optimizer": "sgd",
+      "forget_lr": 0.0005,
+      "retain_optimizer": "sgd",
+      "retain_lr": 0.0005,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "kd_mode": "retain_only",
+      "kd_epochs": 1,
+      "kd_lr": 0.001,
+      "temperature": 2.0,
+      "hard_weight": 0.5
+    },
+    "neggrad_plus_adam": {
+      "cycles": 10,
+      "batch_size": 512,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.5,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "stop_rule": "nonmember"
+    },
+    "neggrad_plus_proxy": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 10,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.5,
+      "stop_rule": "proxy_calibrated"
+    },
+    "neggrad_plus_proxy_recovery": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "stop_check": "after_recovery",
+      "check_rounds": 1,
+      "max_outer": 5,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.5,
+      "stop_rule": "proxy_calibrated"
+    },
+    "random_label_proxy_recovery": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "stop_check": "after_recovery",
+      "check_rounds": 1,
+      "max_outer": 5,
+      "forget_objective": "random_label",
+      "stop_rule": "proxy_calibrated"
+    },
+    "uniform_bad_teacher_proxy": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 10,
+      "forget_objective": "uniform",
+      "stop_rule": "proxy_calibrated",
+      "kd_mode": "bad_teacher",
+      "kd_student": "unlearned",
+      "kd_incompetent": "uniform",
+      "kd_stop": true,
+      "kd_optimizer": "adam",
+      "kd_epochs": 1,
+      "kd_lr": 0.001,
+      "temperature": 2.0,
+      "hard_weight": 0.5
+    },
+    "neggrad_plus_oracle_recovery": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.001,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "stop_check": "after_recovery",
+      "check_rounds": 1,
+      "max_outer": 5,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.5,
+      "stop_rule": "oracle_retrain"
+    }
+  },
+  "gate": {
+    "minimum_macro_f1": 0.65,
+    "maximum_f1_drop": 0.03,
+    "maximum_fpr_increase": 0.02,
+    "identifiability_sd": 3.0,
+    "margin_sd_factor": 2.0,
+    "minimum_margin": 0.0001,
+    "minimum_retained_lira_auc": 0.55,
+    "minimum_valid_cases": 6,
+    "minimum_pass_rate": 0.8,
+    "confidence": 0.95,
+    "mia_required": false
+  },
+  "smoke": {
+    "seeds": [
+      42
+    ],
+    "cap_per_type": {
+      "normal": 1500,
+      "default": 300
+    },
+    "fl": {
+      "rounds": 10
+    },
+    "recovery_rounds": 1,
+    "noise_floor": {
+      "retrains": 3
+    },
+    "lira": {
+      "shadows": 2,
+      "rounds": 10,
+      "cap_per_class": 100,
+      "alpha": 100
+    },
+    "scenarios": [
+      {
+        "name": "random",
+        "kind": "random",
+        "fractions": [
+          0.5
+        ],
+        "targets": {
+          "largest": 1
+        }
+      },
+      {
+        "name": "atypical",
+        "kind": "atypical",
+        "fractions": [
+          0.1
+        ],
+        "targets": {
+          "largest": 1
+        }
+      },
+      {
+        "name": "family",
+        "kind": "family",
+        "families": [
+          "ransomware"
+        ],
+        "fractions": [
+          1.0
+        ],
+        "targets": {
+          "largest": 1
+        }
+      }
+    ],
+    "gate": {
+      "minimum_valid_cases": 1
+    },
+    "proxy": {
+      "epochs": 3
+    }
+  },
+  "proxy": {
+    "epochs": 15
+  }
+}
