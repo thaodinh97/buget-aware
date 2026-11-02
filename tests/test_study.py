@@ -517,3 +517,18 @@ class OperatingPointAndCondenseTests(unittest.TestCase):
         self.assertAlmostEqual(relative['utility_floor_used'], .57)
         self.assertFalse(relative['checks']['report_family_detection_closer_to_retrain'])
         self.assertTrue(relative['passed'])  # report_ checks never decide passing
+
+
+class ReportStatisticsTests(unittest.TestCase):
+    def test_holm_and_mean_ci(self):
+        from scripts.report_study import holm, mean_ci, wilcoxon
+        np.testing.assert_allclose(holm([.01, .04, .03, np.nan]), [.03, .06, .06, np.nan])
+        mean, low, high = mean_ci([1., 2., 3.])
+        self.assertEqual(mean, 2.)
+        self.assertAlmostEqual(high - mean, stats_t_half_width(), places=6)
+        self.assertTrue(np.isnan(wilcoxon([0., 0., 0.])))
+
+
+def stats_t_half_width():
+    from scipy import stats
+    return stats.t.ppf(.975, 2) * 1. / np.sqrt(3)
