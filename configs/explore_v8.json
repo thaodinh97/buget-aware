@@ -1,0 +1,147 @@
+{
+  "seeds": [
+    100,
+    101,
+    102
+  ],
+  "alpha": 0.5,
+  "clients": 5,
+  "hidden": [
+    64,
+    32
+  ],
+  "threads": 2,
+  "fl": {
+    "rounds": 15,
+    "local_epochs": 1,
+    "batch_size": 512,
+    "lr": 0.001
+  },
+  "recovery_rounds": 2,
+  "save_checkpoints": true,
+  "noise_floor": {
+    "retrains": 6
+  },
+  "lira": {
+    "shadows": 8,
+    "subset_fraction": 0.5,
+    "global_variance": true,
+    "cap_per_class": 2000,
+    "exclude": "exact",
+    "near_quantile": 0.5,
+    "enabled": false
+  },
+  "scenarios": [
+    {
+      "name": "family",
+      "kind": "family",
+      "families": [
+        "backdoor",
+        "scanning",
+        "dos",
+        "ransomware",
+        "xss",
+        "ddos",
+        "injection",
+        "password",
+        "mitm"
+      ],
+      "fractions": [
+        1.0
+      ],
+      "targets": {
+        "largest": 1
+      }
+    }
+  ],
+  "methods": {
+    "neggrad_plus_proxy": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.003,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 3,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.7,
+      "stop_rule": "proxy_calibrated"
+    },
+    "ngp_lr010": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.01,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 3,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.7,
+      "stop_rule": "proxy_calibrated"
+    },
+    "ngp_lr030": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.03,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 3,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.7,
+      "stop_rule": "proxy_calibrated"
+    },
+    "ngp_lr010_c10": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.01,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 10,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.7,
+      "stop_rule": "proxy_calibrated"
+    }
+  },
+  "gate": {
+    "minimum_macro_f1": 0.65,
+    "maximum_f1_drop": 0.03,
+    "maximum_fpr_increase": 0.02,
+    "identifiability_sd": 3.0,
+    "margin_sd_factor": 2.0,
+    "minimum_margin": 0.0001,
+    "minimum_retained_lira_auc": 0.55,
+    "minimum_valid_cases": 6,
+    "minimum_pass_rate": 0.8,
+    "confidence": 0.95,
+    "mia_required": false,
+    "utility_source": "operating_point",
+    "relative_floor": true,
+    "local_effect_required": false
+  },
+  "proxy": {
+    "epochs": 15
+  },
+  "repeats": 1,
+  "utility": {
+    "operating_point": {
+      "type": "fpr",
+      "max_fpr": 0.05
+    }
+  },
+  "purpose": "Exploratory (not confirmatory) investigation on tuning seeds only: forgetting strength beyond the v6 tuning grid and recovery budgets 0/1/2/4. Any finding needs confirmation on fresh seeds.",
+  "recovery_sweep": [
+    0,
+    1,
+    4
+  ]
+}

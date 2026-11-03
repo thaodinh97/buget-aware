@@ -347,6 +347,8 @@ def run(data_path, config_path, output, smoke=False, seeds=None):
             tag, sr = ('' if r == 0 else f'#r{r}'), seed + REPEAT_SEED_STRIDE * r
             recover = lambda start: fedavg(start, rw, fl, config['recovery_rounds'], sr + RECOVERY_SEED_OFFSET)[0]
             models['retain_only' + tag] = recover(original)
+            for k in config.get('recovery_sweep', []):
+                models[f'retain_only@k{k}{tag}'] = fedavg(original, rw, fl, k, sr + RECOVERY_SEED_OFFSET)[0]
             for name, cfg in config['methods'].items():
                 t = time.perf_counter()
                 rule = cfg.get('stop_rule', 'none')
@@ -374,6 +376,11 @@ def run(data_path, config_path, output, smoke=False, seeds=None):
                 models[f'{name}/retain_matched_local{tag}'] = matched
                 # Same recovery schedule (seeds and total rounds) as the FU candidate.
                 models[f'{name}/retain_matched{tag}'] = fedavg(matched, rw, fl, rounds, sr + RECOVERY_SEED_OFFSET)[0]
+                if cfg.get('stop_check', 'local') == 'local':
+                    # Exploratory recovery budgets k: same start models, k FedAvg rounds on R.
+                    for k in config.get('recovery_sweep', []):
+                        models[f'{name}/final@k{k}{tag}'] = fedavg(start, rw, fl, k, sr + RECOVERY_SEED_OFFSET)[0]
+                        models[f'{name}/retain_matched@k{k}{tag}'] = fedavg(matched, rw, fl, k, sr + RECOVERY_SEED_OFFSET)[0]
                 method_info[name + tag] = {'stop_rule': rule, 'stop_check': cfg.get('stop_check', 'local'),
                                            'stop_target': stop, 'stop_reached': logs[-1]['stop_reached'],
                                            'local_gradient_batches': steps, 'kd_steps': kd_steps, 'recovery_rounds': rounds}
