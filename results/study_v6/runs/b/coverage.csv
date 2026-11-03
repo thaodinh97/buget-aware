@@ -1,0 +1,3 @@
+case,status,reason
+partition_s45,invalid_request,Degenerate client 3; no automatic repartition
+partition_s46,invalid_request,Degenerate client 1; no automatic repartition

@@ -1,0 +1,10 @@
+case,status,reason
+family_s102_t4_backdoor_f1.0,completed,
+family_s102_t4_scanning_f1.0,completed,
+family_s102_t4_dos_f1.0,completed,
+family_s102_t4_ransomware_f1.0,completed,
+family_s102_t4_xss_f1.0,completed,
+family_s102_t4_ddos_f1.0,completed,
+family_s102_t4_injection_f1.0,completed,
+family_s102_t4_password_f1.0,completed,
+family_s102_t4_mitm_f1.0,completed,

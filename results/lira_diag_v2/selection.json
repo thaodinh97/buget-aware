@@ -1,0 +1,54 @@
+{
+  "chosen_variant": "subset0.5_exact",
+  "random_scenario_table": {
+    "subset0.5_exact": {
+      "power": 0.0,
+      "calibration": 1.3931558287601031
+    },
+    "subset0.5_near": {
+      "power": 0.0,
+      "calibration": 2.2218025192115203
+    },
+    "subset1.0_exact": {
+      "power": 0.0,
+      "calibration": 1.271952424370016
+    },
+    "subset1.0_near": {
+      "power": 0.0,
+      "calibration": 1.049627391547724
+    }
+  },
+  "retrain_mean_auc_F": {
+    "family/subset0.5_exact": 0.45103489912264266,
+    "family/subset0.5_near": 0.45175999155061974,
+    "family/subset1.0_exact": 0.6949651302127455,
+    "family/subset1.0_near": 0.45864397494428444,
+    "random/subset0.5_exact": 0.6697830187174381,
+    "random/subset0.5_near": 0.6643027617551508,
+    "random/subset1.0_exact": 0.6468229092575485,
+    "random/subset1.0_near": 0.6542471554902604
+  },
+  "rule": "Pre-registered rule: most random cases with original control AUC >= minimum_auc; ties broken by\n|median nonmember score| closest to 0. Below minimum_power, keep the run's own variant.",
+  "near_quantile": 0.5,
+  "near_radius": 1.4600097131278744e-07,
+  "minimum_auc": 0.55,
+  "minimum_power": 0.5,
+  "source_run": "runs/study_v2",
+  "cases": [
+    "random_s42_t3_f0.1",
+    "random_s42_t3_f0.5",
+    "random_s42_t4_f0.1",
+    "random_s42_t4_f0.5",
+    "random_s43_t0_f0.1",
+    "random_s43_t0_f0.5",
+    "random_s43_t1_f0.1",
+    "random_s43_t1_f0.5",
+    "random_s44_t1_f0.1",
+    "random_s44_t1_f0.5",
+    "random_s44_t2_f0.1",
+    "random_s44_t2_f0.5",
+    "family_s42_t4_ransomware_f1.0",
+    "family_s43_t1_mitm_f1.0"
+  ],
+  "seconds": 635.570492342
+}

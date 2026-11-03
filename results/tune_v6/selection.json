@@ -1,0 +1,524 @@
+{
+  "chosen": {
+    "neggrad_plus_proxy": "neggrad_plus_proxy__08",
+    "uniform_bad_teacher_proxy": "uniform_bad_teacher_proxy__15"
+  },
+  "locked_methods": {
+    "neggrad_plus_proxy": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.003,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 3,
+      "forget_objective": "neggrad_plus",
+      "neggrad_retain_weight": 0.7,
+      "stop_rule": "proxy_calibrated"
+    },
+    "uniform_bad_teacher_proxy": {
+      "batch_size": 512,
+      "forget_optimizer": "adam",
+      "forget_lr": 0.003,
+      "retain_optimizer": "adam",
+      "retain_lr": 0.001,
+      "retain_steps_per_cycle": 50,
+      "regularization": 0.001,
+      "clip": 1.0,
+      "cycles": 10,
+      "forget_objective": "uniform",
+      "stop_rule": "proxy_calibrated",
+      "kd_mode": "bad_teacher",
+      "kd_student": "unlearned",
+      "kd_incompetent": "uniform",
+      "kd_stop": true,
+      "kd_optimizer": "adam",
+      "kd_epochs": 2,
+      "kd_lr": 0.0003,
+      "temperature": 2.0,
+      "hard_weight": 0.5
+    }
+  },
+  "table": {
+    "neggrad_plus_proxy__00": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.025718519394115454,
+      "f1_drop": -0.0011005964248540594,
+      "fpr_increase": -0.0002746092099704268,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__01": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.025649912159830545,
+      "f1_drop": -0.00173542398338844,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__02": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.025768239060312257,
+      "f1_drop": -0.001355464166784744,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__03": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.025458905839553778,
+      "f1_drop": -0.0012457632761552577,
+      "fpr_increase": -0.0003379805661174491,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__04": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.025476342808044384,
+      "f1_drop": 3.6106198620831455e-05,
+      "fpr_increase": -0.0002112378538234056,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__05": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.025675917020626892,
+      "f1_drop": -0.0014600425943742852,
+      "fpr_increase": -7.393324883819194e-05,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__06": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.025386126717606206,
+      "f1_drop": -0.005900977085054456,
+      "fpr_increase": -0.00028517110266159697,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__07": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.025438978003102648,
+      "f1_drop": -0.003897015899035785,
+      "fpr_increase": -0.00041191381495564103,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__08": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 3,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.025325427994403987,
+      "f1_drop": -0.005009887655225152,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__09": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.028606444793364036,
+      "f1_drop": -1.3716382246407402e-05,
+      "fpr_increase": -0.0002746092099704268,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__10": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.02840598409129633,
+      "f1_drop": -0.0006553580605001922,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__11": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.0003,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.02879576217895918,
+      "f1_drop": -0.0009253712419442506,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__12": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.027608236902580987,
+      "f1_drop": -0.00024994875935133165,
+      "fpr_increase": -0.00030629488804393795,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__13": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.027672863622673672,
+      "f1_drop": 9.288307856058127e-05,
+      "fpr_increase": -0.00022179974651457637,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__14": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.001,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.02776192883118611,
+      "f1_drop": -0.0002806475916008466,
+      "fpr_increase": -7.393324883819194e-05,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__15": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.3
+      },
+      "cases": 12,
+      "distance_F": 0.026474117808063358,
+      "f1_drop": -0.004731777164640165,
+      "fpr_increase": -0.0005597803126320237,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__16": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.5
+      },
+      "cases": 12,
+      "distance_F": 0.026609711513953093,
+      "f1_drop": -0.004285312895842423,
+      "fpr_increase": -0.00040135192226447024,
+      "feasible": true
+    },
+    "neggrad_plus_proxy__17": {
+      "method": "neggrad_plus_proxy",
+      "params": {
+        "cycles": 10,
+        "forget_lr": 0.003,
+        "neggrad_retain_weight": 0.7
+      },
+      "cases": 12,
+      "distance_F": 0.026565979648099702,
+      "f1_drop": -0.004985741860122729,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__00": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 1,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.028136075799610433,
+      "f1_drop": -0.006196580435170009,
+      "fpr_increase": -0.00029573299535276776,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__01": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 1,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.027690132143689736,
+      "f1_drop": -0.001949024451755164,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__02": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 1,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.028940797395562916,
+      "f1_drop": -0.0024779906569467693,
+      "fpr_increase": -3.1685678073512316e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__03": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 2,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.027774399632101123,
+      "f1_drop": -0.0028200337364593284,
+      "fpr_increase": -0.0007815800591465995,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__04": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 2,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.02823555875103978,
+      "f1_drop": -0.0025278111547672177,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__05": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.0003,
+        "kd_epochs": 2,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.029996209257313,
+      "f1_drop": -0.002302167355011255,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__06": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 1,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.028216651216549815,
+      "f1_drop": -0.002950445689934217,
+      "fpr_increase": -0.0003062948880439385,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__07": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 1,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.02800233259808624,
+      "f1_drop": -0.002185639272664001,
+      "fpr_increase": -0.0006337135614702163,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__08": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 1,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.029492485619948928,
+      "f1_drop": -0.0024871139434057277,
+      "fpr_increase": -4.224757076468251e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__09": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 2,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.02787207938830194,
+      "f1_drop": -0.0021455269664445533,
+      "fpr_increase": -0.0008343895226024511,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__10": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 2,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.028380420497190837,
+      "f1_drop": -0.0028313348639936084,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__11": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.001,
+        "kd_epochs": 2,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.030111855142085215,
+      "f1_drop": -0.0028170100075589157,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__12": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 1,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.02770239008533754,
+      "f1_drop": -0.0028399835890884537,
+      "fpr_increase": -0.0009188846641318126,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__13": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 1,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.028202715245818036,
+      "f1_drop": -0.0021185465554814007,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__14": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 1,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.030141147490390412,
+      "f1_drop": -0.001661751546438504,
+      "fpr_increase": -1.0561892691170771e-05,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__15": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 2,
+        "kd_lr": 0.0003
+      },
+      "cases": 12,
+      "distance_F": 0.02698831367713478,
+      "f1_drop": -0.0017743643934389763,
+      "fpr_increase": -0.0004541613857203212,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__16": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 2,
+        "kd_lr": 0.001
+      },
+      "cases": 12,
+      "distance_F": 0.029065247904603853,
+      "f1_drop": -0.004712120245102073,
+      "fpr_increase": 0.0,
+      "feasible": true
+    },
+    "uniform_bad_teacher_proxy__17": {
+      "method": "uniform_bad_teacher_proxy",
+      "params": {
+        "forget_lr": 0.003,
+        "kd_epochs": 2,
+        "kd_lr": 0.003
+      },
+      "cases": 12,
+      "distance_F": 0.03110588353008807,
+      "f1_drop": -0.00176234741999907,
+      "fpr_increase": 0.0,
+      "feasible": true
+    }
+  },
+  "rule": "Per method: smallest mean D_F(final) among settings whose mean validation macro-F1 drop and FPR\nincrease at the operating point (vs the original, same case) stay within the rule's limits.",
+  "selection": {
+    "maximum_f1_drop": 0.03,
+    "maximum_fpr_increase": 0.02
+  },
+  "tuning_seeds": [
+    100,
+    101,
+    102
+  ]
+}

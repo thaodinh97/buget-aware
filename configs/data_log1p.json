@@ -1,0 +1,39 @@
+{
+  "method_context": "conpfu_inspired",
+  "preprocessing_version": "toniot_connected_log1p_counts_v5",
+  "seed": 42,
+  "numeric_features": [
+    "duration",
+    "src_bytes",
+    "dst_bytes",
+    "missed_bytes",
+    "src_pkts",
+    "src_ip_bytes",
+    "dst_pkts",
+    "dst_ip_bytes"
+  ],
+  "categorical_features": [
+    "proto",
+    "service",
+    "conn_state"
+  ],
+  "split_fractions": {
+    "train": 0.6,
+    "validation": 0.15,
+    "calibration": 0.1,
+    "test": 0.15
+  },
+  "duplicate_policy": "keep_first_exact_row_with_mapping",
+  "conflict_policy": "retain_and_report",
+  "group_policy": "connected_bidirectional_features",
+  "transform_fit": "train_only",
+  "log1p_features": [
+    "src_bytes",
+    "dst_bytes",
+    "missed_bytes",
+    "src_pkts",
+    "src_ip_bytes",
+    "dst_pkts",
+    "dst_ip_bytes"
+  ]
+}

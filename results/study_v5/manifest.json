@@ -1,0 +1,315 @@
+{
+  "config": {
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "alpha": 0.5,
+    "clients": 5,
+    "hidden": [
+      64,
+      32
+    ],
+    "threads": 2,
+    "fl": {
+      "rounds": 15,
+      "local_epochs": 1,
+      "batch_size": 512,
+      "lr": 0.001
+    },
+    "recovery_rounds": 2,
+    "save_checkpoints": true,
+    "noise_floor": {
+      "retrains": 4
+    },
+    "lira": {
+      "shadows": 8,
+      "subset_fraction": 0.5,
+      "global_variance": true,
+      "cap_per_class": 2000,
+      "exclude": "exact",
+      "near_quantile": 0.5
+    },
+    "scenarios": [
+      {
+        "name": "random",
+        "kind": "random",
+        "fractions": [
+          0.1,
+          0.5
+        ],
+        "targets": {
+          "largest": 2
+        }
+      },
+      {
+        "name": "atypical",
+        "kind": "atypical",
+        "fractions": [
+          0.05
+        ],
+        "targets": {
+          "largest": 2
+        }
+      },
+      {
+        "name": "family",
+        "kind": "family",
+        "families": [
+          "ransomware",
+          "mitm"
+        ],
+        "fractions": [
+          1.0
+        ],
+        "targets": {
+          "largest": 2
+        }
+      }
+    ],
+    "methods": {
+      "legacy_retain_kd": {
+        "cycles": 1,
+        "batch_size": 512,
+        "forget_objective": "neg_ce",
+        "forget_optimizer": "sgd",
+        "forget_lr": 0.0005,
+        "retain_optimizer": "sgd",
+        "retain_lr": 0.0005,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "kd_mode": "retain_only",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      },
+      "neggrad_plus_adam": {
+        "cycles": 10,
+        "batch_size": 512,
+        "forget_objective": "neggrad_plus",
+        "neggrad_retain_weight": 0.5,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_rule": "nonmember"
+      },
+      "neggrad_plus_proxy": {
+        "batch_size": 512,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "cycles": 10,
+        "forget_objective": "neggrad_plus",
+        "neggrad_retain_weight": 0.5,
+        "stop_rule": "proxy_calibrated"
+      },
+      "neggrad_plus_proxy_recovery": {
+        "batch_size": 512,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_check": "after_recovery",
+        "check_rounds": 1,
+        "max_outer": 5,
+        "forget_objective": "neggrad_plus",
+        "neggrad_retain_weight": 0.5,
+        "stop_rule": "proxy_calibrated"
+      },
+      "random_label_proxy_recovery": {
+        "batch_size": 512,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_check": "after_recovery",
+        "check_rounds": 1,
+        "max_outer": 5,
+        "forget_objective": "random_label",
+        "stop_rule": "proxy_calibrated"
+      },
+      "uniform_bad_teacher_proxy": {
+        "batch_size": 512,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "cycles": 10,
+        "forget_objective": "uniform",
+        "stop_rule": "proxy_calibrated",
+        "kd_mode": "bad_teacher",
+        "kd_student": "unlearned",
+        "kd_incompetent": "uniform",
+        "kd_stop": true,
+        "kd_optimizer": "adam",
+        "kd_epochs": 1,
+        "kd_lr": 0.001,
+        "temperature": 2.0,
+        "hard_weight": 0.5
+      },
+      "neggrad_plus_oracle_recovery": {
+        "batch_size": 512,
+        "forget_optimizer": "adam",
+        "forget_lr": 0.001,
+        "retain_optimizer": "adam",
+        "retain_lr": 0.001,
+        "retain_steps_per_cycle": 50,
+        "regularization": 0.001,
+        "clip": 1.0,
+        "stop_check": "after_recovery",
+        "check_rounds": 1,
+        "max_outer": 5,
+        "forget_objective": "neggrad_plus",
+        "neggrad_retain_weight": 0.5,
+        "stop_rule": "oracle_retrain"
+      }
+    },
+    "gate": {
+      "minimum_macro_f1": 0.65,
+      "maximum_f1_drop": 0.03,
+      "maximum_fpr_increase": 0.02,
+      "identifiability_sd": 3.0,
+      "margin_sd_factor": 2.0,
+      "minimum_margin": 0.0001,
+      "minimum_retained_lira_auc": 0.55,
+      "minimum_valid_cases": 6,
+      "minimum_pass_rate": 0.8,
+      "confidence": 0.95,
+      "mia_required": false
+    },
+    "smoke": {
+      "seeds": [
+        42
+      ],
+      "cap_per_type": {
+        "normal": 1500,
+        "default": 300
+      },
+      "fl": {
+        "rounds": 10
+      },
+      "recovery_rounds": 1,
+      "noise_floor": {
+        "retrains": 3
+      },
+      "lira": {
+        "shadows": 2,
+        "rounds": 10,
+        "cap_per_class": 100,
+        "alpha": 100
+      },
+      "scenarios": [
+        {
+          "name": "random",
+          "kind": "random",
+          "fractions": [
+            0.5
+          ],
+          "targets": {
+            "largest": 1
+          }
+        },
+        {
+          "name": "atypical",
+          "kind": "atypical",
+          "fractions": [
+            0.1
+          ],
+          "targets": {
+            "largest": 1
+          }
+        },
+        {
+          "name": "family",
+          "kind": "family",
+          "families": [
+            "ransomware"
+          ],
+          "fractions": [
+            1.0
+          ],
+          "targets": {
+            "largest": 1
+          }
+        }
+      ],
+      "gate": {
+        "minimum_valid_cases": 1
+      },
+      "proxy": {
+        "epochs": 3
+      }
+    },
+    "proxy": {
+      "epochs": 15
+    }
+  },
+  "smoke_only": false,
+  "data_manifest_sha256": "2542b6a6db646427e26393f66f1b8d7cce60185f4ac705ab3fcabaed4bbd90a3",
+  "source_hashes": {
+    "src/fl/fedavg_core.py": "30304f63e88fab40299226280e2d5d54be6783cca0d940e5cb7d4b4efb2f06aa",
+    "src/data/scenarios.py": "51e7370c2f8b33fd8a49e671a7f08b1d0ca11283fae1deaef8d50a6da17455ff",
+    "src/data/federated.py": "f65647a9f25d93f381e84ccf3bb376e0b701fc887187f3e9f100989a59a8902b",
+    "src/data/prepare.py": "f50b997d0aeed0d5cbd5fd9e9fa73b269251b6567d70f76d71faee269627d96d",
+    "src/fu/conpfu_inspired.py": "cadb9572f19ffa500df92b93d78184965770873b2acd700f148d7d23e9ec276a",
+    "src/fu/recovery_check.py": "3ad3d35bcd80c801acc951ce7eda9bdf64781473aa6e2cd2407ab8d10a6f7e9f",
+    "src/fu/baselines.py": "fb6fb5eb56f513ab243acf3adfe4fc1f7b647d107da5a863e1c0ce7beb4b1406",
+    "src/eval/noise_floor.py": "52e1624206e39d9c93344948cbf70f5e9566dec1de62d91bdeb72fda954ec511",
+    "src/eval/metrics.py": "57f9e616f81e922ab0a82eb4e40cffb57da5608fea59019fe5ecb27a38e00bda",
+    "src/eval/lira.py": "6e75458e9d39fd63b1479f5bf79c5a6151ddd44602147d6273f8324abc98301e",
+    "scripts/make_synthetic_toniot.py": "3a4aeaeee380c02bd1b527bd3d90a105f5720fb925976e4dea5c8b5aeb28e0ba",
+    "scripts/diagnose_lira.py": "b994b2211f0f753f4a0e254fd440fdf4bb64473daefbada969aa85dfb68974f0",
+    "scripts/plot_results.py": "42fecd091b98c997bebc685f0b7b7e6aab78352468b3724e677ccbac14e7136d",
+    "scripts/verify_run.py": "bb49b176f6ac426a7d02fa363e3e6f2ae160e171be3b8eb135cd93f918c12802",
+    "scripts/run_study.py": "f065555eb7051b7a743418912570d929decc03794ec9e534f73d8cedb2f92808",
+    "scripts/audit_holdout_novelty.py": "aaccf5012f67f27fca4607dba85210c27e3ffdbc46aa0f1f0f1ead143a70ac4e",
+    "scripts/run_pilot.py": "a579e1bf95f0c03ea4332ef14b7d76a62ed0cfa21c7aa2779c25a32f82caea09"
+  },
+  "python": "3.13.17",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.5.4",
+  "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "device": "cpu",
+  "timing": "time.perf_counter; sequential logical workers",
+  "code_revision": null,
+  "train_rows": 114284,
+  "train_types": {
+    "normal": 22534,
+    "backdoor": 18618,
+    "scanning": 16512,
+    "dos": 16194,
+    "ransomware": 14705,
+    "xss": 9226,
+    "ddos": 6090,
+    "injection": 5173,
+    "password": 4955,
+    "mitm": 277
+  },
+  "seed_policy": {
+    "retrain_j": "seed + 104729*j (j=0 is the original init seed)",
+    "shadow_k": "seed + 15485863 + k",
+    "recovery": "seed + 900000 for every recovery"
+  },
+  "compute_matching": "retain_matched = retain-only local steps equal to FU local minibatch gradient evaluations (forget + retain + KD), then the same recovery",
+  "mia": "offline LiRA, OUT-only FedAvg shadows excluding every forget/control record and its exact encoded duplicates; thresholds from original on calibration nonmembers only"
+}

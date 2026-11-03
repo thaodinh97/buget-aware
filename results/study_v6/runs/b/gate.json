@@ -1,0 +1,8 @@
+{
+  "methods": {},
+  "decisions": [],
+  "smoke_only": false,
+  "study_passed_any": false,
+  "dt_allowed": false,
+  "note": "Cases sharing a seed share the original model and are not independent; the CI is a screening statistic, not a robustness claim."
+}
