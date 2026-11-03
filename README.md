@@ -18,6 +18,8 @@
 
 **`study_v7` (nghiên cứu xác nhận, seed mới 49–52, cả 9 họ attack, 38 case hợp lệ): giả thuyết chính không được xác nhận theo quy tắc đã khóa.** NegGrad+@final gần retrain hơn retain-only có recovery (Δ +0,0013, CI [+0,0006; +0,0021], p = 4,6e-7, 33/38 case, 0 thua vượt margin) và hơn retain-only cùng compute, utility không tệ hơn; nhưng chỉ 34% case vượt margin nhiễu (ngưỡng 50%). 42% case đạt mức retrain so với 8% của retain-only. Xem [báo cáo v7](docs/study_report_v7.md).
 
+**Điều tra vì sao FU chưa chứng minh được ([docs/investigation_fu.md](docs/investigation_fu.md)):** 66% lợi ích của FU so với retain-only đến từ việc train thêm trên R, tín hiệu quên chỉ đóng góp +0,00045; FU dịch dự đoán đúng hướng nhưng chỉ khoảng 26% quãng đường cần thiết; quên mạnh hơn bị recovery xóa; không có recovery thì FU tệ hơn không làm gì. Hướng chứng minh khả thi: kiểm chứng bằng backdoor/canary.
+
 ## Chạy lại
 
 PowerShell từ `E:/budget-aware-code`, dùng `python` tại `D:/python/python.exe` (torch CPU đã có). Manifest lưu phiên bản thực tế; requirements không phải lockfile đầy đủ.
