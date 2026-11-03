@@ -10,7 +10,7 @@ import torch
 from sklearn.metrics import f1_score
 from scripts.experiment_context import Context
 from src.data.canary import categorical_blocks,combination_trigger,stamp_combination,make_combination_canaries,make_canaries
-from src.eval.confirmation_decision import noninferior,reaches_retrain,request_row,overall
+from src.eval.confirmation_decision import noninferior,reaches_retrain,request_row,overall,one_row_resolution
 from src.eval.utility_breakdown import detector_metrics,client_metrics
 from src.fl.fedavg_core import model
 from src.fu.projection import linear_layers
@@ -110,6 +110,35 @@ class Decision(unittest.TestCase):
         self.assertIsNone(noninferior(np.full(4,np.nan),np.full(4,.1),r)['noninferior'])
         self.assertTrue(reaches_retrain(r+.001,r)); self.assertFalse(reaches_retrain(r-.2,r))
 
+    @staticmethod
+    def flipped(tn,fp,fn,tp):
+        """Brute force: macro-F1 at a confusion matrix and after every single-row flip, scored by detector_metrics."""
+        y=np.r_[np.zeros(tn+fp,int),np.ones(fn+tp,int)]; pred=np.r_[np.zeros(tn),np.ones(fp),np.zeros(fn),np.ones(tp)]
+        base=detector_metrics(y,pred)['macro_f1']; out=[]
+        for i in range(len(y)):
+            p=pred.copy(); p[i]=1-p[i]; out.append(abs(detector_metrics(y,p)['macro_f1']-base))
+        return max(out)
+
+    def test_one_row_resolution(self):
+        for tn,fp,fn,tp in [(241,28,3,925),(5,0,0,7),(0,0,4,9),(30,2,1,0),(12,3,4,20)]:
+            n,a=tn+fp,fn+tp; fpr=fp/n if n else np.nan; rec=tp/a if a else np.nan
+            got=one_row_resolution('macro_f1',[n,n],[a,a],[fpr,fpr],[rec,rec])
+            self.assertAlmostEqual(got,self.flipped(tn,fp,fn,tp),places=12)
+            self.assertEqual(one_row_resolution('fpr',[n],[a],[fpr],[rec]),1/n if n else 0.)
+        # The maximum over the cloud's confusion matrices.
+        self.assertAlmostEqual(one_row_resolution('macro_f1',[269,15],[928,15],[28/269,2/15],[925/928,13/15]),self.flipped(13,2,2,13),places=12)
+
+    def test_one_row_floor(self):
+        # confirmation_p43, combo canary c1, client 4: retrain cloud and retain-only constant, the arm better on one seed.
+        ref=np.full(10,.961545); fu=ref.copy(); fu[8]+=.00119; retrain=np.full(10,.961545)
+        self.assertFalse(noninferior(fu,ref,retrain)['noninferior'])
+        self.assertTrue(noninferior(fu,ref,retrain,resolution=.0013)['noninferior'])
+        self.assertEqual(noninferior(fu,ref,retrain,resolution=.0013)['floor'],.0013)
+        # A loss of several rows on every seed still fails under the one-row floor.
+        self.assertFalse(noninferior(ref-.004,ref,retrain,resolution=.0013)['noninferior'])
+        # The floor is the coarser of the two: a noisy retrain cloud keeps its own floor.
+        noisy=np.array([.80,.81,.79,.80]); self.assertEqual(noninferior(noisy,noisy,noisy,resolution=1e-6)['floor'],noninferior(noisy,noisy,noisy)['floor'])
+
     def cloud(self,primary,f1=.9,fpr=.1,rng=None):
         rng=rng or np.random.default_rng(0); n=len(primary)
         return {'primary':np.asarray(primary,float),'mae_F':np.asarray(primary,float),'test_macro_f1':f1+rng.normal(0,.001,n),
@@ -166,14 +195,24 @@ class FakeContext(Context):
         self.metadata=pd.DataFrame({'feature_signature':[r.tobytes().hex() for r in self.tr['X']]},index=self.tr['row_id'])
 
 class EndToEnd(unittest.TestCase):
-    def test_confirm_run_and_verifier(self):
+    def test_confirm_run_and_verifier(self): self.run_mode('confirm')
+
+    def test_confirm2_run_and_verifier(self):
+        decision,protocol=self.run_mode('confirm2')
+        self.assertEqual(protocol['confirm2']['utility_floor'],'one_row')
+        for k in ['test_macro_f1','test_fpr','client0_macro_f1']:
+            self.assertTrue((decision[f'{k}_resolution']>0).all())
+            self.assertTrue((decision[f'{k}_floor']>=decision[f'{k}_resolution']).all())
+
+    def run_mode(self,mode):
         from scripts import run_confirmation as C, verify_confirmation as V
-        cfg=copy.deepcopy(C.CONFIG); cfg['canary_count']=100
-        cfg['confirm'].update(seeds=[501,502,503,504],alpha=5.,canary_min_attack_rows=100,max_canary_clients=1)
+        cfg=copy.deepcopy(C.CONFIG); cfg['canary_count']=100; small=dict(seeds=[501,502,503,504],alpha=5.,canary_min_attack_rows=100,max_canary_clients=1)
+        cfg['confirm'].update(small); cfg2={**copy.deepcopy(C.CONFIRM2),**small}
         torch.set_num_threads(1)
-        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(C,'CONFIG',cfg), mock.patch.dict('os.environ',{'FL_DEVICE':'cpu'}):
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(C,'CONFIG',cfg), mock.patch.object(C,'CONFIRM2',cfg2), \
+             mock.patch.dict('os.environ',{'FL_DEVICE':'cpu'}):
             root=Path(tmp); ctx=FakeContext(root); out=root/'run'
-            verdict=C.run(out,'confirm',ctx=ctx)
+            verdict=C.run(out,mode,ctx=ctx)
             status=json.loads((out/'status.json').read_text()); self.assertTrue(status['completed'])
             requests=json.loads((out/'requests.json').read_text())['requests']
             self.assertTrue(any(k.startswith('canary_') for k in requests))
@@ -193,5 +232,6 @@ class EndToEnd(unittest.TestCase):
             report=V.verify(out,ctx=ctx)
             self.assertGreater(report['stages_reexecuted'],0)
             for name in status['requests_passing_gate'][1:]: V.verify(out,ctx=ctx,request=name)
+            return pd.read_csv(out/'decision.csv'),json.loads((out/'manifest.json').read_text())['protocol']
 
 if __name__=='__main__': unittest.main()

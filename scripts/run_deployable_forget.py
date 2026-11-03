@@ -58,21 +58,31 @@ def reference_model(ctx,req,s):
 
 def references(orig,fx,fy,pools,neighbors,retrain_ce,retrain_p,i,device,ref=None):
     """Per-seed stop levels (CE, and true-label probability for *_prob) and soft targets.
-    retrain_oracle is the retrain-cloud mean on F with seed i left out."""
+    retrain_oracle is the retrain-cloud mean on F with seed i left out; retrain_ce=None skips it."""
     margins={k:neighbor_margin(orig,pools[k],neighbors[k]) for k in pools}
     if ref is not None:
         # joint: per row, whichever reference gives the true label the lower probability (both err towards under-forgetting).
         margins['ref_aux']=logit_margin(ref,fx); sign=2*np.asarray(fy)-1
         margins['joint_aux']=sign*np.minimum(sign*margins['knn_aux'],sign*margins['ref_aux'])
-    levels={**{k:reference_level(fy,v) for k,v in margins.items()},**{f'{k}_prob':reference_prob(fy,v) for k,v in margins.items()},
-            'retrain_oracle':float(np.delete(retrain_ce,i).mean()),'retrain_oracle_prob':float(np.delete(retrain_p,i).mean())}
+    levels={**{k:reference_level(fy,v) for k,v in margins.items()},**{f'{k}_prob':reference_prob(fy,v) for k,v in margins.items()}}
+    if retrain_ce is not None:
+        levels.update({'retrain_oracle':float(np.delete(retrain_ce,i).mean()),'retrain_oracle_prob':float(np.delete(retrain_p,i).mean())})
     return margins,levels,{k:soft_targets(v,device) for k,v in margins.items()}
+
+def stage_config(op,stop,targets):
+    """Local forget config of one arm and its soft targets (soft-target objectives only)."""
+    cfg={**CONFIG['local'],**CONFIG['ops'][op],'stop_statistic':'prob' if stop.endswith('_prob') else 'ce'}
+    return cfg,(targets[stop.removesuffix('_prob')] if cfg['objective']=='soft_target' else None)
+
+def standard_arm(orig,fw,rw,recovery,fl,rounds,s,op,stop,levels,targets):
+    """The standard-recovery model of one arm, as arm_runs builds it, without the interleaved variant."""
+    cfg,tg=stage_config(op,stop,targets); pre,_,_=local_forget(orig,fw,rw,cfg,s,levels[stop],tg)
+    return fedavg(pre,recovery,fl,rounds,s+900000)[0]
 
 def arm_runs(orig,fw,rw,recovery,fl,rounds,s,op,stop,levels,targets,overhead=(0,0.)):
     """Standard and interleaved variants of one local arm; the interleaved first stage reuses the standard one.
     overhead = (rows, seconds) of building the stop reference, charged once to both variants."""
-    cfg={**CONFIG['local'],**CONFIG['ops'][op],'stop_statistic':'prob' if stop.endswith('_prob') else 'ce'}
-    tg=targets[stop.removesuffix('_prob')] if cfg['objective']=='soft_target' else None
+    cfg,tg=stage_config(op,stop,targets)
     run_stage=lambda start:local_forget(start,fw,rw,cfg,s,levels[stop],tg)
     t0=time.perf_counter(); pre,_,info=run_stage(orig); local=time.perf_counter()-t0+overhead[1]
     info={**info,'backward_samples':info['backward_samples']+overhead[0],'reference_backward_samples':overhead[0]}

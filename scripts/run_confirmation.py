@@ -6,7 +6,10 @@
                  baselines to the reported results, and cross-checks the frozen arms against the stored run.
 --mode confirm   A new Dirichlet partition and new seeds; natural requests on every client, zero-dim and
                  combination canaries; every cloud is trained here.
-Arms, controls and the decision rule are frozen in CONFIG for both modes; nothing is selected from results.
+--mode confirm2  The second confirmation (CONFIRM2): as confirm on another partition and other seeds, with the
+                 utility floor never finer than one row. Fixed in docs/confirmation_plan.md after confirmation_p43
+                 and before this run; there is no third confirmation.
+Arms, controls and the decision rule are frozen in CONFIG for every mode; nothing is selected from results.
 """
 import argparse
 import json
@@ -24,7 +27,7 @@ from src.data.canary import trigger_dims,stamp,make_canaries,combination_trigger
 from src.data.federated import partition,ids_hash
 from src.data.prepare import digest,write_json
 from src.data.request_sensitivity import build_request
-from src.eval.confirmation_decision import request_row,overall
+from src.eval.confirmation_decision import request_row,overall,one_row_resolution
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics,client_metrics
 from src.fl.fedavg_core import model,state,fedavg,ClientWorker,get_device
@@ -46,7 +49,13 @@ CONFIG={'arms':['ga_proj@joint_aux_prob','nkd_proj@joint_aux_prob','ga_adam@join
                    'designs':['random_stratified','low_overlap_groups'],'fraction':.5,'request_seed_offset':1,
                    'canary_min_attack_rows':2000,'max_canary_clients':3},
         'level':.95,'min_targets':2}
+# Kept out of CONFIG so that the runs made before it still verify against their recorded protocol.
+CONFIRM2={**CONFIG['confirm'],'partition_seed':44,'seeds':[30042+i for i in range(10)],'utility_floor':'one_row'}
 METRICS=['primary','mae_F','test_macro_f1','test_fpr']
+
+def confirm_config(mode): return CONFIRM2 if mode=='confirm2' else CONFIG['confirm']
+
+def one_row_floor(mode): return mode!='existing' and confirm_config(mode).get('utility_floor')=='one_row'
 
 class UtilityScorer(R.Scorer):
     """R.Scorer plus test FPR/recall/class F1 and the same metrics on every client's retained rows."""
@@ -59,13 +68,13 @@ class UtilityScorer(R.Scorer):
         return out
 
 def seeds_for(mode,limit=None):
-    seeds=json.loads((R.SEED_FLOOR/'manifest.json').read_text())['protocol']['seeds'] if mode=='existing' else CONFIG['confirm']['seeds']
+    seeds=json.loads((R.SEED_FLOOR/'manifest.json').read_text())['protocol']['seeds'] if mode=='existing' else confirm_config(mode)['seeds']
     return list(seeds)[:limit]
 
 def setting(ctx,mode):
     """Client partition (train indices) and the base seed of the canaries and requests."""
     if mode=='existing': return ctx.parts,ctx.cfg['seed']
-    c=CONFIG['confirm']; return partition(ctx.tr['y'],c['partition_seed'],c['alpha'],c['clients']),c['partition_seed']
+    c=confirm_config(mode); return partition(ctx.tr['y'],c['partition_seed'],c['alpha'],c['clients']),c['partition_seed']
 
 def blocks_of(tr,parts): return [(tr['X'][p],tr['y'][p],tr['row_id'][p]) for p in parts]
 
@@ -89,8 +98,8 @@ def canary_request(ctx,base,parts,c,kind,trig,seed):
             'original_blocks':[b if j!=c else (np.r_[b[0],cx],np.r_[b[1],cy],np.r_[b[2],cids]) for j,b in enumerate(base)],
             'retained_blocks':base,'forget':(cx,cy,cids),'target_retain':base[c],'audit':{'source_row_ids':tr['row_id'][src].tolist()}}
 
-def natural_request(ctx,base,parts,t,design,seed,signatures):
-    tr=ctx.tr; f,r,audit=build_request(tr,parts,t,CONFIG['confirm']['fraction'],design,signatures,seed)
+def natural_request(ctx,base,parts,t,design,seed,signatures,fraction):
+    tr=ctx.tr; f,r,audit=build_request(tr,parts,t,fraction,design,signatures,seed)
     keep=(tr['X'][r],tr['y'][r],tr['row_id'][r])
     return {'kind':'natural','trigger':None,'target':t,'primary':'mae_F','primary_rows':None,'original_blocks':base,
             'retained_blocks':[b if j!=t else keep for j,b in enumerate(base)],
@@ -110,7 +119,7 @@ def make_requests(ctx,mode):
             requests[f'combo_canary_c{c}_{n}']=req
         for k,v in requests.items(): v.setdefault('trigger','zero' if v['kind']=='canary' else None)
         return parts,trig,requests,invalid,[]
-    c=CONFIG['confirm']; y=ctx.tr['y']; attack=[int((y[p]==1).sum()) for p in parts]
+    c=confirm_config(mode); y=ctx.tr['y']; attack=[int((y[p]==1).sum()) for p in parts]
     canary_clients=[j for j in sorted(range(len(parts)),key=lambda j:(-attack[j],j)) if attack[j]>=c['canary_min_attack_rows']][:c['max_canary_clients']]
     for kind,prefix in [('zero','canary'),('combination','combo_canary')]:
         for j in canary_clients: requests[f'{prefix}_c{j}_{n}']=canary_request(ctx,base,parts,j,kind,trig[kind],seed+off)
@@ -118,7 +127,7 @@ def make_requests(ctx,mode):
     for t in range(len(parts)):
         for design in c['designs']:
             name=f'client{t}_{design}_{c["fraction"]}'
-            try: requests[name]=natural_request(ctx,base,parts,t,design,seed+c['request_seed_offset'],signatures)
+            try: requests[name]=natural_request(ctx,base,parts,t,design,seed+c['request_seed_offset'],signatures,c['fraction'])
             except ValueError as exc: invalid[name]=str(exc)
     return parts,trig,requests,invalid,canary_clients
 
@@ -196,12 +205,20 @@ class Request:
                 out.append(('retain_only' if steps==0 else kind,steps,pre,post,one*steps/max(budgets) if steps else 0.,rec))
         return out
 
-def decide(clouds,runs,controls,admitted,clients):
-    """Decision rows for every (request, arm, stage) and the per-arm verdict over post-recovery rows."""
+def resolutions_of(rc,clients):
+    """One-row resolution of every utility check at the retrain cloud's confusion matrices (the confirm2 floor rule)."""
+    res=lambda metric,p:one_row_resolution(metric,*(rc[f'{p}_{k}'] for k in ['normal_rows','attack_rows','fpr','recall_attack']))
+    return {'test_macro_f1':res('macro_f1','test'),'test_fpr':res('fpr','test'),
+            **{f'client{j}_macro_f1':res('macro_f1',f'client{j}') for j in clients}}
+
+def decide(clouds,runs,controls,admitted,clients,one_row=False):
+    """Decision rows for every (request, arm, stage) and the per-arm verdict over post-recovery rows.
+    one_row: the confirm2 rule, under which no utility floor is finer than one row."""
     cols=METRICS+[f'client{j}_macro_f1' for j in clients]; rows=[]
     arrays=lambda df:{c:df[c].to_numpy(np.float64) for c in cols}
     for name,target in admitted.items():
         cl=clouds[clouds.request==name]; rc=cl[cl.cloud=='retrain'].sort_values('seed'); oc=cl[cl.cloud=='original'].sort_values('seed')
+        resolutions=resolutions_of(rc,clients) if one_row else None
         ctl=controls[controls.request==name].set_index(['kind','stage','seed','control_steps']).sort_index()
         fu=runs[runs.request==name]
         for (arm,stage),g in fu.groupby(['arm','stage'],sort=False):
@@ -210,7 +227,7 @@ def decide(clouds,runs,controls,admitted,clients):
             pick=lambda kind,steps:ctl.loc[[('retain_only' if k==0 else kind,stage,s,int(k)) for s,k in zip(seeds,steps)]]
             pre=fu[(fu.arm==arm)&(fu.stage=='pre')].sort_values('seed')
             row=request_row(arrays(g),arrays(pick('target',[0]*len(seeds))),arrays(pick('target',g.control_steps)),
-                            arrays(pick('pool',g.control_steps)),arrays(rc),arrays(oc),arrays(pre),clients,CONFIG['level'])
+                            arrays(pick('pool',g.control_steps)),arrays(rc),arrays(oc),arrays(pre),clients,CONFIG['level'],resolutions)
             rows.append({'request':name,'target':target,'arm':arm,'family':g.family.iloc[0],'stage':stage,**row,
                          'steps_mean':float(g.steps.mean()),'control_steps_mean':float(g.control_steps.mean()),
                          'local_seconds_mean':float(g.local_seconds.mean())})
@@ -239,12 +256,14 @@ def run(output,mode,seeds_limit=None,only=None,ctx=None):
     parts,trig,requests,invalid,canary_clients=make_requests(ctx,mode)
     if only: requests={k:v for k,v in requests.items() if k in only}
     ctx.manifest_for(output,f'confirmation_{mode}',{**CONFIG,'mode':mode,'seeds':seeds,'only_requests':only,
-        'triggers':trig,'canary_clients':canary_clients if mode=='confirm' else CONFIG['existing']['canary_clients'],
+        'triggers':trig,'canary_clients':canary_clients if mode!='existing' else CONFIG['existing']['canary_clients'],
         'forget_signal_artifact_hashes_sha256':digest(D.FORGET_SIGNAL/'artifact_hashes.json') if mode=='existing' else None,
         'decision_rule':'src/eval/confirmation_decision.py (docs/confirmation_plan.md); legacy forget_signal rule reported alongside',
+        **({'confirm2':CONFIRM2,'utility_floor':'max(retrain-cloud noise floor, one-row resolution at the retrain cloud)'}
+           if mode=='confirm2' else {}),
         'selection':'none; every arm, baseline and request reported'})
     (output/'checkpoints').mkdir()
-    if mode=='confirm':
+    if mode!='existing':
         tr=ctx.tr; np.savez_compressed(output/'partitions.npz',**{f'client_{i}':tr['row_id'][p] for i,p in enumerate(parts)})
         write_json(output/'clients.json',[{'client':i,'normal':int((tr['y'][p]==0).sum()),'attack':int((tr['y'][p]==1).sum()),
                    'row_ids_hash':ids_hash(tr['row_id'][p])} for i,p in enumerate(parts)])
@@ -280,7 +299,7 @@ def run(output,mode,seeds_limit=None,only=None,ctx=None):
     controls.to_csv(output/'controls.csv',index=False); pd.DataFrame(dims_rows).to_csv(output/'request_state.csv',index=False)
     write_json(output/'gate.json',gate)
     admitted={k:v['target'] for k,v in gate.items() if v['separable']}
-    decision,verdict=decide(clouds,runs,controls,admitted,clients) if len(runs) else (pd.DataFrame(),{})
+    decision,verdict=decide(clouds,runs,controls,admitted,clients,one_row_floor(mode)) if len(runs) else (pd.DataFrame(),{})
     decision.to_csv(output/'decision.csv',index=False); write_json(output/'verdict.json',verdict)
     check=crosscheck(runs,controls) if mode=='existing' and len(runs) else {'available':False}
     write_json(output/'status.json',{'completed':True,'mode':mode,'seeds':len(seeds),'requests':list(requests),
@@ -293,7 +312,7 @@ def run(output,mode,seeds_limit=None,only=None,ctx=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__); p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--mode',choices=['existing','confirm'],required=True)
+    p.add_argument('--mode',choices=['existing','confirm','confirm2'],required=True)
     p.add_argument('--seeds',type=int,default=None,help='use only the first N seeds (smoke runs only)')
     p.add_argument('--requests',nargs='+',default=None,help='restrict to these requests (smoke runs only; recorded in the manifest)')
     a=p.parse_args(); run(a.output,a.mode,a.seeds,a.requests)

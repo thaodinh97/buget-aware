@@ -26,6 +26,7 @@ def verify(run,ctx=None,request=None):
     status=json.loads((run/'status.json').read_text()); assert status['completed']
     protocol=json.loads((run/'manifest.json').read_text())['protocol']; mode,seeds=protocol['mode'],protocol['seeds']
     assert all(protocol[k]==normal(v) for k,v in C.CONFIG.items()),'Runner CONFIG differs from the recorded protocol'
+    if mode=='confirm2': assert protocol['confirm2']==normal(C.CONFIRM2),'Runner CONFIRM2 differs from the recorded protocol'
     clouds,runs,controls=(pd.read_csv(run/f) for f in ['clouds.csv','fu_runs.csv','controls.csv'])
     gate=json.loads((run/'gate.json').read_text()); decision=pd.read_csv(run/'decision.csv')
     for name,g in gate.items():
@@ -33,7 +34,7 @@ def verify(run,ctx=None,request=None):
         assert len(r)==len(o)==len(seeds) and classify(o.iloc[0],r,o)['separable']==g['separable'],name
     admitted={k:v['target'] for k,v in gate.items() if v['separable']}; assert status['requests_passing_gate']==list(admitted)
     clients=sorted(int(c[6:-9]) for c in clouds.columns if c.startswith('client') and c.endswith('_macro_f1'))
-    again,verdict=C.decide(clouds,runs,controls,admitted,clients) if len(runs) else (pd.DataFrame(),{})
+    again,verdict=C.decide(clouds,runs,controls,admitted,clients,C.one_row_floor(mode)) if len(runs) else (pd.DataFrame(),{})
     assert verdict==json.loads((run/'verdict.json').read_text()),'Verdict differs'
     if len(decision):
         num=lambda d,c:pd.api.types.is_numeric_dtype(d[c]) and not pd.api.types.is_bool_dtype(d[c])
@@ -41,7 +42,10 @@ def verify(run,ctx=None,request=None):
         np.testing.assert_allclose(again[numeric].to_numpy(float),decision[numeric].to_numpy(float),rtol=1e-9,atol=1e-12,equal_nan=True)
         assert (again['pass'].astype(bool).to_numpy()==decision['pass'].astype(bool).to_numpy()).all()
     if mode=='existing' and len(runs):
-        D.check_source(); assert normal(C.crosscheck(runs,controls))==status['deployable_crosscheck'],'Cross-check differs'
+        D.check_source(); again_x,stored_x=normal(C.crosscheck(runs,controls)),status['deployable_crosscheck']
+        # The runner compares in-memory floats and the verifier their CSV round-trip, so max_abs_diff may differ by an ulp.
+        assert {k:v for k,v in again_x.items() if k!='max_abs_diff'}=={k:v for k,v in stored_x.items() if k!='max_abs_diff'},'Cross-check differs'
+        assert abs(again_x['max_abs_diff']-stored_x['max_abs_diff'])<=1e-12,'Cross-check max_abs_diff differs'
     reexecuted=0
     if admitted:
         ctx=ctx or Context(); parts,trig,requests,invalid,_=C.make_requests(ctx,mode)

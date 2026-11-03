@@ -18,6 +18,7 @@ Bản review của [deployable_forget_results.md](deployable_forget_results.md) 
 |---|---|---|---|
 | `existing` | partition cũ (seed 42); seed 10042–10051 | 5 request của `forget_signal_seed42`, thêm `combo_canary_c{3,0,4}_500` | lấy lại từ `forget_signal`, `identifiable_fu` và `seed_floor` (kiểm tra hash); riêng original của canary tổ hợp được train trong run này |
 | `confirm` | partition **mới**: Dirichlet seed 43, α = 0,5, 5 client; seed **20042–20051** | canary zero-dim và canary tổ hợp trên tối đa 3 client có ≥ 2.000 dòng attack (xếp theo số dòng attack giảm dần); `random_stratified` và `low_overlap_groups` 50% trên **mọi** client | toàn bộ train trong run này |
+| `confirm2` | Dirichlet seed **44**, α = 0,5, 5 client; seed **30042–30051**. Thêm sau `confirmation_p43`, xem mục "Confirm lần 2" ở cuối | như `confirm` | như `confirm` |
 
 - **Vai trò của `existing`.** Chế độ này bổ sung phép đo 1–4 cho các kết quả đã báo cáo. Đây **không** phải xác nhận, vì nó dùng lại đúng các seed cũ.
 - **Cross-check.** Các arm đóng băng và control R_target phải tái tạo `deployable_forget_seed42` (recovery chuẩn) với sai khác ≤ 1e-9. Kết quả được ghi trong `status.json → deployable_crosscheck`.
@@ -115,4 +116,81 @@ python scripts/verify_confirmation.py --run runs/confirmation_p43
 - Đây vẫn là bằng chứng thực nghiệm về việc giảm ảnh hưởng, không phải đảm bảo xóa dữ liệu. Không có MIA trong run này.
 
 ## Thay đổi sau smoke
-(chưa có)
+**Smoke `runs/confirmation_existing_smoke3`** (3 seed, `canary_c3_500` và `combo_canary_c3_500`, 193 s). Không đổi setting hay code nào.
+- **Gate.** Cả hai request đều qua gate. Effect size của canary tổ hợp là 8,36, nên trigger tổ hợp được học tốt.
+- **Cross-check báo `matches: false`.** Nguyên nhân **chỉ** nằm ở arm oracle `ga_proj@retrain_oracle` (sai khác lớn nhất 0,0055, số bước khác nhau).
+  - Mức dừng của arm này là CE trung bình của cloud retrain, bỏ seed đang xét. Với `--seeds 3`, cloud chỉ có 3 retrain thay vì 10 như trong `deployable_forget`.
+  - Ba arm triển khai được (`*@joint_aux_prob`) và các control đều khớp với sai khác bằng 0.
+  - Với 10 seed, cross-check phải khớp hoàn toàn.
+
+**Sau run đầy đủ `runs/confirmation_existing_seed42`.** Cross-check khớp: sai khác lớn nhất 1,1e-16, số bước giống hệt. Verifier phải sửa một chỗ; runner và kết quả không đổi.
+- **Lỗi.** Lần đầu, `verify_confirmation.py` báo "Cross-check differs".
+  - Runner tính `max_abs_diff` trên số float trong bộ nhớ (1,1e-16), còn verifier tính lại từ CSV đã ghi (0,0). Hai bên khác nhau đúng 1 ulp.
+  - Hai dict lại được so sánh bằng tuyệt đối, nên phép so sánh thất bại.
+- **Sửa.** Các trường còn lại vẫn so chính xác; riêng `max_abs_diff` được so với dung sai 1e-12.
+- Sau khi sửa, verifier pass.
+
+**Smoke `runs/confirmation_p43_smoke3`** (`--mode confirm`, 3 seed; `canary_c0_500`, `combo_canary_c0_500` và `client3_random_stratified_0.5`; 254 s). Không đổi setting hay code nào.
+- **Gate.** Canary zero-dim c0 có effect 399 và canary tổ hợp c0 có effect 23; cả hai đều qua gate. `client3_random` (629 dòng trong F) không qua gate (effect 0,28), như dự kiến với một request nhỏ.
+- **Request không hợp lệ.** `client0_low_overlap_groups_0.5` được ghi là không hợp lệ: F hoặc R chỉ còn một lớp.
+- **Verifier pass:** 28 dòng quyết định được tính lại, 32 stage được chạy lại.
+
+**Sau run đầy đủ `runs/confirmation_p43`** (4.189 s). Không đổi setting, code hay quy tắc nào. Verifier pass ngay lần đầu: 172 artifact, 84 dòng quyết định, 32 stage.
+- **Lỗi của quy tắc, chỉ phát hiện sau run.** Ở partition này, macro-F1 trên dữ liệu giữ lại của client 4 bằng nhau ở mọi model original và retrain, nên sàn nhiễu của nó bằng 0.
+  - Với sàn bằng 0, `noninferior` đòi cận dưới 95% của hiệu ghép cặp ≥ 0. Chỉ một dòng đổi dự đoán ở một seed, kể cả theo chiều tốt hơn, đã đủ kéo cận dưới xuống dưới 0 và làm check trượt.
+  - Docstring chỉ lường trước trường hợp các giá trị bằng nhau hoàn toàn.
+- **Cách xử lý.** Verdict giữ nguyên theo quy tắc như đã viết. Bản sửa (sàn tối thiểu bằng độ mịn của một dòng) chỉ được áp dụng cho một run `confirm` mới trên partition khác, và phải được ghi vào đây trước khi chạy. Kết quả ở [confirmation_p43_results.md](confirmation_p43_results.md).
+
+## Confirm lần 2 (`--mode confirm2`)
+Mục này được ghi ngày 2026-11-03, **trước khi chạy**. Nó được thêm sau khi đã thấy kết quả của `confirmation_p43`.
+
+**Lý do.** `confirmation_p43` trượt quy tắc chỉ vì một sàn bằng 0 (mục ngay trên). Quy tắc không được sửa để chấm lại run đó. Thay vào đó, bản sửa được áp dụng cho một run mới, trên partition và seed chưa từng được nhìn.
+
+**Chỉ thay đổi ba điểm so với `confirm`** (`CONFIRM2` trong `run_confirmation.py`):
+1. **Partition:** Dirichlet seed 44, α = 0,5, 5 client. Seed của canary và request suy ra từ seed partition như ở `confirm`.
+2. **Seed:** 30042–30051.
+3. **Sàn utility** = max(sàn nhiễu của cloud retrain, độ mịn một dòng) (`one_row_resolution` trong `src/eval/confirmation_decision.py`).
+   - **Độ mịn một dòng của macro-F1** là thay đổi lớn nhất của metric khi dự đoán của **một** dòng bị lật: một dòng normal TN↔FP, hoặc một dòng attack TP↔FN. Nó được tính tại ma trận nhầm lẫn của từng model retrain, rồi lấy max qua cloud. Với FPR, độ mịn là 1 / số dòng normal.
+   - Áp dụng cho test macro-F1, test FPR, macro-F1 của từng client và check F1 của `legacy_pass`.
+   - Khi sàn nhiễu đã thô hơn một dòng, như ở hầu hết các check, sàn không đổi.
+   - `decision.csv` có thêm cột `*_resolution`.
+
+**Giữ nguyên:**
+- phương pháp, mọi arm, control và baseline reset;
+- cách tạo request;
+- gate, `forget_ok`, `pass`;
+- quy tắc tổng thể: pass trên mọi request được admit, trải trên ≥ 2 client đích.
+
+Các run `existing` và `confirm` cũ vẫn được chấm và verify theo quy tắc cũ.
+
+**Kiểm tra trước khi chạy:**
+- **Unit test:**
+  - độ mịn khớp với cách lật từng dòng bằng `detector_metrics`;
+  - pattern của canary tổ hợp c1 ở p43 trượt với sàn 0 nhưng pass với độ mịn một dòng, còn việc mất vài dòng ở mọi seed vẫn trượt;
+  - test end-to-end `confirm2` trên dữ liệu tổng hợp, kèm verifier.
+- **Chấm lại `existing` và `p43` bằng code mới** (quy tắc cũ): verdict giống hệt; sai khác số lớn nhất 3,7e-15, do đọc lại từ CSV.
+- **Chấm lại `p43` bằng quy tắc mới.** Đây là kiểm tra code, post hoc, **không phải xác nhận**.
+  - Độ mịn ở client 4 là 0,0013; ở test FPR là 0,00014.
+  - `ga_proj@joint_aux_prob` và arm oracle qua 6/6, `nkd_proj` 5/6.
+  - Như vậy đã biết trước rằng bản sửa biến p43 thành pass. Đây chính là lý do p43 không được dùng làm bằng chứng xác nhận.
+- **Không chạy smoke trên dữ liệu thật,** để không nhìn kết quả của các seed xác nhận.
+
+**Cách đọc (định trước):**
+- Chỉ verdict của `confirm2` mới cho phép tuyên bố "đã xác nhận". Verdict của p43 vẫn là "không xác nhận", và luôn được báo cáo cùng.
+- **Nếu `ga_proj@joint_aux_prob` pass:** ghi là "xác nhận trên partition 44, sau một lần trượt trên partition 43 do lỗi sàn của quy tắc". Phạm vi chỉ gồm các request được admit; nếu chỉ canary qua gate thì chỉ là canary.
+- **Nếu trượt, vì bất kỳ lý do gì:** phương pháp giữ trạng thái "ứng viên, chưa xác nhận". **Trong phase FU không có lần confirm thứ ba**, để tránh chạy lại cho tới khi pass.
+
+```powershell
+$env:FL_DEVICE="cpu"
+python scripts/run_confirmation.py --mode confirm2 --output runs/confirmation_p44
+python scripts/verify_confirmation.py --run runs/confirmation_p44
+```
+
+**Sau run `runs/confirmation_p44`** (2.665 s).
+- **Không đổi gì.** Setting, code và quy tắc giữ nguyên. Verifier pass ngay lần đầu: 142 artifact, 98 dòng quyết định, 32 stage.
+- **Verdict: không xác nhận.** `ga_proj@joint_aux_prob` qua 3/7 request. Theo mục trên, đây là lần xác nhận cuối cùng trong phase FU.
+- **Sàn một dòng không làm đổi quyết định nào.** Chấm lại với quy tắc cũ cho đúng 98 giá trị `pass` như cũ.
+- **Điểm yếu thứ hai của quy tắc, phát hiện sau run.**
+  - Khoảng t đối xứng của hiệu ghép cặp bị nới rộng bởi các seed mà arm *tốt hơn* nhiều so với retain-only, nên cận phía xấu vượt sàn.
+  - Điều này làm trượt 2 canary, dù không seed nào có FPR kém hơn quá 0,0004.
+  - Không sửa và không chấm lại. Kết quả ở [confirmation_p44_results.md](confirmation_p44_results.md).

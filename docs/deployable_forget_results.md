@@ -1,5 +1,14 @@
 # Deployable stop and recovery-proof forgetting — results (`runs/deployable_forget_seed42`)
 
+## Later caveats (2026-11-02)
+These caveats change how this document should be read. The numbers below are unchanged.
+- **Candidate, not "recommended".** The arm was selected after looking at smoke results on evaluation seeds, from 40 arms, without a multiplicity correction. It is only confirmed if `--mode confirm` of [confirmation_plan.md](confirmation_plan.md) passes.
+- **The zero-dim canary results are a structural shortcut.**
+  - Resetting the first-layer columns of input dims that no retained row uses, with no forget step, reaches positions 0.95–0.99 with unchanged utility ([reset_baseline_results.md](reset_baseline_results.md)).
+  - Section 2's "projection keeps the forgetting through recovery" holds on canaries only where the trigger is on live dims. That is the combination canaries: 0.95 / 0.98 vs 0.70 / 0.14 unprojected ([confirmation_existing_results.md](confirmation_existing_results.md)).
+- **The low-overlap win does not survive a fair control.** A compute-matched fine-tune on the same pool as the reference (R_target ∪ validation) reaches 0.56, and the arm (0.74) does not beat it by more than the noise floor.
+- **Utility here is macro-F1 only.** The base model's test FPR is 27%; see the utility breakdown in [confirmation_existing_results.md](confirmation_existing_results.md).
+
 The protocol, including the changes made after the two smoke runs, is in [deployable_forget_plan.md](deployable_forget_plan.md).
 
 The run used 10 seeds, 40 arms, compute-matched controls, and the same 5 requests and clouds as `forget_signal_seed42` (hash-checked). It took 5,974 s on CPU. All 5 requests pass the gate; they cover target clients 0, 3 and 4.

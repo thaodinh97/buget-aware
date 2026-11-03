@@ -13,6 +13,8 @@ IEEE S&P 2022. https://arxiv.org/abs/2112.03570
   paper Sec. VI-B).
 - Shadow training is done by the caller; masks[s, i] must be True iff pool
   point i was in shadow s's training set.
+- Helpers: feature-vector membership units, complementary balanced masks,
+  and the leave-one-shadow-out positive control.
 """
 
 import numpy as np
@@ -51,6 +53,42 @@ def balanced_masks(n_shadows, units, seed):
     _, inverse = np.unique(np.asarray(units), return_inverse=True)
     ranks = np.random.default_rng(seed).random((inverse.max() + 1, n_shadows)).argsort(1).argsort(1)
     return (ranks < n_shadows // 2)[inverse].T.copy()
+
+
+def feature_units(x):
+    """Unit index of every row and the size of each unit: rows with identical features are one membership unit."""
+    _, inverse, counts = np.unique(np.asarray(x), axis=0, return_inverse=True, return_counts=True)
+    return inverse.reshape(-1), counts
+
+
+def complementary_masks(sizes, n_shadows, target_rows, tolerance, seed, max_draws=100000):
+    """Masks [n_shadows, n_units] in complementary pairs, so every unit is IN for exactly n_shadows/2 shadows.
+    Each pair splits the units by independent fair coins, redrawn until both halves hold target_rows ± tolerance
+    rows; the constraint is symmetric under swapping the halves, so every unit stays IN with probability 1/2."""
+    sizes = np.asarray(sizes)
+    if n_shadows < 2 or n_shadows % 2: raise ValueError('n_shadows must be a positive even number')
+    rng = np.random.default_rng(seed); masks = np.zeros((n_shadows, len(sizes)), dtype=bool)
+    for pair in range(n_shadows // 2):
+        for _ in range(max_draws):
+            half = rng.random(len(sizes)) < .5; rows = sizes[half].sum()
+            if abs(rows - target_rows) <= tolerance and abs(sizes.sum() - rows - target_rows) <= tolerance: break
+        else:
+            raise ValueError(f'No split with {target_rows} ± {tolerance} rows on both sides')
+        masks[2*pair], masks[2*pair + 1] = half, ~half
+    return masks
+
+
+def loo_scores(signals, masks, variant, columns=None):
+    """Positive control with known membership (paper Sec. V): for every shadow, fit on the others and score it.
+    variant is (mode, variance) for LiRA or None for the raw signal. Returns (member, nonmember) scores per shadow."""
+    signals = np.asarray(signals, dtype=np.float64); masks = np.asarray(masks, dtype=bool)
+    cols = np.arange(signals.shape[1]) if columns is None else np.asarray(columns)
+    out = []
+    for held in range(len(signals)):
+        keep = np.arange(len(signals)) != held
+        s = signals[held, cols] if variant is None else LiRA(*variant).fit(signals[keep], masks[keep]).score(signals[held, cols], cols)
+        out.append((s[masks[held, cols]], s[~masks[held, cols]]))
+    return out
 
 
 class LiRA:

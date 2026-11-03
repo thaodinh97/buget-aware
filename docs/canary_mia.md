@@ -1,5 +1,15 @@
 # Matched-canary membership inference (`runs/canary_mia_seed42`)
 
+## Correction (2026-11-01, after [canary_lira_results.md](canary_lira_results.md))
+**Findings 1–3 below are withdrawn. Finding 4 stands.**
+- **The power rule is confounded.** It pairs seeds on one fixed cohort, so it cannot separate membership from model differences that happen to correlate with that cohort.
+  - A placebo test that relabels the cohort at random puts the original's ΔAUC inside the null: p = 0.16 on c3 and p = 0.42 on c0.
+  - Retain-only gives p = 0.13 and p = 0.37.
+- **Half of the cohort has undefined membership.** About half of each cohort's rows share their feature vector with a row of the other cohort.
+- **A stronger attack finds nothing either.** Per-example LiRA with 64 shadows finds no membership signal even on the shadows, where membership is known.
+
+The numbers below are kept as recorded. Read "attack has power" as "the paired CI excluded 0", not as evidence of membership.
+
 ## Question
 After unlearning, can an attacker still tell which triggered rows were trained on? The models come from [deployable_forget_results.md](deployable_forget_results.md).
 
@@ -36,7 +46,7 @@ AUC minus retrain, mean over 10 seeds [95% CI]:
 
 Absolute AUCs are 0.487–0.523. TPR at 5% FPR is 0.036–0.058, close to chance.
 
-## Findings
+## Findings (1–3 withdrawn; see the correction above)
 1. **The membership signal is real but very small.** On c3 and c0, the original leaks membership just measurably more than retrain: ΔAUC +0.007 and +0.003.
    - The model learns the trigger rule, which applies equally to members and nonmembers, and barely memorises individual canaries.
    - On c4, where the backdoor is learned perfectly (member loss ≈ 0.009), there is no detectable membership signal.
