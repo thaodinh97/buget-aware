@@ -181,4 +181,7 @@ python scripts/shard/analyze_shard_paper_scale.py runs/shard_paper
 ```
 **Thời gian trên CPU 4 nhân:** run 1 khoảng 10 phút; run 2 khoảng 15 phút; run 3 khoảng 40 phút cho mỗi α (ba α chạy song song được).
 
-**Kiểm tra tái lập:** đang chạy lại các script trên nhánh này để so với kết quả đã đưa vào repo (mọi cột trừ thời gian phải khớp tuyệt đối). Kết quả sẽ được bổ sung ở đây.
+**Kiểm tra tái lập (đã chạy).** Các script trong `scripts/shard/` ở commit `0504bb2` được chạy lại từ đầu trên CPU. Kết quả được so với `results/shard_exploration/`:
+- 13 file CSV và 5 file JSON đều **khớp tuyệt đối**: sai khác lớn nhất bằng 0 ở mọi cột, trừ các cột thời gian (`*seconds*`, `T_full`).
+- `meta.json` của α = 0,5 và α = 1,0 trong repo được sinh trước khi trường `scheme` được thêm vào script, nên phép so sánh bỏ qua trường này.
+- Partition, chuỗi yêu cầu và toàn bộ metric được tái tạo giống hệt.
