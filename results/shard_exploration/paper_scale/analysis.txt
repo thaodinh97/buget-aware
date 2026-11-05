@@ -1,0 +1,118 @@
+seeds per alpha: {0.1: 5, 0.5: 5, 1.0: 5}
+0.1 equal pseed 42 single-class 29 deleted 0.13
+0.5 per_class pseed 43 single-class 0 deleted 0.328
+1.0 per_class pseed 42 single-class 0 deleted 0.257
+
+== checks ==
+Part B affected_shard == full_retrain (bit): True 135
+Part A bit-exact: {'drop_backfill': True, 'dynamicfu': True, 'shard_fixed': True, 'shard_full': True, 'utility_stop': True} | per-step exact: {'drop_backfill': True, 'dynamicfu': True, 'full_retrain_single': True, 'shard_fixed': True, 'shard_full': True, 'utility_stop': True}
+
+== Part B (paper protocol), mean over 9 cases x seeds ==
+                         Acc      F1    F1sd     FPR    dAcc     dF1  dF1max    dFPR   worst   rounds     secs   speedup
+alpha method                                                                                                            
+0.1   affected_shard  0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004  20.0000   1.2030   12.5756
+      dynamicfu       0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004  11.0667   0.8082   18.8646
+      full_retrain    0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004  20.0000  14.6209    1.0264
+      none            0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004   0.0000   0.0000       NaN
+      rapid           0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004  10.0000   0.6236   24.1637
+      utility_stop    0.7671  0.4341  0.0000  1.0000  0.0000  0.0000  0.0000  0.0000  0.0004   1.0000   0.1148  129.1880
+0.5   affected_shard  0.9103  0.8601  0.0006  0.3321  0.0000  0.0000  0.0000  0.0000  0.5763  20.0000   0.9502   19.6012
+      dynamicfu       0.9103  0.8600  0.0006  0.3325  0.0002  0.0003  0.0010  0.0005  0.5763  10.2667   0.6423   24.7010
+      full_retrain    0.9103  0.8601  0.0006  0.3321  0.0000  0.0000  0.0000  0.0000  0.5763  20.0000  15.0050    1.0479
+      none            0.9104  0.8601  0.0007  0.3323  0.0002  0.0003  0.0015  0.0007  0.5762   0.0000   0.0000       NaN
+      rapid           0.9103  0.8600  0.0006  0.3325  0.0002  0.0003  0.0010  0.0005  0.5763  10.0000   0.5142   35.7336
+      utility_stop    0.9109  0.8607  0.0011  0.3330  0.0006  0.0008  0.0032  0.0011  0.5764   1.0000   0.1032  158.3817
+1.0   affected_shard  0.9127  0.8633  0.0015  0.3311  0.0000  0.0000  0.0000  0.0000  0.8018  20.0000   1.1853   14.1867
+      dynamicfu       0.9123  0.8628  0.0018  0.3311  0.0005  0.0006  0.0033  0.0002  0.7989  10.9556   0.8338   19.1836
+      full_retrain    0.9127  0.8633  0.0015  0.3311  0.0000  0.0000  0.0000  0.0000  0.8018  20.0000  14.6649    1.0314
+      none            0.9127  0.8633  0.0012  0.3314  0.0004  0.0005  0.0037  0.0003  0.8026   0.0000   0.0000       NaN
+      rapid           0.9121  0.8626  0.0018  0.3312  0.0006  0.0008  0.0030  0.0001  0.7985  10.0000   0.6326   25.0714
+      utility_stop    0.9129  0.8636  0.0025  0.3314  0.0013  0.0017  0.0048  0.0003  0.8007   1.0000   0.1200  133.8124
+
+== Part B by contribution group (dynamicfu, utility_stop) ==
+                           contrib  rounds    dF1  speedup
+alpha method       group                                  
+0.1   dynamicfu    high      0.515  12.600  0.000   16.591
+                   low       0.335   9.733  0.000   22.296
+                   medium    0.409  10.867  0.000   18.183
+      rapid        high      0.515  10.000  0.000   23.753
+                   low       0.335  10.000  0.000   24.394
+                   medium    0.409  10.000  0.000   24.671
+      utility_stop high      0.515   1.000  0.000  131.205
+                   low       0.335   1.000  0.000  132.532
+                   medium    0.409   1.000  0.000  126.447
+0.5   dynamicfu    high      0.608  14.667  0.000   18.937
+                   low       0.133   6.400  0.000   56.177
+                   medium    0.324   9.733  0.000   22.013
+      rapid        high      0.608  10.000  0.000   29.620
+                   low       0.133  10.000  0.000   46.117
+                   medium    0.324  10.000  0.000   30.761
+      utility_stop high      0.608   1.000  0.001  151.147
+                   low       0.133   1.000  0.001  195.620
+                   medium    0.324   1.000  0.001  140.603
+1.0   dynamicfu    high      0.593  13.800  0.001   14.262
+                   low       0.247   8.267  0.001   34.322
+                   medium    0.411  10.800  0.001   15.335
+      rapid        high      0.593  10.000  0.001   23.970
+                   low       0.247  10.000  0.001   38.769
+                   medium    0.411  10.000  0.001   18.501
+      utility_stop high      0.593   1.000  0.002  114.693
+                   low       0.247   1.000  0.001  159.699
+                   medium    0.411   1.000  0.002  103.501
+
+DynamicFU stop reasons B: {(0.1, 'ctrl'): 45, (0.5, 'ctrl'): 41, (0.5, 'rmax'): 4, (1.0, 'ctrl'): 45}
+
+== Part A (stream) final state ==
+    alpha               policy     F1    FPR  worst  rounds  rows_pct  rows+contrib_pct  bytes_pct  time_pct
+0     0.1        drop_backfill  0.434  1.000  0.000   140.0     6.162             6.162      6.383     5.947
+1     0.1            dynamicfu  0.434  1.000  0.000   106.4     4.782             9.852      4.987    14.911
+2     0.1  full_retrain_single  0.434  1.000  0.000   200.0   100.000           100.000    100.000   100.000
+3     0.1                 none  0.434  1.000  0.000     0.0     0.000             0.000      0.000     0.000
+4     0.1          shard_fixed  0.434  1.000  0.000   100.0     4.497             4.497      4.681     4.702
+5     0.1           shard_full  0.434  1.000  0.000   200.0     8.995             8.995      9.362     9.406
+6     0.1         utility_stop  0.434  1.000  0.000    10.0     0.450             0.450      0.468     0.886
+7     0.5        drop_backfill  0.860  0.330  0.561   121.0     5.948             5.948      5.223     5.915
+8     0.5            dynamicfu  0.859  0.331  0.561   136.6     9.639            14.841      6.268    20.101
+9     0.5  full_retrain_single  0.863  0.334  0.569   200.0   100.000           100.000    100.000   100.000
+10    0.5                 none  0.860  0.332  0.561     0.0     0.000             0.000      0.000     0.000
+11    0.5          shard_fixed  0.859  0.330  0.561   100.0     6.638             6.638      4.574     6.513
+12    0.5           shard_full  0.860  0.330  0.561   200.0    13.275            13.275      9.149    12.964
+13    0.5         utility_stop  0.868  0.333  0.584    10.0     0.664             0.664      0.457     1.070
+14    1.0        drop_backfill  0.859  0.331  0.786   127.0     4.565             4.565      5.404     4.776
+15    1.0            dynamicfu  0.859  0.331  0.781   104.2     4.395             9.546      4.481    14.925
+16    1.0  full_retrain_single  0.865  0.325  0.800   200.0   100.000           100.000    100.000   100.000
+17    1.0                 none  0.863  0.331  0.802     0.0     0.000             0.000      0.000     0.000
+18    1.0          shard_fixed  0.859  0.331  0.781   100.0     3.933             3.933      4.255     4.699
+19    1.0           shard_full  0.859  0.331  0.786   200.0     7.865             7.865      8.511     8.045
+20    1.0         utility_stop  0.870  0.331  0.811    10.0     0.393             0.393      0.426     0.863
+
+== Part A worst moment during the stream ==
+                           F1_min  FPR_max  worst_min  bad
+alpha policy                                              
+0.1   drop_backfill         0.434    1.000      0.000   50
+      dynamicfu             0.434    1.000      0.000   50
+      full_retrain_single   0.434    1.000      0.000   50
+      none                  0.434    1.000      0.000   50
+      shard_fixed           0.434    1.000      0.000   50
+      shard_full            0.434    1.000      0.000   50
+      utility_stop          0.434    1.000      0.000   50
+0.5   drop_backfill         0.858    0.334      0.557    0
+      dynamicfu             0.858    0.334      0.561    0
+      full_retrain_single   0.859    0.334      0.561    0
+      none                  0.859    0.334      0.561    0
+      shard_fixed           0.858    0.334      0.561    0
+      shard_full            0.859    0.334      0.561    0
+      utility_stop          0.859    0.334      0.561    0
+1.0   drop_backfill         0.859    0.331      0.777    0
+      dynamicfu             0.858    0.331      0.777    0
+      full_retrain_single   0.861    0.331      0.793    0
+      none                  0.862    0.331      0.802    0
+      shard_fixed           0.859    0.331      0.777    0
+      shard_full            0.859    0.331      0.777    0
+      utility_stop          0.859    0.331      0.785    0
+none          vs full retrain per step: mean|dF1| 0.0037  mean|dFPR| 0.0011  max|dFPR| 0.0092
+shard_full    vs full retrain per step: mean|dF1| 0.0050  mean|dFPR| 0.0012  max|dFPR| 0.0090
+shard_fixed   vs full retrain per step: mean|dF1| 0.0051  mean|dFPR| 0.0015  max|dFPR| 0.0090
+dynamicfu     vs full retrain per step: mean|dF1| 0.0051  mean|dFPR| 0.0013  max|dFPR| 0.0092
+utility_stop  vs full retrain per step: mean|dF1| 0.0039  mean|dFPR| 0.0012  max|dFPR| 0.0092
+DynamicFU stop reasons A: {(0.1, 'ctrl'): 50, (0.5, 'ctrl'): 48, (0.5, 'rmax'): 2, (1.0, 'ctrl'): 50}

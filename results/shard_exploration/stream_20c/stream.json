@@ -1,0 +1,62 @@
+[
+ {
+  "step": 1,
+  "client": 5,
+  "kind": "client",
+  "rows": 6506
+ },
+ {
+  "step": 2,
+  "client": 9,
+  "kind": "sample",
+  "rows": 1614
+ },
+ {
+  "step": 3,
+  "client": 2,
+  "kind": "client",
+  "rows": 8780
+ },
+ {
+  "step": 4,
+  "client": 8,
+  "kind": "sample",
+  "rows": 1713
+ },
+ {
+  "step": 5,
+  "client": 18,
+  "kind": "client",
+  "rows": 13894
+ },
+ {
+  "step": 6,
+  "client": 8,
+  "kind": "sample",
+  "rows": 1200
+ },
+ {
+  "step": 7,
+  "client": 4,
+  "kind": "client",
+  "rows": 23019
+ },
+ {
+  "step": 8,
+  "client": 9,
+  "kind": "sample",
+  "rows": 1129
+ },
+ {
+  "step": 9,
+  "client": 3,
+  "kind": "client",
+  "rows": 4475
+ },
+ {
+  "step": 10,
+  "client": 11,
+  "kind": "sample",
+  "rows": 2050
+ }
+]
