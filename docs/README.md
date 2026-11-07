@@ -17,6 +17,7 @@
 | 10. Phân biệt unlearn với retrain | [indistinguishability_plan.md](indistinguishability_plan.md), [indistinguishability_results.md](indistinguishability_results.md) |
 | Shadow MIA và LiRA | [membership_validation_results.md](membership_validation_results.md), [lira_plan.md](lira_plan.md), [lira_results.md](lira_results.md) |
 | **Đóng băng FU trước phase DT** | [fu_freeze.md](fu_freeze.md) |
+| **DynamicFU mức mẫu trên kiến trúc shard** (sau đóng băng, 20 client) | [dynamicfu_sample_plan.md](dynamicfu_sample_plan.md) (protocol và cổng đặt trước), [dynamicfu_sample_results.md](dynamicfu_sample_results.md) (cổng 1 pass; cổng 2 và 3 trượt) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 
 ## Vai trò của các tập dữ liệu

@@ -1,0 +1,36 @@
+{
+  "alphas": [0.1, 0.5, 1.0],
+  "clients": 20,
+  "shards": 5,
+  "min_client_rows": 10,
+  "max_partition_attempts": 10000,
+  "hidden": [64, 32],
+  "threads": 2,
+  "fl": {"rounds": 15, "local_epochs": 1, "batch_size": 512, "lr": 0.001},
+  "seeds": [42, 43, 44, 45, 46],
+  "requests": {
+    "fractions": [0.1, 0.5],
+    "request_seed_offset": 1,
+    "groups": ["high", "medium", "low"],
+    "per_group": 3,
+    "selection_seed_offset": 5,
+    "canary_count": 500,
+    "canary_min_attack_rows": 2000,
+    "max_canary_clients": 3,
+    "canary_seed_offset": 7,
+    "combination_features": ["proto", "service", "conn_state"]
+  },
+  "contribution": {"theta_u": 0.3333333333333333, "theta_d": 0.3333333333333333, "theta_q": 0.3333333333333334,
+                   "lambda_js": 0.5, "lambda_pi": 0.5},
+  "controller": {"rounds_max": 15, "eta_min": 0.2, "eta_max": 1.0, "omega_g": 0.5, "omega_s": 0.5,
+                 "eval_rows": 4000, "ffree_eta0": 0.6},
+  "rapid_rounds": 8,
+  "tuning": {
+    "pilot_partition_seed": 1042,
+    "grid": {"rho": [0.25, 0.5, 1.0, 2.0], "mu": [0.5, 1.0, 2.0, 5.0],
+             "tau_ctrl": [0.002, 0.005, 0.01, 0.02], "tau_drop": [0.01, 0.02, 0.05, 0.1, 1.0]},
+    "max_mean_val_f1_loss": 0.005,
+    "max_val_f1_loss": 0.02
+  },
+  "gates": {"macro_f1_margin": 0.01, "fpr_margin": 0.01, "level": 0.95, "min_admitted_canaries": 2}
+}

@@ -93,6 +93,7 @@ Mỗi bước đọc artifact của bước trước ở **đường dẫn cố 
 | 10 | Phân biệt unlearn với retrain | `python scripts/run_indistinguishability.py --output runs/indistinguishability_seed42 --workers 8` | test kiểu U-LiRA, 40 seed: attacker biết F có phân biệt được model unlearn với retrain không | `verify_indistinguishability.py` |
 | 11 | Baseline reset trong test phân biệt | `python scripts/run_reset_distinguisher.py --output runs/reset_distinguisher_seed42 --workers 6` | cùng test của bước 10 cho 3 baseline reset của bước 8 | `verify_reset_distinguisher.py` |
 | — | Shadow MIA và LiRA | `python scripts/run_membership_validation.py --output runs/membership_validation_v3_seed42`, sau đó `python scripts/run_lira.py --output runs/lira_seed42` | kiểm tra sức mạnh của MIA | `verify_lira.py` |
+| 12 | **DynamicFU mức mẫu trên shard** (sau đóng băng) | `run_dynamicfu_sample.py requests` → `tune` (partition pilot 1042) → `requests` (partition 42) → `run --seed 42..46`, rồi `evaluate_dynamicfu_gates.py` | 20 client, 5 shard; retrain shard bị ảnh hưởng, số vòng theo DynamicFU; 4 cổng để sang DT | `verify_dynamicfu_sample.py`; protocol ở [docs/dynamicfu_sample_plan.md](docs/dynamicfu_sample_plan.md) |
 
 Mọi verifier đều nhận `--run <thư mục>`; riêng `verify_run.py` cần thêm `--data`. Chạy test bằng `python -m unittest discover -s tests -v`.
 
@@ -102,14 +103,16 @@ Mọi verifier đều nhận `--run <thư mục>`; riêng `verify_run.py` cần 
 
 - `src/data/`
   - `prepare.py`: tiền xử lý.
-  - `federated.py`: chia Dirichlet và tạo request.
+  - `federated.py`: chia Dirichlet (5 client, hoặc nhiều client với cỡ tối thiểu: `partition_min_size`) và tạo request.
   - `canary.py`: backdoor canary (trigger zero-dim và trigger tổ hợp) và nonmember khớp phân phối.
   - `request_sensitivity.py`: mô tả request.
 - `src/fl/`
   - `fedavg_core.py`: MLP, client worker, FedAvg, chọn thiết bị.
   - `distributed.py`: prototype phân tán.
+  - `sharded.py`: FedAvg theo shard (nhóm client rời nhau, mỗi shard một model, ensemble tổng logit).
 - `src/fu/`
   - **Phương pháp ứng viên:** `bounded_forget.py` (toán tử quên, stop rule, control cùng compute), `projection.py` (retain-orthogonal projection), `neighbor_reference.py` (reference kNN), `recovery_schedule.py` (recovery xen kẽ).
+  - **Unlearning theo shard (sau đóng băng):** `shard_retrain.py` (retrain shard bị ảnh hưởng, quỹ đạo theo vòng), `dynamicfu.py` (điểm đóng góp I_F, controller DynamicFU và ablation không dùng F).
   - **Baseline:** `reset_baseline.py` (reset cột W1 của các chiều input không được dùng).
   - **Toán tử cũ dùng ở bước 1–5:** `forget_kd.py`, `strong_forget.py`, `conpfu_inspired.py`, `step_budget.py`, `diagnostics.py`.
 - `src/eval/`
