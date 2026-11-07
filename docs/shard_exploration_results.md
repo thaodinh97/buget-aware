@@ -33,7 +33,7 @@ Theo [fu_freeze.md](fu_freeze.md):
 - **Ở protocol của bài (run 3), Affected-Shard trùng từng bit với Full Retrain** (train lại cả 10 shard): 135/135 trường hợp.
 
 **Điều kiện chưa đạt:**
-- Scaler, median và vocabulary hiện được fit trên toàn bộ train, kể cả dữ liệu sẽ bị xóa (`src/data/prepare.py`). Muốn unlearn chính xác trọn vẹn, cần fit trên dữ liệu phụ trợ.
+- Ở ba run trên, scaler, median và vocabulary được fit trên toàn bộ train, kể cả dữ liệu sẽ bị xóa. **Đã khắc phục bằng bản dữ liệu auxfit** (fit chỉ trên validation); xem mục "Tiền xử lý fit trên tập phụ trợ" bên dưới.
 - `dynamicfu` chọn số vòng từ điểm đóng góp tính trên dữ liệu của client bị xóa. Vì vậy số vòng, và qua đó model sau xóa, vẫn phụ thuộc F qua một kênh nhỏ. Các chính sách khác không dùng dữ liệu bị xóa để ra quyết định.
 
 ## Run 1: utility của ensemble và chi phí xóa (20 client)
@@ -134,11 +134,54 @@ Theo [fu_freeze.md](fu_freeze.md):
 - **`utility_stop` gần như luôn dừng sau 1 vòng,** tức shard bị ảnh hưởng thực chất được thay bằng một model gần như chưa train, mà ensemble vẫn giữ utility.
 - **α = 0,1:** với lr 1e-2 và 29 client chỉ một lớp, **mọi model đều suy biến thành "luôn đoán attack"** (F1 0,434, FPR 1,00), kể cả model đơn train lại toàn bộ. Không tái hiện được con số 87% Acc ở α = 0,1 của bài. Kết quả α = 0,1 không dùng được.
 
+## Tiền xử lý fit trên tập phụ trợ (bản dữ liệu auxfit)
+**Thay đổi.** `src/data/prepare.py` có thêm `transform_fit: "validation_only"` (config `configs/data_connected_auxfit.json`, dữ liệu `data/processed/connected_v3_auxfit_seed42`):
+- scaler, median và vocabulary chỉ được fit trên **validation**, tức tập phụ trợ không bao giờ bị xóa;
+- vì vậy xóa dòng train **không làm đổi cách mã hóa**, và model sau xóa không cần mã hóa lại;
+- `train_only` vẫn là mặc định.
+
+**Kiểm chứng.**
+- Sinh lại dữ liệu cũ bằng `prepare.py` mới cho mọi mảng, `transformer.json`, `audit.json` và `metadata.csv` **trùng từng byte** với bản đã đóng băng. Manifest chỉ khác ở `source_sha256` (code đã sửa) và `platform` (kernel của container).
+- Test mới trong `tests/test_preprocessing.py`:
+  - transform chỉ học từ các dòng validation;
+  - **đổi giá trị các dòng train không làm đổi transformer, validation hay test**, trong khi ở `train_only` thì có đổi;
+  - giá trị `transform_fit` không hợp lệ thì báo lỗi.
+- Toàn bộ 106 test đều pass.
+
+**Dữ liệu auxfit khác bản cũ ở ba điểm:**
+- **37 chiều thay vì 38:** `service=gssapi` không xuất hiện trong validation, nên bị gộp vào `__UNKNOWN__` (0,16% dòng train).
+- **Split khác ở 72.407/190.474 dòng (38%):** với cách mã hóa mới, vòng tinh chỉnh chống leakage gộp nhóm theo cách khác (8 vòng). Kích thước các split không đổi, audit leakage vẫn qua. Kết quả trên auxfit vì vậy **không so trực tiếp từng dòng** với kết quả cũ được.
+- **Thống kê scale khác,** do các feature có đuôi dài (ví dụ `dst_ip_bytes` gấp 20 lần, `duration` chỉ bằng 0,085 lần so với bản fit trên train).
+
+**Kết quả chạy lại ba run trên auxfit** (`SHARD_DATA_DIR=data/processed/connected_v3_auxfit_seed42`, lưu trong `results/shard_exploration_auxfit/`):
+- **Tính chính xác vẫn đúng:** không shard nào dùng dòng đã xóa; trùng từng bit ở cuối mọi chuỗi; Affected-Shard trùng Full Retrain ở 135/135 trường hợp.
+- **Run 3 (cấu hình của bài: lr 1e-2, 20 vòng, 2 epoch) cho utility bình thường,** và các kết luận giữ nguyên:
+  - α = 0,5 / 1,0: macro-F1 khoảng 0,865, FPR 0,32–0,33; không chính sách nào có lần utility sụt.
+  - `none` có |ΔF1| so với Full Retrain chỉ 0,0003 / 0,0001.
+  - DynamicFU tốn 10,6% / 9,5% dòng-lượt (gồm ước lượng đóng góp), còn `utility_stop` chỉ 0,46% / 1,2%.
+  - α = 0,1 vẫn suy biến.
+- **Run 1 và 2 (cấu hình của repo: lr 1e-3, 15 vòng, 1 epoch) bị một chế độ hỏng:**
+  - ensemble S ≥ 4 chỉ đạt macro-F1 0,645 và FPR 0,75, trong khi S = 1 đạt 0,865 và 0,324;
+  - trong chuỗi yêu cầu, **ngay cả model đơn train lại toàn bộ** cũng kết thúc ở 0,634 / 0,772.
+
+**Chẩn đoán: do thiếu train, không do fit trên tập phụ trợ** (`scripts/shard/diagnose_training_budget.py`, cùng partition 20 client với run 1, seed 10042; macro-F1 / FPR trên calibration):
+
+| Cấu hình train | Dữ liệu cũ, S = 1 | Dữ liệu cũ, S = 4 | Auxfit, S = 1 | Auxfit, S = 4 |
+|---|---|---|---|---|
+| repo: lr 1e-3, 15 vòng, 1 epoch | 0,870 / 0,332 | 0,862 / 0,332 | 0,864 / 0,325 | **0,648 / 0,752** |
+| lr 1e-3, 45 vòng, 1 epoch | 0,862 / 0,334 | 0,861 / 0,333 | 0,867 / 0,318 | 0,875 / 0,323 |
+| lr 1e-2, 15 vòng, 1 epoch | 0,868 / 0,334 | 0,864 / 0,334 | 0,881 / 0,321 | 0,868 / 0,320 |
+| bài báo: lr 1e-2, 20 vòng, 2 epoch | 0,869 / 0,328 | 0,874 / 0,334 | 0,880 / 0,323 | 0,874 / 0,320 |
+
+- **Trên split auxfit, model shard (khoảng 1/4 dữ liệu, nên khoảng 1/4 số bước tối ưu) chưa train đủ.** Model kẹt ở một chế độ đoán gần như toàn attack, ổn định qua các seed.
+- **Chỉ cần train nhiều hơn** (thêm vòng, hoặc lr 1e-2) là model về mức của model đơn, và tốt hơn một chút so với dữ liệu cũ.
+- **Hệ quả cho hướng shard:** ngân sách train của *từng shard* phải đủ lớn. Cấu hình FL của repo được chọn cho một model 5 client và không đủ cho shard trên split mới. Chẩn đoán này là **hậu kiểm** (một seed), và đã dùng calibration. Muốn đổi cấu hình train chuẩn cho hướng shard thì phải ghi vào protocol trước khi chạy xác nhận.
+
 ## Kết luận được phép (có điều kiện)
 | Được tuyên bố | Bằng chứng |
 |---|---|
 | Unlearn theo shard được cài đặt **chính xác**: không shard nào dùng dữ liệu đã xóa, tái lập trùng từng bit | Mọi run, mọi chính sách trừ `none` |
-| Trên dữ liệu này, chia shard **không làm giảm** utility so với một model FedAvg | Run 1 |
+| Chia shard **không làm giảm** utility so với một model FedAvg, **với điều kiện mỗi shard được train đủ** | Run 1 trên dữ liệu cũ; run 3 trên cả hai bản dữ liệu. Trên auxfit với cấu hình của repo thì **không** đúng (xem chẩn đoán) |
 | Utility cuối của mọi chính sách chính xác **ngang train lại toàn bộ**, với 0,4–21% chi phí dòng-lượt | Run 2 và 3 |
 | **Utility không đơn điệu theo số vòng** và **shard ít client, lệch** là rủi ro thật; chọn sai có thể làm FPR lên 0,75–1,00 | Run 1 và 2 |
 | Dưới bản cài đặt lại, DynamicFU **không tốt hơn** các chính sách đơn giản: utility ngang, chi phí cao hơn khi tính đủ, và quy tắc dừng theo Drop có thể dừng lúc utility đang sụt | Run 2 và 3 |
@@ -147,7 +190,7 @@ Theo [fu_freeze.md](fu_freeze.md):
 | **Không** được tuyên bố | Lý do |
 |---|---|
 | "DynamicFU thất bại" hoặc "kém hơn" một cách tổng quát | Đây là bản cài đặt lại, với tham số tự chọn; không phải code của tác giả |
-| Unlearn chính xác trọn vẹn | Tiền xử lý vẫn được fit trên dữ liệu có cả F |
+| Unlearn chính xác trọn vẹn cho các run trên dữ liệu cũ | Ở đó tiền xử lý được fit trên dữ liệu có cả F. Trên auxfit thì điều kiện này đã đạt, với giả định split được cố định khi thiết lập hệ thống |
 | Đã xác nhận | Khám phá, không có protocol đặt trước; 1 partition cho mỗi cấu hình, 1 chuỗi yêu cầu |
 | Kết quả ở α = 0,1 | Model bị suy biến |
 
@@ -179,6 +222,17 @@ python scripts/shard/analyze_shard_20c.py runs/shard_ensemble_check runs/shard_s
 ```bash
 python scripts/shard/analyze_shard_paper_scale.py runs/shard_paper
 ```
+**Bản auxfit:** sinh dữ liệu rồi chạy lại các lệnh trên với biến môi trường `SHARD_DATA_DIR`. Mỗi lần chạy ghi `data.json` cho biết đã dùng dữ liệu nào.
+```bash
+python src/data/prepare.py --input dataset/train_test_network.csv --config configs/data_connected_auxfit.json --output data/processed/connected_v3_auxfit_seed42
+```
+```bash
+export SHARD_DATA_DIR=data/processed/connected_v3_auxfit_seed42
+```
+```bash
+FL_DEVICE=cpu python scripts/shard/diagnose_training_budget.py
+```
+
 **Thời gian trên CPU 4 nhân:** run 1 khoảng 10 phút; run 2 khoảng 15 phút; run 3 khoảng 40 phút cho mỗi α (ba α chạy song song được).
 
 **Kiểm tra tái lập (đã chạy).** Các script trong `scripts/shard/` ở commit `0504bb2` được chạy lại từ đầu trên CPU. Kết quả được so với `results/shard_exploration/`:

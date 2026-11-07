@@ -1,0 +1,5 @@
+{
+ "data_dir": "data/processed/connected_v3_auxfit_seed42",
+ "input_dim": 37,
+ "manifest_sha256": "13648c9ec2629c99cca8460be8ad458b603f7104d0ab4746deadca284b5e001d"
+}
