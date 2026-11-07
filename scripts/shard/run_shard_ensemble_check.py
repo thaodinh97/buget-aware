@@ -1,16 +1,19 @@
-"""Feasibility check (exploratory, not preregistered; results in results/shard_exploration): utility cost of sharded FL ensembles and
-the cost/utility curve of exact unlearning by retraining only the affected shard (DynamicFU / SISA style).
+"""Utility cost of sharded FL ensembles and the cost/utility curve of exact unlearning by retraining only the affected shard
+(DynamicFU / SISA style). With SHARD_TRAIN_CONFIG=repo: the exploratory run (not preregistered; results/shard_exploration*).
+With the default 'standard' config: run 1 of the confirmation fixed in docs/shard_standard_config_plan.md.
 
 Fixed before running:
-- data: data/processed/connected_v3_seed42; metrics on the CALIBRATION split (test is never touched);
+- data: SHARD_DATA_DIR (default data/processed/connected_v3_seed42); metrics on the CALIBRATION split (test is never touched);
 - 20 clients, Dirichlet alpha 0.5 on labels; partition seed = first seed >= 42 that gives a valid partition;
 - S in {1,2,4,5,10} shards; clients assigned to shards by a seeded permutation (seed 7), equal client counts;
-- each shard: FedAvg with the repo config (15 rounds, 1 local epoch, Adam 1e-3, batch 512), shard j seed = s + 1000*j;
+- each shard: FedAvg with the config of train_config.py, shard j seed = s + 1000*j:
+  'standard' = R_base 20 rounds, 2 local epochs, Adam 1e-2, batch 512; 'repo' = 15 rounds, 1 local epoch, Adam 1e-3, batch 512;
 - ensemble prediction: sum of shard logit margins (DynamicFU eq. 5), threshold 0.5;
 - training seeds s = 10042..10046;
 - requests on the largest client t: 'client' = delete all of t; 'random50' = stratified random 50% of t (seed 43);
 - unlearning: affected shard re-initialised with its original seed and retrained on its retained data; utility after
-  R in {1,2,5,10,15} rounds (prefix of one run; R = 15 is the exact retrain of the ensemble with the same seeds).
+  R in {1,2,5,10,20} ('standard') or {1,2,5,10,15} ('repo') rounds (prefix of one run; R = R_base is the exact retrain of the
+  ensemble with the same seeds).
 """
 import json, os, sys, time
 from pathlib import Path
@@ -23,11 +26,12 @@ from src.data.federated import partition, forget_request
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics
 from src.fl.fedavg_core import model, fedavg, ClientWorker
+from scripts.shard.train_config import load as load_train_config
 
 OUT = Path(sys.argv[1]); OUT.mkdir(parents=True, exist_ok=False)
 torch.set_num_threads(2); torch.use_deterministic_algorithms(True)
-FL = {'rounds': 15, 'local_epochs': 1, 'batch_size': 512, 'lr': 1e-3}; HIDDEN = [64, 32]
-CLIENTS, ALPHA, SHARDS, SEEDS, BUDGETS = 20, .5, [1, 2, 4, 5, 10], [10042 + i for i in range(5)], [1, 2, 5, 10, 15]
+CFG_NAME, CFG = load_train_config(OUT); FL = CFG['fl']; HIDDEN = [64, 32]
+CLIENTS, ALPHA, SHARDS, SEEDS, BUDGETS = 20, .5, [1, 2, 4, 5, 10], [10042 + i for i in range(5)], CFG['unlearn_budgets']
 DATA = Path(os.environ.get('SHARD_DATA_DIR', ROOT/'data/processed/connected_v3_seed42'))  # default: the frozen train-fit data
 d = load_data(DATA); tr, ca = d['train'], d['calibration']
 DIM = d['train']['X'].shape[1]

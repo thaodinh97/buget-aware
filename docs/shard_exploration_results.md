@@ -175,7 +175,7 @@ Theo [fu_freeze.md](fu_freeze.md):
 
 - **Trên split auxfit, model shard (khoảng 1/4 dữ liệu, nên khoảng 1/4 số bước tối ưu) chưa train đủ.** Model kẹt ở một chế độ đoán gần như toàn attack, ổn định qua các seed.
 - **Chỉ cần train nhiều hơn** (thêm vòng, hoặc lr 1e-2) là model về mức của model đơn, và tốt hơn một chút so với dữ liệu cũ.
-- **Hệ quả cho hướng shard:** ngân sách train của *từng shard* phải đủ lớn. Cấu hình FL của repo được chọn cho một model 5 client và không đủ cho shard trên split mới. Chẩn đoán này là **hậu kiểm** (một seed), và đã dùng calibration. Muốn đổi cấu hình train chuẩn cho hướng shard thì phải ghi vào protocol trước khi chạy xác nhận.
+- **Hệ quả cho hướng shard:** ngân sách train của *từng shard* phải đủ lớn. Cấu hình FL của repo được chọn cho một model 5 client và không đủ cho shard trên split mới. Chẩn đoán này là **hậu kiểm** (một seed), và đã dùng calibration. Muốn đổi cấu hình train chuẩn cho hướng shard thì phải ghi vào protocol trước khi chạy xác nhận. **Đã làm:** cấu hình của bài được ghi vào [shard_standard_config_plan.md](shard_standard_config_plan.md) rồi chạy lại run 1 và run 2. Kết quả **không xác nhận**: chế độ FPR cao do thiếu train không còn, nhưng S = 10 kém model đơn khoảng 0,01 macro-F1, và `utility_stop` với S = 10 rơi lại chế độ FPR cao. Xem [shard_standard_config_results.md](shard_standard_config_results.md).
 
 ## Kết luận được phép (có điều kiện)
 | Được tuyên bố | Bằng chứng |
@@ -201,14 +201,15 @@ Theo [fu_freeze.md](fu_freeze.md):
 - **Model và siêu tham số ở run 3 khác bài** (MLP của repo; batch 512); α = 0,1 dùng một thủ tục partition khác.
 
 ## Tái lập
+**Cấu hình train mặc định của `scripts/shard/` đã đổi thành `standard`** ([shard_standard_config_plan.md](shard_standard_config_plan.md)). Muốn tái lập run 1 và run 2 ở trên thì phải đặt `SHARD_TRAIN_CONFIG=repo`, như trong các lệnh dưới. Run 3 và script chẩn đoán không phụ thuộc biến này.
 ```bash
 python src/data/prepare.py --input dataset/train_test_network.csv --config configs/data_connected.json --output data/processed/connected_v3_seed42
 ```
 ```bash
-FL_DEVICE=cpu python scripts/shard/run_shard_ensemble_check.py runs/shard_ensemble_check
+SHARD_TRAIN_CONFIG=repo FL_DEVICE=cpu python scripts/shard/run_shard_ensemble_check.py runs/shard_ensemble_check
 ```
 ```bash
-FL_DEVICE=cpu python scripts/shard/run_shard_stream.py runs/shard_stream_20c
+SHARD_TRAIN_CONFIG=repo FL_DEVICE=cpu python scripts/shard/run_shard_stream.py runs/shard_stream_20c
 ```
 ```bash
 for a in 0.5 1.0; do FL_DEVICE=cpu python scripts/shard/run_shard_paper_scale.py runs/shard_paper/paper_a$a $a; done

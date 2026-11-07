@@ -18,6 +18,7 @@
 | Shadow MIA và LiRA | [membership_validation_results.md](membership_validation_results.md), [lira_plan.md](lira_plan.md), [lira_results.md](lira_results.md) |
 | **Đóng băng FU trước phase DT** | [fu_freeze.md](fu_freeze.md) |
 | Khám phá sau đóng băng: unlearn chính xác theo shard (kiểu SISA / DynamicFU) | [shard_exploration_results.md](shard_exploration_results.md) |
+| Cấu hình train chuẩn cho hướng shard và xác nhận hai run 20 client (**không xác nhận**) | [shard_standard_config_plan.md](shard_standard_config_plan.md), [shard_standard_config_results.md](shard_standard_config_results.md) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 
 ## Vai trò của các tập dữ liệu

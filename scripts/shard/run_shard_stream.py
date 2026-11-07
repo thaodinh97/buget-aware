@@ -1,23 +1,28 @@
-"""Sequential deletion stream with sharded exact unlearning vs a DynamicFU re-implementation (exploratory, not preregistered; results in results/shard_exploration).
+"""Sequential deletion stream with sharded exact unlearning vs a DynamicFU re-implementation. With SHARD_TRAIN_CONFIG=repo: the
+exploratory run (not preregistered; results/shard_exploration*). With the default 'standard' config: run 2 of the confirmation
+fixed in docs/shard_standard_config_plan.md.
 
 Fixed before running:
-- data connected_v3_seed42; policies may read VALIDATION (the FU aux set); reported metrics on CALIBRATION; test unused;
+- data SHARD_DATA_DIR (default connected_v3_seed42); policies may read VALIDATION (the FU aux set); reported metrics on
+  CALIBRATION; test unused;
 - 20 clients, Dirichlet alpha 0.5, partition seed 42; shards S in {4, 10} by seeded permutation (seed 7); shard j seed s+1000j;
-- FedAvg per shard: 15 rounds (R_base), 1 local epoch, Adam 1e-3, batch 512; ensemble = sum of shard margins;
+- FedAvg per shard with the config of train_config.py; ensemble = sum of shard margins:
+  'standard' = R_base 20 rounds, 2 local epochs, Adam 1e-2, batch 512; FIXED_R 10; BACKFILL 7; DynamicFU R_max 20;
+  'repo'     = R_base 15 rounds, 1 local epoch,  Adam 1e-3, batch 512; FIXED_R 7;  BACKFILL 5; DynamicFU R_max 15;
 - training seeds 10042..10046;
 - stream: 10 requests from metadata only (seed 99): client drawn with prob. proportional to remaining rows; odd steps delete
   the whole client, even steps a random 30% of its remaining rows; identical for every S, seed and policy;
 - policies (affected shard j is retrained from a fresh init with its own seed, on its retained data only):
   none            no unlearning (reference, not a valid removal)
-  shard_full      15 rounds                              (Affected-Shard Full Retrain)
-  shard_fixed     7 rounds                               (Rapid-Retraining-like reduced fixed budget)
+  shard_full      R_base rounds                          (Affected-Shard Full Retrain)
+  shard_fixed     FIXED_R rounds                         (Rapid-Retraining-like reduced fixed budget)
   dynamicfu       DynamicFU eqs. 9-21: contribution (theta 1/3 each, lambda 0.5/0.5), eta in [0.2, 1], rho 1, mu 1,
-                  omega 0.5/0.5, tau_ctrl 0.01, tau_drop 0.02, R_max 15; controller signals on validation
+                  omega 0.5/0.5, tau_ctrl 0.01, tau_drop 0.02, R_max = R_base; controller signals on validation
   utility_stop    round by round; stop at the first round with validation macro-F1 >= F1_0 - 0.005 and FPR <= FPR_0 + 0.005
-                  (F1_0, FPR_0: the original ensemble before any request), else 15
-  drop_backfill   drop shard j from the ensemble at once; spend 5 rounds per request step rebuilding pending shards FIFO;
-                  a shard re-enters only after 15 rounds; the backlog is finished after the last request
-- reference: S = 1 single model retrained from scratch (seed s, 15 rounds) on all remaining data after every request;
+                  (F1_0, FPR_0: the original ensemble before any request), else R_base
+  drop_backfill   drop shard j from the ensemble at once; spend BACKFILL rounds per request step rebuilding pending shards
+                  FIFO; a shard re-enters only after R_base rounds; the backlog is finished after the last request
+- reference: S = 1 single model retrained from scratch (seed s, R_base rounds) on all remaining data after every request;
 - exactness: after every step, no included shard may have trained on a deleted row; at the end every included shard
   must equal, bit for bit, a fresh model trained with its seed for its recorded rounds on the final data.
 """
@@ -33,13 +38,14 @@ from src.data.federated import partition
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics
 from src.fl.fedavg_core import model, fedavg, ClientWorker
+from scripts.shard.train_config import load as load_train_config
 
 OUT = Path(sys.argv[1]); OUT.mkdir(parents=True, exist_ok=False)
 torch.set_num_threads(2); torch.use_deterministic_algorithms(True)
-FL = {'rounds': 15, 'local_epochs': 1, 'batch_size': 512, 'lr': 1e-3}; RB = 15; HID = [64, 32]
+CFG_NAME, CFG = load_train_config(OUT); FL = CFG['fl']; RB = FL['rounds']; HID = [64, 32]
 CLIENTS, ALPHA, SEEDS, SHARDS = 20, .5, [10042 + i for i in range(5)], [4, 10]
-K, FRAC, FIXED_R, EPS, BACKFILL = 10, .3, 7, .005, 5
-DFU = dict(theta=(1/3, 1/3, 1/3), lam=(.5, .5), eta=(.2, 1.), rho=1., mu=1., omega=(.5, .5), tau_ctrl=.01, tau_drop=.02, Rmax=15)
+K, FRAC, FIXED_R, EPS, BACKFILL = 10, .3, CFG['shard_fixed_rounds'], .005, CFG['backfill_rounds']
+DFU = dict(theta=(1/3, 1/3, 1/3), lam=(.5, .5), eta=(.2, 1.), rho=1., mu=1., omega=(.5, .5), tau_ctrl=.01, tau_drop=.02, Rmax=RB)
 POLICIES = ['none', 'shard_full', 'shard_fixed', 'dynamicfu', 'utility_stop', 'drop_backfill']
 DATA = Path(os.environ.get('SHARD_DATA_DIR', ROOT/'data/processed/connected_v3_seed42'))  # default: the frozen train-fit data
 d = load_data(DATA); tr, va, ca = d['train'], d['validation'], d['calibration']

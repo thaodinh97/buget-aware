@@ -1,0 +1,24 @@
+{
+ "name": "standard",
+ "fl": {
+  "rounds": 20,
+  "local_epochs": 2,
+  "batch_size": 512,
+  "lr": 0.01
+ },
+ "unlearn_budgets": [
+  1,
+  2,
+  5,
+  10,
+  20
+ ],
+ "shard_fixed_rounds": 10,
+ "backfill_rounds": 7,
+ "sha256_at_start": {
+  "docs/shard_standard_config_plan.md": "75f1682bab04bddb1d81ad28a37d49c14b2760062472fe56ef77b7dac1ec85ce",
+  "scripts/shard/evaluate_standard_config.py": "b3504711d4bc237fafb7fd63882868acd0b5844ce9ae0c869dcb2092459f7d82",
+  "scripts/shard/train_config.py": "0c44f75ef8ca8032252952c6357ea5ab6a9e946b5541d55cd8576b71df8d1f92",
+  "scripts/shard/run_shard_ensemble_check.py": "ee6f10d0ab68ee1019f9dd7a22579bf0f63d6974977d8407657bf8608b3fa6c0"
+ }
+}
