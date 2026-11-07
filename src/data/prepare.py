@@ -10,6 +10,7 @@ import pandas as pd
 
 GROUP_COLUMNS = ["src_ip", "src_port", "dst_ip", "dst_port", "proto"]
 FORBIDDEN = {"label", "type", "src_ip", "dst_ip", "src_port", "dst_port"}
+TRANSFORM_FIT = {"train_only": "train", "validation_only": "validation"}
 
 
 def digest(path):
@@ -134,10 +135,15 @@ def prepare(input_path, config_path, output_dir):
     output_dir = Path(output_dir)
     if output_dir.exists():
         raise FileExistsError(f"Refusing to overwrite run: {output_dir}")
-    expected = {"duplicate_policy": "keep_first_exact_row_with_mapping", "conflict_policy": "retain_and_report",
-                "transform_fit": "train_only"}
+    expected = {"duplicate_policy": "keep_first_exact_row_with_mapping", "conflict_policy": "retain_and_report"}
     if any(config.get(key) != value for key, value in expected.items()):
         raise ValueError("Unsupported policy: implementation must match manifest")
+    # train_only: transform fitted on the training split (the frozen FU phase).
+    # validation_only: fitted on the auxiliary validation split only, so deleting training rows never changes the
+    # encoding and an unlearned model need not be re-encoded (exact unlearning end to end, with the split fixed).
+    if config.get("transform_fit") not in TRANSFORM_FIT:
+        raise ValueError("Unsupported transform_fit policy")
+    fit_split = TRANSFORM_FIT[config["transform_fit"]]
     if config['group_policy'] not in ['directed_five_tuple', 'connected_bidirectional_features']:
         raise ValueError('Unsupported group policy')
     numeric, categorical = config["numeric_features"], config["categorical_features"]
@@ -174,7 +180,7 @@ def prepare(input_path, config_path, output_dir):
         for name in config["split_fractions"]:
             if set(frame.loc[splits == name, "label"].unique()) != {0, 1}:
                 raise ValueError(f"Single-class/empty split: {name}; no seed fallback")
-        state = fit_transformer(frame.loc[splits == "train"], numeric, categorical)
+        state = fit_transformer(frame.loc[splits == fit_split], numeric, categorical)
         encoded = transform(frame, state)
         encoded_signatures = np.array([hashlib.sha256(row.tobytes()).hexdigest() for row in encoded])
         encoded_overlap = overlaps(encoded_signatures, splits)
@@ -232,13 +238,18 @@ def prepare(input_path, config_path, output_dir):
              "encoded_overlap_refinement_rounds": refinement_rounds,
              "cross_split_encoded_overlap": encoded_overlap,
              "warnings": warnings, "training_ready": not any('OVERLAP' in w for w in warnings)}
+    if fit_split != "train":
+        # Values never seen in the fit split are encoded as __UNKNOWN__; report how often that happens per split.
+        audit["transform_fit_split"] = fit_split
+        audit["unknown_category_rate"] = {name: {col: float((~categorical_values(frame.loc[splits == name, col]).isin(
+            state["vocabulary"][col])).mean()) for col in categorical} for name in config["split_fractions"]}
     write_json(output_dir / "audit.json", audit)
     manifest = {"config": config, "dataset_path": str(Path(input_path).resolve()),
                 "dataset_sha256": source_hash, "source_sha256": digest(__file__),
                 "config_sha256": digest(config_path), "schema": raw.dtypes.astype(str).to_dict(),
                 "python": platform.python_version(), "platform": platform.platform(),
                 "numpy": np.__version__, "pandas": pd.__version__, "code_revision": None,
-                "transform_fit_rows_sha256": hashlib.sha256("\n".join(row_ids[splits == "train"]).encode()).hexdigest(),
+                "transform_fit_rows_sha256": hashlib.sha256("\n".join(row_ids[splits == fit_split]).encode()).hexdigest(),
                 "artifacts_sha256": {p.name: digest(p) for p in sorted(output_dir.iterdir())}}
     write_json(output_dir / "manifest.json", manifest)
     return audit

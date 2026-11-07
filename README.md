@@ -80,7 +80,7 @@ Mỗi bước đọc artifact của bước trước ở **đường dẫn cố 
 
 | # | Bước | Lệnh chạy | Output | Vai trò |
 |---|---|---|---|---|
-| 0 | Tiền xử lý | `python src/data/prepare.py --config configs/data_connected.json --output data/processed/connected_v3_seed42` | dữ liệu đã chia | gom nhóm theo connected component, transform chỉ fit trên train, audit leakage |
+| 0 | Tiền xử lý | `python src/data/prepare.py --config configs/data_connected.json --output data/processed/connected_v3_seed42` | dữ liệu đã chia | gom nhóm theo connected component, transform chỉ fit trên train, audit leakage. Bản `--config configs/data_connected_auxfit.json --output data/processed/connected_v3_auxfit_seed42` fit transform **chỉ trên validation**, để việc xóa dữ liệu train không làm đổi cách mã hóa (dùng cho hướng shard) |
 | 1 | FedAvg gốc | `python scripts/run_pilot.py --output runs/pilot_v3_seed42` | partition 5 client, model original | `verify_run.py` |
 | 2 | Request | `python scripts/run_controlled_phase.py --output runs/controlled_phase_v2_seed42` | 8 request (client 0/4 × random/low-overlap × 10/50%) | `verify_controlled_phase.py` |
 | 3 | Seed floor | `python scripts/run_seed_floor.py --output runs/seed_floor_seed42` | 10 original và 10 retrain mỗi request | noise floor; `verify_seed_floor.py` |

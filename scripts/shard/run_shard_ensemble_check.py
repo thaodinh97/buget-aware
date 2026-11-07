@@ -12,12 +12,13 @@ Fixed before running:
 - unlearning: affected shard re-initialised with its original seed and retrained on its retained data; utility after
   R in {1,2,5,10,15} rounds (prefix of one run; R = 15 is the exact retrain of the ensemble with the same seeds).
 """
-import json, sys, time
+import json, os, sys, time
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]; sys.path.insert(0, str(ROOT))
 import numpy as np, pandas as pd, torch
 from scipy.special import expit
 from scripts.run_pilot import load_data
+from src.data.prepare import digest
 from src.data.federated import partition, forget_request
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics
@@ -27,7 +28,10 @@ OUT = Path(sys.argv[1]); OUT.mkdir(parents=True, exist_ok=False)
 torch.set_num_threads(2); torch.use_deterministic_algorithms(True)
 FL = {'rounds': 15, 'local_epochs': 1, 'batch_size': 512, 'lr': 1e-3}; HIDDEN = [64, 32]
 CLIENTS, ALPHA, SHARDS, SEEDS, BUDGETS = 20, .5, [1, 2, 4, 5, 10], [10042 + i for i in range(5)], [1, 2, 5, 10, 15]
-d = load_data(ROOT/'data/processed/connected_v3_seed42'); tr, ca = d['train'], d['calibration']
+DATA = Path(os.environ.get('SHARD_DATA_DIR', ROOT/'data/processed/connected_v3_seed42'))  # default: the frozen train-fit data
+d = load_data(DATA); tr, ca = d['train'], d['calibration']
+DIM = d['train']['X'].shape[1]
+(OUT/'data.json').write_text(json.dumps({'data_dir': str(DATA), 'input_dim': DIM, 'manifest_sha256': digest(Path(DATA)/'manifest.json')}, indent=1))
 
 pseed = 42
 while True:
@@ -39,7 +43,7 @@ requests = {'client': parts[t], 'random50': f_rand}
 meta = {'partition_seed': pseed, 'target_client': t, 'client_rows': sizes,
         'client_normal': [int((tr['y'][p] == 0).sum()) for p in parts], 'request_rows': {k: len(v) for k, v in requests.items()}}
 print(json.dumps(meta), flush=True)
-model_bytes = sum(p.numel()*4 for p in model(38, HIDDEN, 0, 'cpu').parameters())
+model_bytes = sum(p.numel()*4 for p in model(DIM, HIDDEN, 0, 'cpu').parameters())
 
 def assign(S):
     perm = np.random.default_rng(7).permutation(CLIENTS); return [sorted(perm[j::S].tolist()) for j in range(S)]
@@ -47,7 +51,7 @@ def assign(S):
 def train_rounds(blocks, seed, rounds):
     """Yield (r, model) after each round r = 1..rounds; identical to fedavg(..., rounds, seed) at every prefix."""
     ws = [ClientWorker(i, tr['X'][b], tr['y'][b], tr['row_id'][b], 'cpu') for i, b in enumerate(blocks) if len(b)]
-    m = model(38, HIDDEN, seed, 'cpu')
+    m = model(DIM, HIDDEN, seed, 'cpu')
     for r in range(rounds):
         m, _ = fedavg(m, ws, FL, 1, seed + r*10000); yield r + 1, m, sum(len(w.y) for w in ws), len(ws)
 

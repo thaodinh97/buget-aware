@@ -31,6 +31,7 @@ Một số tập dữ liệu giữ nhiều vai trò cùng lúc. Bảng dưới l
 | | **Look-alike nonmember** cho mức dừng `nonmember`: attack có trigger cho canary, dòng cùng tỉ lệ lớp cho request tự nhiên | `run_forget_signal.py` |
 | | **Dữ liệu phụ trợ:** pool của kNN (`knn_aux`), dữ liệu train reference (`ref_aux`) và control cùng pool | `run_deployable_forget.py`, `run_confirmation.py` |
 | | Nonmember khi audit model | `run_membership_validation.py` |
+| | **Fit tiền xử lý** (scaler, median, vocabulary) cho bản dữ liệu `connected_v3_auxfit_seed42`, và tín hiệu cho các chính sách shard (`utility_stop`, DynamicFU) | `configs/data_connected_auxfit.json`, `scripts/shard/` |
 | **calibration** | Shadow model và ngưỡng của shadow MIA | `run_membership_validation.py`, `run_pilot.py` |
 | **test** | Utility (macro-F1, FPR); **chỉ số chính của canary** (P(normal) trung bình trên attack test được đóng dấu); pool nonmember của LiRA trên request tự nhiên | mọi bước; `run_lira.py` |
 

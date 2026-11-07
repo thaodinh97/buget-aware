@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -68,6 +69,65 @@ class PreprocessingTests(unittest.TestCase):
                     seen_ids.update(a["row_id"])
                     self.assertTrue(np.isfinite(a["X"]).all())
             self.assertEqual(len(seen_ids), 200)
+
+    @staticmethod
+    def _rows(cfg, train_scale=1.):
+        rows = []
+        for group in range(100):
+            for label in [0, 1]:
+                row = {col: (group + label)*train_scale for col in cfg["numeric_features"]}
+                row.update(src_ip=f"10.0.0.{group}", dst_ip="10.1.0.1", src_port=group, dst_port=80, proto="tcp",
+                           service="dns" if group < 3 else "-", conn_state="SF", label=label,
+                           type="normal" if label == 0 else "attack")
+                rows.append(row)
+        return rows
+
+    def _run(self, root, name, cfg, rows):
+        source, config = root / f"{name}.csv", root / f"{name}.json"
+        pd.DataFrame(rows).to_csv(source, index=False); config.write_text(json.dumps(cfg))
+        prepare(source, config, root / name)
+        return root / name
+
+    def test_validation_only_transform_uses_only_validation_rows(self):
+        cfg = {**json.loads(Path("configs/data.json").read_text()), "transform_fit": "validation_only"}
+        with tempfile.TemporaryDirectory(dir=".") as tmp:
+            out = self._run(Path(tmp), "v", cfg, self._rows(cfg))
+            meta = pd.read_csv(out / "metadata.csv"); raw = pd.read_csv(Path(tmp) / "v.csv")
+            val = meta[meta.split == "validation"]
+            expected = fit_transformer(raw.loc[[int(r.split(":")[1]) for r in val.row_id]], cfg["numeric_features"], cfg["categorical_features"])
+            self.assertEqual(json.loads((out / "transformer.json").read_text()), json.loads(json.dumps(expected)))
+            manifest = json.loads((out / "manifest.json").read_text()); audit = json.loads((out / "audit.json").read_text())
+            self.assertEqual(manifest["transform_fit_rows_sha256"], hashlib.sha256("\n".join(val.row_id).encode()).hexdigest())
+            self.assertEqual(audit["transform_fit_split"], "validation")
+            self.assertEqual(set(audit["unknown_category_rate"]), set(cfg["split_fractions"]))
+
+    def test_validation_only_transform_ignores_training_rows(self):
+        """Changing only training rows must leave the encoding, validation and test unchanged (train_only does not)."""
+        base = json.loads(Path("configs/data.json").read_text())
+        for fit, invariant in [("validation_only", True), ("train_only", False)]:
+            cfg = {**base, "transform_fit": fit}
+            with tempfile.TemporaryDirectory(dir=".") as tmp:
+                root = Path(tmp); a = self._run(root, "a", cfg, self._rows(cfg))
+                split = pd.read_csv(a / "metadata.csv").split.to_numpy()
+                rows = self._rows(cfg); changed = self._rows(cfg, train_scale=3.)
+                rows = [c if s == "train" else r for r, c, s in zip(rows, changed, split)]
+                b = self._run(root, "b", cfg, rows)
+                np.testing.assert_array_equal(pd.read_csv(b / "metadata.csv").split.to_numpy(), split)
+                same = (a / "transformer.json").read_text() == (b / "transformer.json").read_text()
+                self.assertEqual(same, invariant, fit)
+                if invariant:
+                    for name in ["validation", "calibration", "test"]:
+                        with np.load(a / f"{name}.npz") as x, np.load(b / f"{name}.npz") as y:
+                            np.testing.assert_array_equal(x["X"], y["X"])
+                    with np.load(a / "train.npz") as x, np.load(b / "train.npz") as y:
+                        self.assertFalse(np.array_equal(x["X"], y["X"]))
+
+    def test_unknown_transform_fit_fails(self):
+        cfg = {**json.loads(Path("configs/data.json").read_text()), "transform_fit": "all_rows"}
+        with tempfile.TemporaryDirectory(dir=".") as tmp:
+            path = Path(tmp) / "config.json"; path.write_text(json.dumps(cfg))
+            with self.assertRaises(ValueError):
+                prepare("nonexistent.csv", path, Path(tmp) / "new")
 
     def test_forbidden_label_feature_and_overwrite_fail(self):
         cfg = json.loads(Path("configs/data.json").read_text())

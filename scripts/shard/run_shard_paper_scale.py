@@ -19,13 +19,14 @@ Fixed before running:
   any request), else 20;
 - exactness: per step, no included shard trained on a deleted row; at the end, bit-for-bit equality with fresh training.
 """
-import json, sys, time
+import json, os, sys, time
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]; sys.path.insert(0, str(ROOT))
 import numpy as np, pandas as pd, torch
 from scipy.special import expit
 from scipy.spatial.distance import jensenshannon
 from scripts.run_pilot import load_data
+from src.data.prepare import digest
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics
 from src.fl.fedavg_core import model, fedavg, ClientWorker
@@ -36,9 +37,12 @@ FL = {'rounds': 20, 'local_epochs': 2, 'batch_size': 512, 'lr': 1e-2}; RB = 20; 
 CLIENTS, S, SEEDS = 50, 10, [10042 + i for i in range(5)]
 K, FRAC, FIXED_R, EPS, BACKFILL = 10, .3, 10, .005, 7
 DFU = dict(theta=(1/3, 1/3, 1/3), lam=(.5, .5), eta=(.2, 1.), rho=1., mu=1., omega=(.5, .5), tau_ctrl=.01, tau_drop=.02, Rmax=20)
-d = load_data(ROOT/'data/processed/connected_v3_seed42'); tr, va, ca = d['train'], d['validation'], d['calibration']
+DATA = Path(os.environ.get('SHARD_DATA_DIR', ROOT/'data/processed/connected_v3_seed42'))  # default: the frozen train-fit data
+d = load_data(DATA); tr, va, ca = d['train'], d['validation'], d['calibration']
+DIM = d['train']['X'].shape[1]
+(OUT/'data.json').write_text(json.dumps({'data_dir': str(DATA), 'input_dim': DIM, 'manifest_sha256': digest(Path(DATA)/'manifest.json')}, indent=1))
 N = len(tr['y']); p_train = np.bincount(tr['y'], minlength=2)/N
-MB = sum(p.numel()*4 for p in model(38, HID, 0, 'cpu').parameters())
+MB = sum(p.numel()*4 for p in model(DIM, HID, 0, 'cpu').parameters())
 
 def dirichlet_partition(y, seed, alpha, clients, min_rows=10):
     rng = np.random.default_rng(seed); result = [[] for _ in range(clients)]
@@ -76,7 +80,7 @@ meta = {'alpha': ALPHA, 'scheme': SCHEME, 'partition_seed': pseed, 'client_rows'
 
 class Trainer:
     def __init__(self, idx, seed):
-        self.idx, self.seed = idx, seed; self.m = model(38, HID, seed, 'cpu'); self.r = 0; byc = {}
+        self.idx, self.seed = idx, seed; self.m = model(DIM, HID, seed, 'cpu'); self.r = 0; byc = {}
         for i in idx: byc.setdefault(owner[i], []).append(i)
         self.ws = [ClientWorker(c, tr['X'][np.array(v)], tr['y'][np.array(v)], tr['row_id'][np.array(v)], 'cpu') for c, v in sorted(byc.items())]
         self.rows = len(idx); self.nclients = len(self.ws)
@@ -107,7 +111,7 @@ def contributions(sh, alive, cands, F1_now):
         j = shard_of[c]; idx = parts[c][alive[parts[c]]]
         if sh[j] is None or not len(idx): continue
         w = ClientWorker(c, tr['X'][idx], tr['y'][idx], tr['row_id'][idx], 'cpu'); st, _, _ = w.train(sh[j]['m'], FL, sh[j]['seed'] + 777)
-        mp = model(38, HID, 0, 'cpu'); mp.load_state_dict(st)
+        mp = model(DIM, HID, 0, 'cpu'); mp.load_state_dict(st)
         u = float(torch.cat([(a - b).flatten() for a, b in zip(mp.state_dict().values(), sh[j]['m'].state_dict().values())]).norm())
         pi = np.bincount(tr['y'][idx], minlength=2)/len(idx); dd = DFU['lam'][0]*jensenshannon(pi, p_train)**2 + DFU['lam'][1]*pi[1]
         tmp = list(sh); tmp[j] = {**sh[j], 'mg': {'va': logit_margin(mp, va['X'])}}; q = abs(val_stats(ens(tmp, 'va'))[0] - F1_now)
