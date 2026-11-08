@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
 import torch
-from src.fl.fedavg_core import model,ClientWorker,fedavg
-from src.fu.diagnostics import tensor_hash
+from src.fl.fedavg_core import model,ClientWorker,fedavg,state
 from src.eval.membership_validation import score_summary,group_intervals,usable,clean_auxiliary_roles,stable_baselines
 
 class MembershipTests(unittest.TestCase):
@@ -28,7 +27,8 @@ class MembershipTests(unittest.TestCase):
         cfg={'lr':.001,'local_epochs':1,'batch_size':2}; observed=[]
         plain,_=fedavg(m,[w],cfg,3,42)
         measured,logs=fedavg(m,[w],cfg,3,42,lambda *args: observed.append(args))
-        self.assertEqual(tensor_hash(plain),tensor_hash(measured)); self.assertEqual(len(observed),3)
+        for k,v in state(plain).items(): self.assertTrue(torch.equal(v,state(measured)[k]))
+        self.assertEqual(len(observed),3)
         self.assertEqual(sum(c['steps'] for r in logs for c in r['clients']),3)
 
     def test_mia_direction_threshold_and_paired_intervals(self):

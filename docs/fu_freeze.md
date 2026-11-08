@@ -1,5 +1,7 @@
 # Đóng băng thành phần FU trước phase Digital Twin
 
+> † **Code của giai đoạn này đã được gỡ khỏi nhánh** (gồm `run_deployable_forget.py`, `run_confirmation.py`, các verifier và `src/fu/` trừ `conpfu_inspired.py`). Chúng vẫn còn nguyên ở tag `pre-cleanup`: `git checkout pre-cleanup`. Các doc kết quả được nhắc tới ở đây nằm trong [archive/](archive/). Hướng hiện tại là unlearn chính xác theo shard: [shard_v2_results.md](shard_v2_results.md).
+
 **Ngày đóng băng:** 2026-11-03, trên nhánh `feature/fu-experiment`. Hai lần xác nhận (partition 43 và 44) đã chạy xong. Verdict cuối cùng ở mục 4: **ứng viên, không được xác nhận**. Commit và tag `fu-freeze` chưa được tạo.
 
 **Mục đích.** Theo [đặc tả](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md), Digital Twin (DT) là đóng góp chính của khóa luận, còn federated unlearning (FU) là thành phần hỗ trợ. Planner của DT giữ cố định bước FU và chỉ chọn tập client tham gia recovery. Tài liệu này cố định bước FU đó, ghi những kết luận được phép tuyên bố, và đặt ranh giới dữ liệu cho phase DT.
@@ -41,22 +43,22 @@
 
 | Được tuyên bố (có điều kiện) | Bằng chứng |
 |---|---|
-| Trên partition 42, mức dừng `joint_aux_prob` bám mức retrain trong khoảng 0,001–0,005, không cần retrain | [deployable_forget_results.md](deployable_forget_results.md), 5 request. **Không** đúng trên mọi partition (xem bảng dưới) |
-| Trên canary tổ hợp, có trigger nằm trên các chiều đang dùng, projection giữ được việc quên qua recovery và thắng cả retain-only lẫn control cùng pool. GA không chiếu bị recovery kéo về và chỉ thắng control cùng pool ở 1/7 request | 7/7 request trên 3 partition: 2 trên seed phát triển ([confirmation_existing_results.md](confirmation_existing_results.md)), 3 trên partition 43 ([confirmation_p43_results.md](confirmation_p43_results.md)), 2 trên partition 44 ([confirmation_p44_results.md](confirmation_p44_results.md)). Lặp lại trên dữ liệu chưa nhìn, nhưng **không phải "đã xác nhận"** (mục 4) |
+| Trên partition 42, mức dừng `joint_aux_prob` bám mức retrain trong khoảng 0,001–0,005, không cần retrain | [deployable_forget_results.md](archive/deployable_forget_results.md), 5 request. **Không** đúng trên mọi partition (xem bảng dưới) |
+| Trên canary tổ hợp, có trigger nằm trên các chiều đang dùng, projection giữ được việc quên qua recovery và thắng cả retain-only lẫn control cùng pool. GA không chiếu bị recovery kéo về và chỉ thắng control cùng pool ở 1/7 request | 7/7 request trên 3 partition: 2 trên seed phát triển ([confirmation_existing_results.md](archive/confirmation_existing_results.md)), 3 trên partition 43 ([confirmation_p43_results.md](archive/confirmation_p43_results.md)), 2 trên partition 44 ([confirmation_p44_results.md](archive/confirmation_p44_results.md)). Lặp lại trên dữ liệu chưa nhìn, nhưng **không phải "đã xác nhận"** (mục 4) |
 | Trung bình qua seed, utility trên test không kém retain-only: macro-F1 và FPR | Mọi request của cả 3 run. Trong `confirm2`, check noninferiority trượt trên 2 canary vì khoảng tin cậy bị nới rộng bởi các seed **tốt hơn**; không seed nào có FPR kém hơn quá 0,0004 |
 | Macro-F1 trên dữ liệu giữ lại của từng client không giảm | 7/7 request của `existing`. Trong `confirm`, chênh lệch xấu nhất là −0,00016, và check trượt duy nhất là của client 4, nơi sàn nhiễu bằng 0 (mục 4) |
 | Rò rỉ ở mức nhóm (backdoor) về mức retrain | Các canary có `forget_ok` ở trên |
-| Bước quên rẻ về giao tiếp: chạy local trong 2–5 s, sau đó 2 vòng FedAvg, so với 15 vòng khi retrain | [deployable_forget_results.md](deployable_forget_results.md) |
+| Bước quên rẻ về giao tiếp: chạy local trong 2–5 s, sau đó 2 vòng FedAvg, so với 15 vòng khi retrain | [deployable_forget_results.md](archive/deployable_forget_results.md) |
 
 | **Không** được tuyên bố | Lý do |
 |---|---|
 | "Phương pháp tốt nhất" hoặc "đã xác nhận" | Phương pháp được chọn sau khi xem dữ liệu, và cả hai lần xác nhận đều không qua quy tắc đặt trước: 4/6 và 3/7 request. Theo protocol, không có lần thứ ba (mục 4) |
 | Projection luôn quên được trigger nằm trên các chiều đang dùng | Trên canary tổ hợp c0 của partition 43, position chỉ 0,64; ở 3/10 seed bước chiếu không dịch chuyển được trong 300 bước |
 | Mức dừng `joint_aux_prob` luôn bám mức retrain | Trên low-overlap của client 2 (partition 44), mức dừng quá chặt: CE trên F gấp đôi retrain, và model bị đẩy ra xa retrain hơn cả original (position −0,27 sau recovery) |
-| Canary zero-dim chứng minh giá trị của projection | Đó là lối tắt cấu trúc, và lối tắt này lặp lại trên cả 3 partition ([reset_baseline_results.md](reset_baseline_results.md)) |
+| Canary zero-dim chứng minh giá trị của projection | Đó là lối tắt cấu trúc, và lối tắt này lặp lại trên cả 3 partition ([reset_baseline_results.md](archive/reset_baseline_results.md)) |
 | Bước quên có ích, hay ít nhất là vô hại, trên request tự nhiên | Có 4 request tự nhiên đo được trên 3 partition, và ở request nào bước quên cũng không vượt được control công bằng. Trên low-overlap của client 2 (partition 44), bước quên còn gây hại |
 | Unlearn làm tăng privacy theo bản ghi, hay "MIA giống retrain" | MIA không có sức mạnh, ngay cả trên model original |
-| Model unlearn không phân biệt được với retrain | AUC của attacker 0,67–1,00 ([indistinguishability_results.md](indistinguishability_results.md)) |
+| Model unlearn không phân biệt được với retrain | AUC của attacker 0,67–1,00 ([indistinguishability_results.md](archive/indistinguishability_results.md)) |
 | Đảm bảo xóa dữ liệu, DP, hay certified unlearning | Không có cơ chế hình thức nào |
 | FU rẻ hơn retrain về compute | Chưa có bảng chi phí đầy đủ: một lần retrain chỉ mất 10–13 s, trong khi kNN và reference cũng tốn tương đương |
 
@@ -108,7 +110,7 @@
   - 6 canary: zero-dim và tổ hợp, trên client 0, 1, 2;
   - 9 request tự nhiên trên client 0–4.
 - **Request bị loại.** `client0_low_overlap_groups_0.5` không hợp lệ: F hoặc R chỉ còn một lớp.
-- **Run:** `runs/confirmation_p43`, 4.189 s. Verifier pass: 172 artifact khớp hash, 84 dòng quyết định được tính lại, 32 stage chạy lại khớp từng bit. Chi tiết ở [confirmation_p43_results.md](confirmation_p43_results.md).
+- **Run:** `runs/confirmation_p43`, 4.189 s. Verifier pass: 172 artifact khớp hash, 84 dòng quyết định được tính lại, 32 stage chạy lại khớp từng bit. Chi tiết ở [confirmation_p43_results.md](archive/confirmation_p43_results.md).
 
 **Verdict: KHÔNG XÁC NHẬN theo quy tắc đặt trước.**
 - **Không arm nào pass.** `ga_proj@joint_aux_prob` qua 4/6 request được admit, và trượt canary tổ hợp c0 và c1.
@@ -130,12 +132,12 @@
 **Xử lý.** Quy tắc không được sửa để chấm lại run này. Bản sửa (sàn không mịn hơn một dòng) được ghi vào protocol rồi mới áp dụng cho lần 2.
 
 ### 4.2 Lần 2: `run_confirmation.py --mode confirm2`
-- **Thiết lập.** Protocol được ghi trước khi chạy, trong mục "Confirm lần 2" của [confirmation_plan.md](confirmation_plan.md).
+- **Thiết lập.** Protocol được ghi trước khi chạy, trong mục "Confirm lần 2" của [confirmation_plan.md](archive/confirmation_plan.md).
   - Partition Dirichlet seed 44, seed 30042–30051. Sàn utility không mịn hơn một dòng.
   - Không đổi phương pháp. Không chạy smoke trên dữ liệu thật.
 - **Partition rất lệch.** Normal / attack của từng client: 658 / 2, 51 / 25.665, 449 / 52.921, 2.777 / 13.161 và 18.599 / 1.
 - **Request.** 12 request hợp lệ, 7 qua gate: canary zero-dim c2, c1, c3; canary tổ hợp c2, c1; random và low-overlap của client 2. Các request này trải trên client đích 1, 2, 3.
-- **Run:** `runs/confirmation_p44`, 2.665 s. Verifier pass: 142 artifact, 98 dòng quyết định, 32 stage. Chi tiết ở [confirmation_p44_results.md](confirmation_p44_results.md).
+- **Run:** `runs/confirmation_p44`, 2.665 s. Verifier pass: 142 artifact, 98 dòng quyết định, 32 stage. Chi tiết ở [confirmation_p44_results.md](archive/confirmation_p44_results.md).
 
 **Verdict: KHÔNG XÁC NHẬN.**
 - **Không arm nào pass.** `ga_proj` qua 3/7 request, `nkd_proj` 4/7.

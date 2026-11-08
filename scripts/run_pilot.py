@@ -13,31 +13,11 @@ import numpy as np
 import pandas as pd
 import torch
 from src.data.prepare import digest, write_json
+from src.data.loading import load_data  # re-exported: scripts/shard/shard_v2.py imports it from here
 from src.data.federated import partition, forget_request, retained_partition, ids_hash
 from src.fl.fedavg_core import ClientWorker, model, state, fedavg, predict, get_device
 from src.fu.conpfu_inspired import alternating, distill
 from src.eval.metrics import utility, similarity, calibrate_mia, matched_indices, mia
-
-
-def load_data(path):
-    audit = json.loads((path/'audit.json').read_text())
-    if not audit['training_ready']:
-        raise ValueError('Preprocessing gate is closed')
-    if 'cross_split_encoded_overlap' not in audit or any(audit['cross_split_encoded_overlap'].values()):
-        raise ValueError('Missing/failed encoded feature leakage audit; regenerate data')
-    manifest = json.loads((path/'manifest.json').read_text())
-    for name, expected in manifest['artifacts_sha256'].items():
-        if digest(path/name) != expected:
-            raise ValueError(f'Data artifact hash mismatch: {name}')
-    data = {}
-    for split in ['train', 'validation', 'calibration', 'test']:
-        with np.load(path/f'{split}.npz', allow_pickle=False) as arrays:
-            data[split] = dict(arrays)
-    for a in data:
-        for b in data:
-            if a < b and (set(data[a]['row_id']) & set(data[b]['row_id']) or set(data[a]['group_id']) & set(data[b]['group_id'])):
-                raise ValueError('Overlapping split IDs/groups')
-    return data
 
 
 def run(data_path, config_path, output, smoke=False):
