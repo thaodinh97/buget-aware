@@ -19,6 +19,7 @@
 | **Đóng băng FU trước phase DT** | [fu_freeze.md](fu_freeze.md) |
 | Khám phá sau đóng băng: unlearn chính xác theo shard (kiểu SISA / DynamicFU) | [shard_exploration_results.md](shard_exploration_results.md) |
 | Cấu hình train chuẩn cho hướng shard và xác nhận hai run 20 client (**không xác nhận**) | [shard_standard_config_plan.md](shard_standard_config_plan.md), [shard_standard_config_results.md](shard_standard_config_results.md) |
+| Hướng shard, protocol v2: gate noninferiority, ≥ 4 client mỗi shard, sửa `utility_stop` (**không xác nhận**: G2, G5a, G5b fail; G3, G6 pass) | [shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 
 ## Vai trò của các tập dữ liệu

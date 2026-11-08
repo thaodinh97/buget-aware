@@ -139,6 +139,8 @@ Shard gồm 2 client. Các bước liên quan của chuỗi (thành phần clien
   - sửa quy tắc của `utility_stop`: kiểm tra utility cả khi loại shard rỗng, và không coi R_base là đạt khi điều kiện chưa thỏa;
   - giới hạn S, hoặc đặt số client tối thiểu cho mỗi shard;
   - dùng partition mới để kiểm tra độc lập.
+- **Đã làm phần lớn ở protocol v2** ([shard_v2_plan.md](shard_v2_plan.md)): sửa script đánh giá (đường dẫn, hash nội dung dữ liệu), gate noninferiority một phía có khoảng tin cậy với G5 tách đôi, mỗi shard ≥ 4 client và gộp khi < 3, sửa `utility_stop`, 10 seed mới. Partition vẫn là partition 42. Kết quả v2: [shard_v2_results.md](shard_v2_results.md), **không xác nhận**.
+- **Hash nội dung dữ liệu của v1** (ghi hậu kiểm): file npz được ghi trước khi v1 chạy và chưa đổi từ đó; hash nội dung của chúng là `f130057e…`, đúng bằng giá trị v2 yêu cầu.
 
 ## Tái lập
 Lệnh trong [shard_standard_config_plan.md](shard_standard_config_plan.md), mục "Lệnh chạy". Kiểm tra lại gate trên bản đã lưu:

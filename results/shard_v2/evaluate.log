@@ -1,0 +1,61 @@
+inputs {'ensemble': 'runs/shard_v2/ensemble_check_20c', 'stream': 'runs/shard_v2/stream_20c'}; seeds [50042, 50043, 50044, 50045, 50046, 50047, 50048, 50049, 50050, 50051]; R_base 20
+noninferiority: one-sided 95% paired t; dF1 lower bound > -0.01, dFPR upper bound < +0.02; FPR > 0.45 = high-FPR mode
+
+G1: PASS
+ S  dF1_mean  dF1_lower95  dFPR_mean  dFPR_upper95  F1_mean  FPR_max   ok
+ 2   -0.0002      -0.0015    -0.0032       -0.0020   0.8809   0.3183 True
+ 4   -0.0003      -0.0019    -0.0018       -0.0006   0.8808   0.3190 True
+ 5   -0.0037      -0.0057     0.0038        0.0050   0.8774   0.3251 True
+
+G2: FAIL
+ request  S  dF1_mean  dF1_lower95  dFPR_mean  dFPR_upper95  F1_mean  FPR_max    ok
+  client  2   -0.0027      -0.0053     0.0004        0.0017   0.8787   0.3227  True
+  client  4   -0.0049      -0.0071     0.0025        0.0035   0.8765   0.3232  True
+  client  5   -0.0095      -0.0116     0.0029        0.0041   0.8719   0.3227 False
+random50  2   -0.0017      -0.0037    -0.0000        0.0014   0.8799   0.3195  True
+random50  4   -0.0020      -0.0040     0.0014        0.0027   0.8796   0.3200  True
+random50  5   -0.0058      -0.0085     0.0055        0.0070   0.8758   0.3248  True
+
+G3: PASS
+  coverage complete: True; backlog rows ok: True
+
+G4: PASS
+  F1 min 0.8674, FPR max 0.3255
+
+G5a: FAIL
+ S        policy  dF1_mean  dF1_lower95  dFPR_mean  dFPR_upper95  F1_mean  FPR_max    ok  high_fpr_seeds
+ 4   shard_fixed   -0.0016      -0.0027     0.0014        0.0029   0.8649   0.3220  True               0
+ 4     dynamicfu   -0.0038      -0.0085    -0.0216        0.0219   0.8627   0.3223 False               0
+ 4  utility_stop    0.0054       0.0028     0.0007        0.0014   0.8719   0.3225  True               0
+ 4 drop_backfill    0.0000       0.0000     0.0000        0.0000   0.8665   0.3223  True               0
+ 5   shard_fixed   -0.0053      -0.0074     0.0015        0.0025   0.8642   0.3255  True               0
+ 5     dynamicfu   -0.0055      -0.0078     0.0016        0.0024   0.8641   0.3255  True               0
+ 5  utility_stop    0.0062       0.0034     0.0020        0.0030   0.8757   0.3269  True               0
+ 5 drop_backfill    0.0000       0.0000     0.0000        0.0000   0.8695   0.3251  True               0
+
+G5b: FAIL
+ S        policy  dF1_mean  dF1_lower95  dFPR_mean  dFPR_upper95  F1_mean  FPR_max    ok  high_fpr_seeds
+ 4    shard_full   -0.0107      -0.0137    -0.0016        0.0003   0.8665   0.3223 False               0
+ 4   shard_fixed   -0.0123      -0.0147    -0.0002        0.0007   0.8649   0.3220 False               0
+ 4     dynamicfu   -0.0145      -0.0201    -0.0232        0.0203   0.8627   0.3223 False               0
+ 4  utility_stop   -0.0053      -0.0089    -0.0009        0.0008   0.8719   0.3225  True               0
+ 4 drop_backfill   -0.0107      -0.0137    -0.0016        0.0003   0.8665   0.3223 False               0
+ 5    shard_full   -0.0077      -0.0100     0.0022        0.0034   0.8695   0.3251 False               0
+ 5   shard_fixed   -0.0130      -0.0153     0.0037        0.0047   0.8642   0.3255 False               0
+ 5     dynamicfu   -0.0131      -0.0157     0.0037        0.0047   0.8641   0.3255 False               0
+ 5  utility_stop   -0.0015      -0.0044     0.0042        0.0053   0.8757   0.3269  True               0
+ 5 drop_backfill   -0.0077      -0.0100     0.0022        0.0034   0.8695   0.3251 False               0
+
+G6: PASS
+  F1 min 0.8644, FPR max 0.3274
+
+integrity: {'ensemble': (True, {'design_v2': True, 'config_standard': True, 'runner': True, 'data_content': True, 'tracked_sha256': True}, 'data/processed/connected_v3_auxfit_seed42'), 'stream': (True, {'design_v2': True, 'config_standard': True, 'runner': True, 'data_content': True, 'tracked_sha256': True}, 'data/processed/connected_v3_auxfit_seed42')}
+descriptive: {"utility_stop_v1_steps_fpr_gt_high": {"4": 0, "5": 0}, "utility_stop_fallback": {"4": {"fallback_rounds": 374.0, "steps_with_fallback": 15, "condition_unmet": 13}, "5": {"fallback_rounds": 2.0, "steps_with_fallback": 1, "condition_unmet": 0}}, "structure_events": [{"S": 5, "step": 7, "event": "merge_1_into_0"}]}
+
+claims:
+  sharding_keeps_single_model_utility (G1, G2, G5b): False
+  reduced_budget_policies_match_shard_full (G5a): False
+  exact_unlearning (G3): True
+  utility_stop_v2_safe (G6 + its G5a/G5b rows): True
+
+CONFIRMED (all gates): False  (preconditions G4 + integrity: True)
