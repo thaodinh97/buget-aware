@@ -50,3 +50,12 @@ Get-Content "$root/fixed_$tag/dt_report.json" -Raw
 * Khi replay nhiều yêu cầu, so sánh MAE của từng predictor trên cùng các yêu cầu; tính trị tuyệt đối của chênh lệch predicted_seconds_same_policy và actual_seconds. Đánh giá chất lượng bằng validation_macro_f1 và validation_fpr trên các cặp full/fixed cùng state cha. So sánh trên nhiều seed trước khi kết luận về hiệu quả.
 * exact và structure_ok là các kiểm tra của FU; verify chạy retrain độc lập tại cùng số vòng. Việc planner chọn số vòng dựa vào chi phí đã quan sát cần được ghi rõ khi diễn giải exactness của cả quy trình.
 * Phạm vi planner là shard_full và shard_fixed. Chính sách utility_stop, dynamicfu và drop_backfill có chi phí phụ, fallback hoặc backlog riêng; có thể chạy độc lập qua CLI gốc. Ở bản Docker này byte là lưu lượng logic; benchmark nhiều máy cần triển khai worker RPC và đo thời gian mạng thực tế.
+
+## Chạy chuỗi 10 yêu cầu gốc v2 và tính MAE theo cặp
+
+~~~powershell
+docker @dc run --rm shard -m scripts.shard.replay_shard_dt --original-run $base --output "$root/stream_$tag" --budget-seconds 300 --budget-raw-bytes 10000000
+Get-Content "$root/stream_$tag/summary.json"
+~~~
+
+Dùng ngân sách rộng ở lượt này để quan sát đủ chuỗi. Nếu một yêu cầu bị từ chối, replay dừng tại đó vì các yêu cầu sau giả định mọi yêu cầu trước đã được thực hiện.
