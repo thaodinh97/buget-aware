@@ -48,12 +48,12 @@ def layout_of(directory):
 
 
 def init_state(data, output, shards, seed, policy, clients=20, alpha=.5, partition_seed=42, assign_seed=7,
-               train_config='standard', min_clients=4, merge_below=3):
+               train_config='standard', min_clients=4, merge_below=3, device='cpu'):
     """Partition the train split, train the shard ensemble and save it. Returns (unlearner, fit result)."""
     if Path(output).exists():
         raise FileExistsError(f'Refusing overwrite: {output}')
     parts = partition(data['train']['y'], partition_seed, alpha, clients)
-    config = ShardConfig.from_train_config(CONFIGS[train_config], min_clients_design=min_clients, merge_below=merge_below)
+    config = ShardConfig.from_train_config(CONFIGS[train_config], min_clients_design=min_clients, merge_below=merge_below, device=device)
     fed = ShardedUnlearner(data['train'], data['validation'], parts, assign_shards(shards, clients, assign_seed), seed, policy, config)
     result = fed.fit(output)
     layout = {'clients': clients, 'alpha': alpha, 'partition_seed': partition_seed, 'assign_seed': assign_seed,
@@ -107,6 +107,7 @@ def main(argv=None):
     p.add_argument('--clients', type=int, default=20); p.add_argument('--alpha', type=float, default=.5)
     p.add_argument('--partition-seed', type=int, default=42); p.add_argument('--assign-seed', type=int, default=7)
     p.add_argument('--train-config', choices=sorted(CONFIGS), default='standard')
+    p.add_argument('--device', choices=('cpu', 'cuda'), default='cpu')
     p.add_argument('--min-clients', type=int, default=4); p.add_argument('--merge-below', type=int, default=3)
     p = sub.add_parser('unlearn')
     p.add_argument('--original-run', type=Path, required=True); p.add_argument('--forget-request', type=Path, required=True)
@@ -121,7 +122,7 @@ def main(argv=None):
     data = load_data(args.data)
     if args.command == 'init':
         fed, result = init_state(data, args.output, args.shards, args.seed, args.method, args.clients, args.alpha,
-                                 args.partition_seed, args.assign_seed, args.train_config, args.min_clients, args.merge_below)
+                                 args.partition_seed, args.assign_seed, args.train_config, args.min_clients, args.merge_below, args.device)
         print(json.dumps(_py({'output': args.output, 'reference': result['reference'],
                               'rounds': result['cost']['rounds'], 'seconds': result['cost']['wall_seconds_total']})))
     elif args.command == 'unlearn':
