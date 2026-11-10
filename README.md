@@ -2,7 +2,7 @@
 
 Mã nguồn thực nghiệm cho phần **federated unlearning (FU) mức mẫu** của khóa luận về điều phối tài nguyên bằng Digital Twin cho dịch vụ FU trong hệ thống phát hiện bất thường mạng IoT. Dữ liệu là ToN-IoT Network, bài toán phân loại nhị phân normal/attack, gồm 5 client FedAvg và một MLP 38→64→32→2. **Digital Twin chưa được triển khai.**
 
-> **Trạng thái nhánh.** Phase FU đã khóa. Hướng hiện tại là **unlearn chính xác theo shard** (protocol v2: [docs/shard_v2_plan.md](docs/shard_v2_plan.md), kết quả: [docs/shard_v2_results.md](docs/shard_v2_results.md)). Code của giai đoạn FU xấp xỉ (bước 2–11 bên dưới) và các run shard trước v2 đã được gỡ khỏi nhánh để gọn. Chúng vẫn còn nguyên ở tag `pre-cleanup` (`git checkout pre-cleanup`); doc tương ứng nằm trong [docs/archive/](docs/archive/). Mục "Kết quả chính" dưới đây là kết quả của giai đoạn FU xấp xỉ đó.
+> **Trạng thái nhánh.** Phase FU đã khóa. Hướng hiện tại là **unlearn chính xác theo shard** (protocol v2: [docs/shard_v2_plan.md](docs/shard_v2_plan.md), kết quả: [docs/shard_v2_results.md](docs/shard_v2_results.md)). **Đây là bước FU được chốt làm đầu vào của phase DT** (2026-11-10): thành phần gọi được và bản ghi chi phí nằm ở `src/fu/shard_exact.py`, mô tả trong [docs/shard_dt_interface.md](docs/shard_dt_interface.md). Code của giai đoạn FU xấp xỉ (bước 2–11 bên dưới) và các run shard trước v2 đã được gỡ khỏi nhánh để gọn. Chúng vẫn còn nguyên ở tag `pre-cleanup` (`git checkout pre-cleanup`); doc tương ứng nằm trong [docs/archive/](docs/archive/). Mục "Kết quả chính" dưới đây là kết quả của giai đoạn FU xấp xỉ đó.
 
 ## Kết quả chính
 
@@ -97,6 +97,7 @@ Bước có dấu † chỉ chạy được ở tag `pre-cleanup`. Mỗi bước
 | — | Khám phá sau đóng băng: unlearn chính xác theo shard † | `python scripts/shard/run_shard_ensemble_check.py`, `run_shard_stream.py`, `run_shard_paper_scale.py` (lệnh đầy đủ trong doc) | ensemble shard, chuỗi yêu cầu xóa, quy mô 50 client / 10 shard, so với bản cài đặt lại DynamicFU; kết quả trong `results/shard_exploration/` | không có protocol đặt trước; [docs/shard_exploration_results.md](docs/shard_exploration_results.md) |
 | — | Cấu hình train chuẩn cho hướng shard (lr 1e-2, 20 vòng, 2 epoch) và xác nhận hai run 20 client † | `SHARD_DATA_DIR=data/processed/connected_v3_auxfit_seed42 python scripts/shard/run_shard_ensemble_check.py`, `run_shard_stream.py`, rồi `evaluate_standard_config.py` | gate G1–G5 đặt trước; kết quả trong `results/shard_standard_config/` | **không xác nhận** (G1, G2, G5 fail ở S = 10); [docs/shard_standard_config_plan.md](docs/shard_standard_config_plan.md), [docs/shard_standard_config_results.md](docs/shard_standard_config_results.md) |
 | — | Hướng shard, protocol v2 | `python scripts/shard/run_shard_ensemble_check_v2.py`, `run_shard_stream_v2.py`, rồi `evaluate_shard_v2.py` | gate noninferiority một phía (G1–G6), mỗi shard ≥ 4 client và gộp khi < 3, `utility_stop` có dự phòng, 10 seed mới; kết quả trong `results/shard_v2/` | **không xác nhận** (G2 ở S = 5, G5a ở `dynamicfu` S = 4, G5b fail; unlearning chính xác và `utility_stop` v2 an toàn đạt); [docs/shard_v2_plan.md](docs/shard_v2_plan.md), [docs/shard_v2_results.md](docs/shard_v2_results.md) |
+| — | **Thành phần shard cho DT** | `python scripts/shard/shard_service.py init / unlearn / verify`; `python scripts/shard/replay_v2_stream.py OUT --shards 4 --seed 50042 --method utility_stop --compare results/shard_v2/stream_20c` | thư mục state (model từng shard, `result.json`, `round_costs.csv`, `client_costs.csv`); replay chuỗi v2 kèm so sánh với `steps.csv` đã lưu | logic v2 tách thành module gọi được, có checkpoint và bản ghi chi phí theo client; tương đương với runner v2 được kiểm bằng test trên dữ liệu tổng hợp, **chưa chạy trên dữ liệu thật**; [docs/shard_dt_interface.md](docs/shard_dt_interface.md) |
 | — | Shadow MIA và LiRA † | `python scripts/run_membership_validation.py --output runs/membership_validation_v3_seed42`, sau đó `python scripts/run_lira.py --output runs/lira_seed42` | kiểm tra sức mạnh của MIA | `verify_lira.py` |
 
 Các verifier `verify_*.py` nằm ở tag `pre-cleanup`; mỗi verifier nhận `--run <thư mục>`, riêng `verify_run.py` cần thêm `--data`. Hướng shard v2 tự kiểm tra tính toàn vẹn trong `evaluate_shard_v2.py`. Chạy test bằng `python -m unittest discover -s tests -v`.
@@ -112,14 +113,17 @@ Các verifier `verify_*.py` nằm ở tag `pre-cleanup`; mỗi verifier nhận `
 - `src/fl/`
   - `fedavg_core.py`: MLP, client worker, FedAvg, chọn thiết bị.
   - `distributed.py`: prototype phân tán.
-- `src/fu/conpfu_inspired.py`: biến thể FU cũ của pilot (bước 1).
+- `src/fu/`
+  - `shard_exact.py`: unlearn chính xác theo shard dưới dạng thành phần gọi được (`ShardedUnlearner`, `ShardExactMethod`): bước FU mà DT nhận vào.
+  - `shard_cost.py`: `CostMeter`, bản ghi chi phí theo client, theo vòng và theo yêu cầu.
+  - `conpfu_inspired.py`: biến thể FU cũ của pilot (bước 1).
 - `src/eval/`
   - `utility_breakdown.py`: FPR, recall, F1 từng lớp, metric theo client.
   - `membership_validation.py`: `logit_margin` (dùng cho ensemble shard), điểm MIA, bootstrap.
   - `metrics.py`: utility, độ tương đồng và MIA của pilot.
 - `scripts/`
   - `run_pilot.py`: pilot FedAvg (bước 1). File này re-export `load_data`, vì `scripts/shard/shard_v2.py` import từ đây.
-  - `shard/`: hướng shard v2. Gồm `shard_v2.py` (thiết kế, kiểm tra toàn vẹn, noninferiority), `run_shard_ensemble_check_v2.py`, `run_shard_stream_v2.py`, `evaluate_shard_v2.py`, `train_config.py` và `analyze_shard_20c.py`.
+  - `shard/`: hướng shard v2. Gồm `shard_v2.py` (thiết kế, kiểm tra toàn vẹn, noninferiority), `run_shard_ensemble_check_v2.py`, `run_shard_stream_v2.py`, `evaluate_shard_v2.py`, `train_config.py` và `analyze_shard_20c.py`. Phần dùng cho DT: `shard_service.py` (CLI trên thư mục state) và `replay_v2_stream.py` (chạy lại chuỗi v2 qua thành phần).
   - Prototype FL phân tán: `fl_server.py`, `fl_client.py`, `prepare_distributed_clients.py`.
 - `results/shard_v2/`: kết quả và `gates.json` của protocol v2.
 - `docs/`: protocol và kết quả. Mục lục và lịch sử nằm trong [docs/README.md](docs/README.md); doc của giai đoạn FU xấp xỉ nằm trong [docs/archive/](docs/archive/).

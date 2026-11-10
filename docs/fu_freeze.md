@@ -2,6 +2,8 @@
 
 > † **Code của giai đoạn này đã được gỡ khỏi nhánh** (gồm `run_deployable_forget.py`, `run_confirmation.py`, các verifier và `src/fu/` trừ `conpfu_inspired.py`). Chúng vẫn còn nguyên ở tag `pre-cleanup`: `git checkout pre-cleanup`. Các doc kết quả được nhắc tới ở đây nằm trong [archive/](archive/). Hướng hiện tại là unlearn chính xác theo shard: [shard_v2_results.md](shard_v2_results.md).
 
+> **Cập nhật 2026-11-10: bước FU mà phase DT nhận vào là unlearn chính xác theo shard, không phải `ga_proj@joint_aux_prob`.** Mục 3 "Bàn giao cho phase DT" dưới đây (giao diện θ_pre, recovery 2 vòng với tập client do planner chọn) **không còn áp dụng**; giao diện thay thế nằm ở [shard_dt_interface.md](shard_dt_interface.md). Mục 1, 2 và 4 vẫn là hồ sơ của phương pháp FU xấp xỉ: cấu hình, kết luận được và không được tuyên bố, và verdict "ứng viên, không được xác nhận". Ranh giới dữ liệu ở cuối mục 3 (train / validation / calibration / test) vẫn giữ.
+
 **Ngày đóng băng:** 2026-11-03, trên nhánh `feature/fu-experiment`. Hai lần xác nhận (partition 43 và 44) đã chạy xong. Verdict cuối cùng ở mục 4: **ứng viên, không được xác nhận**. Commit và tag `fu-freeze` chưa được tạo.
 
 **Mục đích.** Theo [đặc tả](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md), Digital Twin (DT) là đóng góp chính của khóa luận, còn federated unlearning (FU) là thành phần hỗ trợ. Planner của DT giữ cố định bước FU và chỉ chọn tập client tham gia recovery. Tài liệu này cố định bước FU đó, ghi những kết luận được phép tuyên bố, và đặt ranh giới dữ liệu cho phase DT.
