@@ -1,0 +1,519 @@
+{
+ "shards": 5,
+ "seed": 50042,
+ "policies": [
+  "shard_full",
+  "shard_fixed",
+  "utility_stop",
+  "utility_stop_v1",
+  "dynamicfu",
+  "drop_backfill"
+ ],
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "data_is_v2": true,
+ "config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7,
+  "hidden": [
+   64,
+   32
+  ],
+  "eps": 0.005,
+  "merge_below": 3,
+  "min_clients_design": 4,
+  "dynamicfu": {
+   "theta": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+   ],
+   "lam": [
+    0.5,
+    0.5
+   ],
+   "eta": [
+    0.2,
+    1.0
+   ],
+   "rho": 1.0,
+   "mu": 1.0,
+   "omega": [
+    0.5,
+    0.5
+   ],
+   "tau_ctrl": 0.01,
+   "tau_drop": 0.02
+  },
+  "device": "cpu"
+ },
+ "machine": {
+  "platform": "Linux-6.18.44-fc-v338-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "cpu_count": 4,
+  "python": "3.13.18",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.5.4",
+  "pandas": "3.1.1",
+  "threads": 2,
+  "device": "cpu"
+ },
+ "fit": {
+  "reference": {
+   "validation_macro_f1": 0.8959801543160636,
+   "validation_fpr": 0.24810670283711994
+  },
+  "cost": {
+   "rounds": 100,
+   "rows_x_rounds": 2285680,
+   "train_bytes_raw": 14649600,
+   "client_rounds": 400,
+   "clients_selected": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "shards_trained": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "bytes_down_raw": 7324800,
+   "bytes_up_raw": 7324800,
+   "bytes_down_packed": 7439800,
+   "bytes_up_packed": 7446308,
+   "compute_seconds_sum": 10.659377879000658,
+   "server_aggregate_seconds": 0.052544776996910514,
+   "policy_eval_seconds": 0.021463037000103213,
+   "payload_pack_seconds": 0.4131128940007329,
+   "backend_warmup_seconds": 0.7423802070002239,
+   "checkpoint_seconds": 0.0,
+   "makespan_seconds_simulated": 5.634529960996133,
+   "makespan_parallel_shards_seconds_simulated": 2.590920243997971,
+   "makespan_method": "per round: slowest client compute + server share (wall - sum of client compute); clients simulated sequentially in one process; network transfer time excluded",
+   "wall_seconds_total": 12.036548529999891,
+   "rss_bytes_start": 626929664,
+   "rss_bytes_end": 710176768,
+   "rss_bytes_peak_sampled": 710176768,
+   "memory_scope": "whole simulation process (all clients and shards), sampled after every round",
+   "payload_format": "src.fl.distributed.pack_state (compressed NPZ), HTTP headers excluded",
+   "models_stored": 5,
+   "models_included": 5,
+   "model_bytes": 18312,
+   "state_bytes_in_memory": 91560,
+   "inference_forward_passes": 5,
+   "checkpoint_bytes_on_disk": null,
+   "cumulative_unlearning": {
+    "rows_x_rounds": 0,
+    "rounds": 0,
+    "train_bytes_raw": 0
+   }
+  },
+  "final_checkpoint": null,
+  "clients": [
+   {
+    "client_id": 0,
+    "shard": 0,
+    "samples_retained": 4768,
+    "class_counts": [
+     15,
+     4753
+    ],
+    "data_bytes": 743808,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 1,
+    "shard": 3,
+    "samples_retained": 1308,
+    "class_counts": [
+     905,
+     403
+    ],
+    "data_bytes": 204048,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 2,
+    "shard": 2,
+    "samples_retained": 6095,
+    "class_counts": [
+     18,
+     6077
+    ],
+    "data_bytes": 950820,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 3,
+    "shard": 0,
+    "samples_retained": 6102,
+    "class_counts": [
+     133,
+     5969
+    ],
+    "data_bytes": 951912,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 4,
+    "shard": 2,
+    "samples_retained": 3364,
+    "class_counts": [
+     1072,
+     2292
+    ],
+    "data_bytes": 524784,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 5,
+    "shard": 4,
+    "samples_retained": 4508,
+    "class_counts": [
+     1503,
+     3005
+    ],
+    "data_bytes": 703248,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 6,
+    "shard": 4,
+    "samples_retained": 2490,
+    "class_counts": [
+     515,
+     1975
+    ],
+    "data_bytes": 388440,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 7,
+    "shard": 1,
+    "samples_retained": 12280,
+    "class_counts": [
+     6281,
+     5999
+    ],
+    "data_bytes": 1915680,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 8,
+    "shard": 1,
+    "samples_retained": 1056,
+    "class_counts": [
+     21,
+     1035
+    ],
+    "data_bytes": 164736,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 9,
+    "shard": 3,
+    "samples_retained": 4445,
+    "class_counts": [
+     563,
+     3882
+    ],
+    "data_bytes": 693420,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 10,
+    "shard": 1,
+    "samples_retained": 29317,
+    "class_counts": [
+     2151,
+     27166
+    ],
+    "data_bytes": 4573452,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 11,
+    "shard": 4,
+    "samples_retained": 4278,
+    "class_counts": [
+     3370,
+     908
+    ],
+    "data_bytes": 667368,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 12,
+    "shard": 2,
+    "samples_retained": 15035,
+    "class_counts": [
+     144,
+     14891
+    ],
+    "data_bytes": 2345460,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 13,
+    "shard": 3,
+    "samples_retained": 7034,
+    "class_counts": [
+     256,
+     6778
+    ],
+    "data_bytes": 1097304,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 14,
+    "shard": 4,
+    "samples_retained": 814,
+    "class_counts": [
+     355,
+     459
+    ],
+    "data_bytes": 126984,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 15,
+    "shard": 2,
+    "samples_retained": 1794,
+    "class_counts": [
+     540,
+     1254
+    ],
+    "data_bytes": 279864,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 16,
+    "shard": 0,
+    "samples_retained": 85,
+    "class_counts": [
+     65,
+     20
+    ],
+    "data_bytes": 13260,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 17,
+    "shard": 1,
+    "samples_retained": 5144,
+    "class_counts": [
+     2973,
+     2171
+    ],
+    "data_bytes": 802464,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 18,
+    "shard": 3,
+    "samples_retained": 317,
+    "class_counts": [
+     55,
+     262
+    ],
+    "data_bytes": 49452,
+    "shard_rounds": 20,
+    "shard_included": true
+   },
+   {
+    "client_id": 19,
+    "shard": 0,
+    "samples_retained": 4050,
+    "class_counts": [
+     1882,
+     2168
+    ],
+    "data_bytes": 631800,
+    "shard_rounds": 20,
+    "shard_included": true
+   }
+  ],
+  "inference": {
+   "rows": 19048,
+   "forward_passes": 5,
+   "ensemble_seconds": 0.01005623499986541,
+   "single_shard_seconds": 0.0019231950000175857,
+   "ensemble_seconds_per_1k_rows": 0.0005279417786573609,
+   "repeats": 5
+  },
+  "initial": {
+   "cal_macro_f1": 0.8796311577235757,
+   "cal_fpr": 0.324136332019476,
+   "cal_recall_attack": 0.9990498812351544,
+   "client_f1_min": 0.8082256433307113,
+   "client_f1_mean": 0.9391610595319533
+  },
+  "reproducible": {
+   "bit_exact": true,
+   "shards_checked": 5,
+   "per_shard": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true
+  }
+ },
+ "end": {
+  "shard_full": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 200,
+   "rows_x_rounds": 2685500,
+   "bytes": 26369280,
+   "cal_macro_f1": 0.8699306527859166,
+   "cal_fpr": 0.3250637607233944
+  },
+  "shard_fixed": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 100,
+   "rows_x_rounds": 1342750,
+   "bytes": 13184640,
+   "cal_macro_f1": 0.864162436188227,
+   "cal_fpr": 0.3246000463714352
+  },
+  "utility_stop": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 25,
+   "rows_x_rounds": 342340,
+   "bytes": 3406032,
+   "cal_macro_f1": 0.8736034314918903,
+   "cal_fpr": 0.32274518896359844
+  },
+  "utility_stop_v1": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 25,
+   "rows_x_rounds": 342340,
+   "bytes": 3406032,
+   "cal_macro_f1": 0.8736034314918903,
+   "cal_fpr": 0.32274518896359844
+  },
+  "dynamicfu": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 126,
+   "rows_x_rounds": 1757696,
+   "bytes": 16261056,
+   "cal_macro_f1": 0.8638288878424645,
+   "cal_fpr": 0.3250637607233944
+  },
+  "drop_backfill": {
+   "bit_exact": true,
+   "shards_checked": 4,
+   "per_shard": {
+    "0": true,
+    "2": true,
+    "3": true,
+    "4": true
+   },
+   "included_equals_active": true,
+   "exact": true,
+   "structure_ok": true,
+   "rounds": 121,
+   "rows_x_rounds": 1460587,
+   "bytes": 15528576,
+   "cal_macro_f1": 0.8699306527859166,
+   "cal_fpr": 0.3250637607233944
+  }
+ }
+}

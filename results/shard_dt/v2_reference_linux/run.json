@@ -1,0 +1,63 @@
+{
+ "design_name": "v2_subset",
+ "design": {
+  "train_config": "standard",
+  "seeds": [
+   50042,
+   50043,
+   50044
+  ],
+  "shards_run1": [
+   1,
+   2,
+   4,
+   5
+  ],
+  "shards_run2": [
+   4,
+   5
+  ],
+  "min_clients_design": 4,
+  "merge_below": 3
+ },
+ "train_config_name": "standard",
+ "train_config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "unlearn_budgets": [
+   1,
+   2,
+   5,
+   10,
+   20
+  ],
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7
+ },
+ "runner": "scripts/shard/run_shard_stream_v2.py",
+ "data_dir": "data/processed/connected_v3_auxfit_seed42",
+ "data_dir_abs": "/home/user/buget-aware/data/processed/connected_v3_auxfit_seed42",
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "manifest_artifacts_sha256": {
+  "audit.json": "e5051f2cfba2fa88188e21cf2c21099ebc2099001772b8308c108564fb08269e",
+  "calibration.npz": "8286b03b22edaeece59851c3f7b434fbfc176aa3975f3fd5641a142ad434164d",
+  "duplicate_mapping.csv": "5a721683302d34b1c213969edeaa886619020f4801823aea818c53a4b3caa912",
+  "metadata.csv": "4e3c5a0c0a5cc0e91e2997d2380d1f231b44048eaa987ae9deaf96ec70b49e27",
+  "test.npz": "8001ecad9af4539b18dab72c94ed83f233f2241511a45c64b57844678862b0c5",
+  "train.npz": "64937429e7360e455a42cf6f64ba49d363d95ec3dea914b81067e8d1e0bf1a38",
+  "transformer.json": "e58fd514b15206a27a83777e692f802b7e5d0377339954a3f73025f14574ef41",
+  "validation.npz": "76bd2f1728a4893bc23b5218829052a417b383778e636a3ba2cb25f8bc995525"
+ },
+ "sha256_at_start": {
+  "docs/shard_v2_plan.md": "2cd23401ab169c8ca0ed7fe3790c8c3d9b88b962da37b868df5006a68b5ae8eb",
+  "scripts/shard/evaluate_shard_v2.py": "ffbdd383f395c49ce093891dc78417002804486f19136f29f459e7f0d00f41a7",
+  "scripts/shard/shard_v2.py": "487236596891f69c09a4523aa6a6122e27d2557d0e0dd2eefd0dd93c0e3f675f",
+  "scripts/shard/train_config.py": "0c44f75ef8ca8032252952c6357ea5ab6a9e946b5541d55cd8576b71df8d1f92",
+  "scripts/shard/run_shard_ensemble_check_v2.py": "d2e7c0f27199c4fe48345fc502f3f96c59d3a3b113001c05d7e997490d11c491",
+  "scripts/shard/run_shard_stream_v2.py": "81055d7e2e31734373859284ed965fac8006be581e61a0f917cc793e51ac7992"
+ }
+}

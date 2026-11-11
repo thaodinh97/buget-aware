@@ -286,6 +286,21 @@ class CostTests(TorchCase):
         full, _ = self.fitted('shard_full')
         self.assertEqual(full.unlearn(ForgetRequest(target, self.parts[target][:9])).cost['policy_eval_seconds'], 0)
 
+    def test_backend_warm_up_runs_once_per_process_and_is_reported(self):
+        import src.fu.shard_exact as component
+        d = self.data
+        with mock.patch.object(component, '_WARM', False):
+            cold = ShardedUnlearner(d['train'], d['validation'], self.parts, self.assignment, 11, 'shard_fixed', config())
+            fit = cold.fit(); base = list(cold.shards)
+            self.assertGreater(fit['cost']['backend_warmup_seconds'], 0)
+            self.assertEqual(component.warm_up(cold.dim, cold.config), 0.)                                 # already warm
+            result = cold.unlearn(ForgetRequest(0, self.parts[0][:4]))
+            self.assertEqual(result.cost['backend_warmup_seconds'], 0.)
+            self.assertIn('backend_warmup_seconds', result.timing_breakdown)
+        plain, _ = self.fitted('shard_fixed')                                    # the same fit without a warm-up before it
+        self.assertTrue(all(weights_equal(a.model, b.model) for a, b in zip(base, plain.shards)))
+        self.assertTrue(cold.verify_bit_exact()['bit_exact'])
+
     def test_unmetered_payload_and_state_helpers(self):
         d = self.data
         fed = ShardedUnlearner(d['train'], d['validation'], self.parts, self.assignment, 11, 'shard_fixed', config(), measure_payload=False)
@@ -411,15 +426,20 @@ class EquivalenceTests(TorchCase):
         with tempfile.TemporaryDirectory() as tmp:
             pd.DataFrame(ref['rows']).to_csv(Path(tmp)/'steps.csv', index=False)
             stored = replay_v2_stream.read_steps(Path(tmp)/'steps.csv')
-        for policy in ('utility_stop', 'dynamicfu', 'drop_backfill'):
-            steps, fit, results, fed = replay_v2_stream.replay(data, 5, 7, policy, cfg)
-            outcome = replay_v2_stream.compare(steps, stored)
-            self.assertTrue(outcome['pass'] and outcome['metrics_bit_equal'], (policy, outcome['mismatches']))
-            self.assertEqual(outcome['steps_compared'], 11 if policy == 'drop_backfill' else 10)
+        chosen = ['utility_stop', 'dynamicfu', 'drop_backfill']                # one fit, then every policy from the same base
+        steps, fit, results, ends = replay_v2_stream.replay(data, 5, 7, chosen, cfg)
+        outcome = replay_v2_stream.compare(steps, stored)
+        self.assertTrue(outcome['pass'] and outcome['metrics_bit_equal'], outcome['mismatches'])
+        self.assertEqual({p: v['steps_compared'] for p, v in outcome['policies'].items()}, {'utility_stop': 10, 'dynamicfu': 10, 'drop_backfill': 11})
+        self.assertEqual([len(results[p]) for p in chosen], [10, 10, 11])
+        self.assertTrue(all(ends[p]['bit_exact'] and ends[p]['included_equals_active'] for p in chosen))
+        self.assertTrue(fit['reproducible']['bit_exact'])                         # the base every policy starts from
         self.assertEqual(fit['cost']['rounds'], 5*TRAIN_CFG['fl']['rounds'])
         self.assertEqual(fit['inference']['forward_passes'], 5)
         wrong = stored.copy(); wrong.loc[(wrong.policy == 'drop_backfill') & (wrong.step == 4), 'rounds'] += 1
-        self.assertEqual([m['field'] for m in replay_v2_stream.compare(steps, wrong)['mismatches']], ['rounds'])
+        failed = replay_v2_stream.compare(steps, wrong)
+        self.assertEqual([(m['policy'], m['step'], m['field']) for m in failed['mismatches']], [('drop_backfill', 4, 'rounds')])
+        self.assertEqual((failed['policies']['drop_backfill']['first_mismatch_step'], failed['policies']['dynamicfu']['first_mismatch_step']), (4, None))
         drift = stored.copy(); drift['cal_fpr'] += 1e-9
         self.assertFalse(replay_v2_stream.compare(steps, drift)['pass'])
         self.assertTrue(replay_v2_stream.compare(steps, drift, tolerance=1e-8)['pass'])

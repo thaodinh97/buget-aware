@@ -7,8 +7,9 @@ core (src.fl.fedavg_core.fedavg), so the trained model is bit-identical to an un
   wire format of the Docker prototype, without HTTP headers);
 - per round: wall seconds of the sequential simulation, sum and max of the client compute seconds, and the server share
   (aggregation and loop overhead = wall - sum of client compute);
-- per operation: named timers (policy evaluation on the server, payload packing, checkpoint writing) and the resident memory
-  of the process (start, end, peak over samples taken after every round).
+- per operation: named timers (policy evaluation on the server, payload packing, checkpoint writing, the one-time warm-up of
+  the numeric backend in the first operation of a process) and the resident memory of the process (start, end, peak over
+  samples taken after every round).
 
 What is simulated, not measured:
 - clients run one after another in one process. `makespan_seconds_simulated` adds, per round, the slowest client and the
@@ -148,6 +149,7 @@ class CostMeter:
                'server_aggregate_seconds': float(sum(r['server_seconds'] for r in self.rounds)),
                'policy_eval_seconds': float(policy),
                'payload_pack_seconds': float(self.seconds.get('payload_pack', 0.)),
+               'backend_warmup_seconds': float(self.seconds.get('backend_warmup', 0.)),
                'checkpoint_seconds': float(self.seconds.get('checkpoint', 0.)),
                'makespan_seconds_simulated': float(sum(per_shard.values()) + policy),
                'makespan_parallel_shards_seconds_simulated': float(max(per_shard.values(), default=0.) + policy),

@@ -1,20 +1,26 @@
 """Replay the v2 deletion stream through the component (src/fu/shard_exact.py) and record the cost input of the Digital Twin.
 
-  python scripts/shard/replay_v2_stream.py OUT --shards 4 --seed 50042 --method utility_stop --compare results/shard_v2/stream_20c
+  python scripts/shard/replay_v2_stream.py OUT --shards 4 --seed 50042 --compare results/shard_v2/stream_20c
+  python scripts/shard/replay_v2_stream.py OUT --shards 4 --seed 50042 --method utility_stop shard_full
 
 Same scenario as scripts/shard/run_shard_stream_v2.py (data, 20-client partition, shard assignment, request stream, 'standard'
-train config, >= 4 clients per shard, merge below 3), for one S, one training seed and one policy. Writes to OUT (must not exist):
-  steps.csv         per request: event, exactness, calibration metrics (as the v2 runner reports them) and the cost summary
-  round_costs.csv   per FedAvg round: clients, samples, wall / compute / server seconds, bytes
-  client_costs.csv  per client and round: samples, optimizer steps, loss, compute seconds, bytes down / up (raw and measured)
-  fit.json          cost of training the base ensemble, client state, inference benchmark
-  compare.json      with --compare: this replay against the stored v2 steps.csv of the same (S, seed, policy)
+train config, >= 4 clients per shard, merge below 3), for one S and one training seed. The ensemble is trained once; every
+policy (--method, default: all six) then runs the stream from that same base. Writes to OUT (must not exist):
+  steps.csv             per policy and request: event, exactness, calibration metrics (as the v2 runner reports them), cost summary
+  round_costs.csv       per FedAvg round: clients, samples, wall / compute / server seconds, bytes
+  client_costs.csv      per client and round: samples, optimizer steps, loss, compute seconds, bytes down / up (raw and measured)
+  fit_client_costs.csv  the same records for the training of the base ensemble
+  run.json              scenario, machine, cost of the base ensemble and whether a fresh retrain reproduces it bit for bit,
+                        client state, inference benchmark, end checks per policy
+  compare.json          with --compare DIR: this replay against DIR/steps.csv (a v2 stream run), same S, seed and policies
 With --compare the exit status is 1 unless every discrete quantity (events, round counts, rows x rounds, bytes, policy outputs)
-is equal and the calibration metrics differ by at most --tolerance (default 0: bit-equal, expected on the machine of the v2 run).
-Test split unused.
+is equal and the metrics differ by at most --tolerance (default 0: bit-equal). Bit-equality is only expected against a v2 run
+made on the same machine: scripts/shard/run_v2_stream_subset.py produces one. Test split unused.
 """
 import argparse
 import json
+import os
+import platform
 import sys
 from pathlib import Path
 
@@ -63,30 +69,39 @@ def report(fed, train, calibration):
     return out
 
 
-def replay(data, shards, seed, policy, config, clients=20, alpha=.5, partition_seed=42):
-    """Returns (steps, fit, results, unlearner): one row per request (plus the backlog row of drop_backfill)."""
+def replay(data, shards, seed, policies, config, clients=20, alpha=.5, partition_seed=42):
+    """Train the ensemble once, then run the request stream once per policy from that same base.
+    Returns (steps, fit, results, ends): steps has one row per policy and request (plus the backlog row of drop_backfill),
+    results = {policy: [UnlearningResult]}, ends = {policy: verify_bit_exact() after the stream}."""
     train, calibration = data['train'], data['calibration']
     parts = partition(train['y'], partition_seed, alpha, clients)
     stream = request_stream(train['y'], parts)
-    fed = ShardedUnlearner(train, data['validation'], parts, assign_shards(shards, clients), seed, policy, config)
-    fit = fed.fit()
-    fit.update(clients=fed.client_state(), inference=fed.benchmark_inference(calibration['X']), initial=report(fed, train, calibration))
-    steps, results = [], []
-    calls = [lambda r=r: fed.unlearn(ForgetRequest(r['client'], r['f'])) for r in stream]
-    if policy == 'drop_backfill':
-        calls.append(fed.finish_backlog)
-    for number, call in enumerate(calls, 1):
-        result = call(); total = result.cost['cumulative_unlearning']
-        steps.append({'S': shards, 'seed': seed, 'policy': policy, 'step': number, 'kind': result.kind, 'event': result.event,
-                      'client': result.client, 'request_rows': result.rows, 'exact': result.exact, 'structure_ok': result.structure_ok,
-                      'exactness_scope': result.exactness_scope, 'shards_included': result.shards_included,
-                      'rows_x_rounds': total['rows_x_rounds'], 'rounds': total['rounds'], 'bytes': total['train_bytes_raw'],
-                      **report(fed, train, calibration), **result.details,
-                      'step_rounds': result.cost['rounds'], 'step_rows_x_rounds': result.cost['rows_x_rounds'],
-                      **{k: result.cost[k] for k in COSTS},
-                      'warnings': [w['code'] for w in result.structured_warnings]})
-        results.append(result)
-    return steps, fit, results, fed
+    base = ShardedUnlearner(train, data['validation'], parts, assign_shards(shards, clients), seed, policies[0], config)
+    fit = base.fit()
+    # every policy starts from this base, so a base shard that a fresh retrain does not reproduce bit for bit (a rare
+    # first-training effect of some machines, see src/fu/shard_exact.warm_up) would explain any later difference
+    fit.update(clients=base.client_state(), inference=base.benchmark_inference(calibration['X']),
+               initial=report(base, train, calibration), reproducible=base.verify_bit_exact())
+    steps, results, ends = [], {}, {}
+    for policy in policies:
+        fed = base.fork(policy)
+        calls = [lambda r=r: fed.unlearn(ForgetRequest(r['client'], r['f'])) for r in stream]
+        if policy == 'drop_backfill':
+            calls.append(fed.finish_backlog)
+        results[policy] = []
+        for number, call in enumerate(calls, 1):
+            result = call(); total = result.cost['cumulative_unlearning']
+            steps.append({'S': shards, 'seed': seed, 'policy': policy, 'step': number, 'kind': result.kind, 'event': result.event,
+                          'client': result.client, 'request_rows': result.rows, 'exact': result.exact,
+                          'structure_ok': result.structure_ok, 'exactness_scope': result.exactness_scope,
+                          'shards_included': result.shards_included, 'rows_x_rounds': total['rows_x_rounds'],
+                          'rounds': total['rounds'], 'bytes': total['train_bytes_raw'],
+                          **report(fed, train, calibration), **result.details,
+                          'step_rounds': result.cost['rounds'], 'step_rows_x_rounds': result.cost['rows_x_rounds'],
+                          **{k: result.cost[k] for k in COSTS}, 'warnings': [w['code'] for w in result.structured_warnings]})
+            results[policy].append(result)
+        ends[policy] = fed.verify_bit_exact()
+    return steps, fit, results, ends
 
 
 def read_steps(path):
@@ -107,24 +122,30 @@ def _same(a, b):
 def compare(steps, reference, tolerance=0.):
     """This replay against the rows of a v2 steps.csv with the same S, seed and policy. The v2 backlog row of drop_backfill
     carries no event and no policy outputs, so those are skipped there."""
-    per_step, mismatches, worst = [], [], 0.
+    per_step, mismatches, worst, policies = [], [], 0., {}
     for row in steps:
+        entry = policies.setdefault(row['policy'], {'steps_compared': 0, 'mismatches': 0, 'first_mismatch_step': None,
+                                                    'metrics_max_abs_diff': 0.})
         ref = reference[(reference.S == row['S']) & (reference.seed == row['seed']) & (reference.policy == row['policy'])
                         & (reference.step == row['step'])]
-        if len(ref) != 1:
-            mismatches.append({'step': row['step'], 'field': 'row', 'replay': 'present', 'v2': f'{len(ref)} rows'})
-            continue
-        ref = ref.iloc[0]
-        skip = ('event', 'pending') if row['kind'] == 'backlog_done' else ()
-        for key in DISCRETE:
-            if key in row and key not in skip and not _same(row[key], ref.get(key)):
-                mismatches.append({'step': row['step'], 'field': key, 'replay': row[key], 'v2': ref.get(key)})
-        diffs = {key: abs(float(row[key]) - float(ref[key])) for key in METRICS}
-        worst = max(worst, *diffs.values())
-        per_step.append({'step': row['step'], **diffs})
+        found = [] if len(ref) == 1 else [{'field': 'row', 'replay': 'present', 'v2': f'{len(ref)} rows'}]
+        if not found:
+            ref = ref.iloc[0]
+            skip = ('event', 'pending') if row['kind'] == 'backlog_done' else ()
+            found = [{'field': key, 'replay': row[key], 'v2': ref.get(key)} for key in DISCRETE
+                     if key in row and key not in skip and not _same(row[key], ref.get(key))]
+            diffs = {key: abs(float(row[key]) - float(ref[key])) for key in METRICS}
+            worst = max(worst, *diffs.values())
+            entry['metrics_max_abs_diff'] = max(entry['metrics_max_abs_diff'], *diffs.values())
+            entry['steps_compared'] += 1
+            per_step.append({'policy': row['policy'], 'step': row['step'], **diffs})
+        if found and entry['first_mismatch_step'] is None:
+            entry['first_mismatch_step'] = row['step']
+        entry['mismatches'] += len(found)
+        mismatches += [{'policy': row['policy'], 'step': row['step'], **m} for m in found]
     return {'pass': not mismatches and worst <= tolerance and len(per_step) == len(steps), 'discrete_equal': not mismatches,
             'metrics_max_abs_diff': worst, 'metrics_bit_equal': worst == 0., 'tolerance': tolerance,
-            'steps_compared': len(per_step), 'mismatches': mismatches, 'per_step': per_step}
+            'steps_compared': len(per_step), 'policies': policies, 'mismatches': mismatches, 'per_step': per_step}
 
 
 def main(argv=None):
@@ -132,12 +153,14 @@ def main(argv=None):
     parser.add_argument('output', type=Path)
     parser.add_argument('--shards', type=int, required=True)
     parser.add_argument('--seed', type=int, required=True)
-    parser.add_argument('--method', choices=POLICIES, required=True)
+    parser.add_argument('--method', choices=POLICIES, nargs='+', default=list(POLICIES))
     parser.add_argument('--data', type=Path, default=ROOT/DATA_DEFAULT)
-    parser.add_argument('--compare', type=Path, help='directory with the steps.csv of run_shard_stream_v2.py')
+    parser.add_argument('--compare', type=Path, help='directory with the steps.csv of a v2 stream run')
     parser.add_argument('--tolerance', type=float, default=0.)
     parser.add_argument('--threads', type=int, default=2)
     args = parser.parse_args(argv)
+    if len(set(args.method)) != len(args.method):
+        parser.error('--method lists a policy twice')
     from src.data.loading import load_data
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(args.threads); torch.use_deterministic_algorithms(True)
@@ -147,24 +170,37 @@ def main(argv=None):
     design = DESIGNS['v2']
     config = ShardConfig.from_train_config(CONFIGS[design['train_config']], min_clients_design=design['min_clients_design'],
                                            merge_below=design['merge_below'])
-    steps, fit, results, fed = replay(data, args.shards, args.seed, args.method, config)
-    pd.DataFrame(steps).to_csv(args.output/'steps.csv', index=False)
-    tag = lambda result, rows: [{'step': result.step, 'kind': result.kind, **r} for r in rows]
-    pd.DataFrame([r for res in results for r in tag(res, res.round_costs)]).to_csv(args.output/'round_costs.csv', index=False)
-    pd.DataFrame([r for res in results for r in tag(res, res.client_costs)]).to_csv(args.output/'client_costs.csv', index=False)
-    fit_summary = {k: v for k, v in fit.items() if k not in ('round_costs', 'client_costs')}
-    (args.output/'fit.json').write_text(json.dumps(_py({'shards': args.shards, 'seed': args.seed, 'policy': args.method,
-        'data_content_sha256': content, 'data_is_v2': content == DATA_SHA256, 'config': config.to_json(),
-        'torch': torch.__version__, 'threads': args.threads, 'bit_exact_end': fed.verify_bit_exact(), **fit_summary}), indent=1), encoding='utf-8')
-    pd.DataFrame(fit['client_costs']).to_csv(args.output/'fit_client_costs.csv', index=False)
-    last = steps[-1]
-    print(json.dumps(_py({'output': args.output, 'steps': len(steps), 'final_cal_macro_f1': last['cal_macro_f1'],
-                          'final_cal_fpr': last['cal_fpr'], 'rounds': last['rounds'], 'rows_x_rounds': last['rows_x_rounds']})))
+    steps, fit, results, ends = replay(data, args.shards, args.seed, args.method, config)
+    frame = pd.DataFrame(steps)
+    frame.to_csv(args.output/'steps.csv', index=False)
+    for name in ('round_costs', 'client_costs'):
+        rows = [{'policy': policy, 'step': r.step, 'kind': r.kind, **row}
+                for policy, items in results.items() for r in items for row in getattr(r, name)]
+        pd.DataFrame(rows).to_csv(args.output/f'{name}.csv', index=False, float_format='%.9g')
+    pd.DataFrame(fit['client_costs']).to_csv(args.output/'fit_client_costs.csv', index=False, float_format='%.9g')
+    last = frame.groupby('policy', sort=False).tail(1).set_index('policy')
+    record = {'shards': args.shards, 'seed': args.seed, 'policies': args.method, 'data_content_sha256': content,
+              'data_is_v2': content == DATA_SHA256, 'config': config.to_json(),
+              'machine': {'platform': platform.platform(), 'processor': platform.processor(), 'cpu_count': os.cpu_count(),
+                          'python': platform.python_version(), 'torch': torch.__version__, 'numpy': np.__version__,
+                          'pandas': pd.__version__, 'threads': args.threads, 'device': config.device},
+              'fit': {k: v for k, v in fit.items() if k not in ('round_costs', 'client_costs')},
+              'end': {policy: {**ends[policy], 'rounds': int(last.loc[policy, 'rounds']),
+                               'rows_x_rounds': int(last.loc[policy, 'rows_x_rounds']), 'bytes': int(last.loc[policy, 'bytes']),
+                               'cal_macro_f1': float(last.loc[policy, 'cal_macro_f1']), 'cal_fpr': float(last.loc[policy, 'cal_fpr'])}
+                      for policy in args.method}}
+    (args.output/'run.json').write_text(json.dumps(_py(record), indent=1), encoding='utf-8')
+    print(json.dumps(_py({'output': args.output, 'policies': args.method, 'steps': len(steps),
+                          'base_reproducible': fit['reproducible']['bit_exact'],
+                          'bit_exact_end': {p: e['bit_exact'] for p, e in ends.items()}})))
+    if not fit['reproducible']['bit_exact']:
+        print(f'base shards not reproduced by a fresh retrain in this process: {fit["reproducible"]["per_shard"]}; '
+              'results that depend on them are not comparable bit for bit. Run again.', file=sys.stderr)
     if args.compare:
         outcome = compare(steps, read_steps(args.compare/'steps.csv'), args.tolerance)
+        outcome['reference'] = args.compare.as_posix()
         (args.output/'compare.json').write_text(json.dumps(_py(outcome), indent=1), encoding='utf-8')
-        print(json.dumps(_py({k: outcome[k] for k in ('pass', 'discrete_equal', 'metrics_max_abs_diff', 'steps_compared')})))
-        print(*[json.dumps(_py(m)) for m in outcome['mismatches'][:10]], sep='\n')
+        print(json.dumps(_py({k: outcome[k] for k in ('pass', 'discrete_equal', 'metrics_max_abs_diff', 'steps_compared', 'policies')})))
         if not outcome['pass']:
             sys.exit(1)
 

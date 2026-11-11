@@ -29,6 +29,10 @@ FPR_0 come from models trained on the rows deleted later; DynamicFU also probes 
 is conditional on the round count. EXACTNESS_SCOPE records this per policy and every result carries it.
 
 Determinism is the caller's job: torch.use_deterministic_algorithms(True) and a fixed thread count, as in the v2 runners.
+The first training of a process is special on some machines: it carries the one-time initialisation of the numeric backend
+(about 0.7 s on the machine of docs/shard_dt_interface.md) and can, rarely, differ in the last bits from every later run of the
+same training. warm_up() therefore runs one throwaway training before the first real one of the process; its time is reported
+separately (`backend_warmup_seconds`) and it does not change any later result.
 """
 import copy
 import hashlib
@@ -174,6 +178,28 @@ def _sha(*arrays):
 
 def _file_sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+_WARM = False
+
+
+def warm_up(dim, config):
+    """Once per process: a throwaway local training and forward pass on random data of the real shapes, so that the one-time
+    initialisation of the numeric backend is not charged to (and cannot perturb) the first real training. Uses its own seeded
+    generators and models only, so no later result depends on it. Returns the seconds spent (0.0 when already warm)."""
+    global _WARM
+    if _WARM:
+        return 0.
+    start = time.perf_counter()
+    rng = np.random.default_rng(0); n = 2*config.fl['batch_size']
+    x = rng.normal(size=(n, dim)).astype(np.float32)
+    worker = ClientWorker(0, x, rng.integers(0, 2, n), np.arange(n), config.device)
+    probe = model(dim, list(config.hidden), 0, config.device)
+    update, _, _ = worker.train(probe, config.fl, 0)
+    probe.load_state_dict(update)
+    logit_margin(probe, x)
+    _WARM = True
+    return time.perf_counter() - start
 
 
 # ---- shard structure (pure functions; equal to scripts/shard/shard_v2.assign / check_design / structure_plan) ----
@@ -341,12 +367,18 @@ class ShardedUnlearner:
     def _trainer(self, j, idx):
         return _Trainer(self, j, idx, self.seed + 1000*j)
 
+    def _meter(self):
+        """Cost meter of one operation; the backend warm-up (first operation of the process only) is timed separately."""
+        meter = CostMeter(self.measure_payload)
+        meter.seconds['backend_warmup'] += warm_up(self.dim, self.config)
+        return meter
+
     # ---- training ----
     def fit(self, checkpoint_dir=None):
         """Train every shard for R_base rounds on all data. Returns {'reference', 'cost', 'round_costs', 'client_costs'}."""
         if self.shards:
             raise RuntimeError('fit() was already called')
-        meter = CostMeter(self.measure_payload)
+        meter = self._meter()
         for j in range(len(self.assignment)):
             trn = self._trainer(j, self._shard_idx(self.assignment, j))
             for _ in range(self.r_base):
@@ -380,7 +412,7 @@ class ShardedUnlearner:
                 raise ValueError(f'forget rows must be rows client {c} currently holds')
             f = np.sort(f)
         kind = 'client' if len(f) == len(held) else 'sample'
-        cfg, rb, meter = self.config, self.r_base, CostMeter(self.measure_payload)
+        cfg, rb, meter = self.config, self.r_base, self._meter()
         plan = structure_step(self.assignment, c, kind, cfg.merge_below)
         alive_before = self.alive.copy()
         self.alive[f] = False
@@ -434,7 +466,7 @@ class ShardedUnlearner:
 
     def finish_backlog(self, checkpoint_dir=None):
         """drop_backfill only: train every pending shard to R_base rounds and put it back into the ensemble."""
-        meter = CostMeter(self.measure_payload)
+        meter = self._meter()
         self._backfill(None, meter)
         record = {'step': self.step, 'client': -1, 'kind': 'backlog_done', 'rows': 0, 'policy': 'drop_backfill',
                   'event': 'backlog_done', 'forget_request_hash': ''}
