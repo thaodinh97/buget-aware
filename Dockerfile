@@ -2,8 +2,6 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    MPLBACKEND=Agg \
-    MPLCONFIGDIR=/tmp/matplotlib \
     CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 WORKDIR /workspace
@@ -21,4 +19,4 @@ COPY scripts/ scripts/
 COPY configs/ configs/
 COPY tests/ tests/
 
-CMD ["python", "scripts/run_controlled_phase.py", "--output", "runs/docker/controlled_phase_v2_seed42"]
+CMD ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]

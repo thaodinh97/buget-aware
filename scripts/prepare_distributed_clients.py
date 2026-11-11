@@ -9,7 +9,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.run_pilot import load_data
+from src.data.loading import load_data
 
 
 def sha256(path):

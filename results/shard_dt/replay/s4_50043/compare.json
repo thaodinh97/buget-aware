@@ -1,0 +1,599 @@
+{
+ "pass": true,
+ "discrete_equal": true,
+ "metrics_max_abs_diff": 0.0,
+ "metrics_bit_equal": true,
+ "tolerance": 0.0,
+ "steps_compared": 61,
+ "policies": {
+  "shard_full": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "shard_fixed": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "utility_stop": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "utility_stop_v1": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "dynamicfu": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "drop_backfill": {
+   "steps_compared": 11,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  }
+ },
+ "mismatches": [],
+ "per_step": [
+  {
+   "policy": "shard_full",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 11,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  }
+ ],
+ "reference": "runs/shard_dt/v2_reference_linux"
+}

@@ -136,3 +136,5 @@ python scripts/shard/evaluate_shard_v2.py runs/shard_v2/ensemble_check_20c runs/
 python scripts/shard/analyze_shard_20c.py runs/shard_v2/ensemble_check_20c runs/shard_v2/stream_20c
 ```
 Thư mục output không được tồn tại trước khi chạy. Có thể chạy lại script đánh giá trên bản chép: `python scripts/shard/evaluate_shard_v2.py results/shard_v2/ensemble_check_20c results/shard_v2/stream_20c`.
+
+**Tái lập trên máy khác (bổ sung 2026-11-10, sau khi có kết quả; không thay đổi kết quả nào ở trên).** Runner v2 nguyên bản đã được chạy lại trên một máy Linux cho seed 50042–50044, cùng dữ liệu (hash nội dung khớp). Kết quả **không trùng từng bit** với `results/shard_v2/`: các chính sách có số vòng cố định cho cùng số vòng và metric lệch dưới 0,01 ở trạng thái cuối, còn `utility_stop` và `dynamicfu` đi theo số vòng khác ở phần lớn các bước; ở S = 4, `drop_backfill` và `utility_stop_v1` có vài bước FPR > 0,45 mà kết quả ở đây không có. Trung bình trạng thái cuối trên 3 seed lệch không quá 0,002 macro-F1. Các gate chưa được chạy lại trên máy đó. Chi tiết: [shard_dt_interface.md](shard_dt_interface.md), mục "Runner v2 trên máy này so với kết quả v2 đã lưu".

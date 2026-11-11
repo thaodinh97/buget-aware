@@ -1,0 +1,95 @@
+6 replays: S [4, 5], seeds [50042, 50043, 50044]; data is the v2 data: True
+machine: Linux-6.18.44-fc-v338-x86_64-with-glibc2.39, 4 CPUs, torch 2.6.0+cu124, 2 threads, cpu
+
+== 1. Component against the v2 run it was compared with ==
+compared with: ['runs/shard_dt/v2_reference_linux']
+                 replays  steps  discrete_mismatches  metrics_max_abs_diff  bit_exact_end
+policy                                                                                   
+shard_full             6     60                    0                   0.0           True
+shard_fixed            6     60                    0                   0.0           True
+utility_stop           6     60                    0                   0.0           True
+utility_stop_v1        6     60                    0                   0.0           True
+dynamicfu              6     60                    0                   0.0           True
+drop_backfill          6     66                    0                   0.0           True
+all equal: True; every included shard bit-equal to a fresh retrain at the end: True
+exact and structure_ok at every step: True
+
+== 2. v2 runner on this machine against the stored v2 run (same data, seeds and code) ==
+seeds [50042, 50043, 50044]; rows are (seed, step)
+                       rows  rounds_differ  dF1_max  dFPR_max  fpr_gt_045_here  fpr_gt_045_stored
+S policy                                                                                         
+1 full_retrain_single    30              0   0.0072    0.0028                0                  0
+4 drop_backfill          30              0   0.2317    0.4285                3                  0
+  dynamicfu              30             23   0.0218    0.2277                0                  0
+  shard_fixed            30              0   0.0023    0.0030                0                  0
+  shard_full             30              0   0.0068    0.0039                0                  0
+  utility_stop           30             13   0.0093    0.0042                0                  0
+  utility_stop_v1        30             12   0.2312    0.4264                2                  0
+5 drop_backfill          30              0   0.0076    0.0042                0                  0
+  dynamicfu              30             26   0.0045    0.0030                0                  0
+  shard_fixed            30              0   0.0042    0.0002                0                  0
+  shard_full             30              0   0.0062    0.0014                0                  0
+  utility_stop           30             21   0.0053    0.0146                0                  0
+  utility_stop_v1        30             21   0.0053    0.0146                0                  0
+
+final state (step 10), mean over seeds: this machine / stored
+                           F1  F1_stored     FPR  FPR_stored    rounds  rounds_stored
+S policy                                                                             
+1 full_retrain_single  0.8796     0.8799  0.3216      0.3214  200.0000       200.0000
+4 drop_backfill        0.8636     0.8638  0.3114      0.3105   70.0000        70.0000
+  dynamicfu            0.8568     0.8569  0.2424      0.2430  123.0000       120.3333
+  shard_fixed          0.8649     0.8650  0.3210      0.3210  100.0000       100.0000
+  shard_full           0.8653     0.8655  0.3207      0.3208  200.0000       200.0000
+  utility_stop         0.8723     0.8742  0.3207      0.3213  105.0000        97.6667
+  utility_stop_v1      0.8734     0.8724  0.3220      0.3217   75.3333        77.6667
+5 drop_backfill        0.8399     0.8398  0.0651      0.0653   70.0000        70.0000
+  dynamicfu            0.8638     0.8640  0.3255      0.3252  127.0000       126.3333
+  shard_fixed          0.8638     0.8638  0.3249      0.3250  100.0000       100.0000
+  shard_full           0.8679     0.8692  0.3249      0.3246  200.0000       200.0000
+  utility_stop         0.8755     0.8740  0.3247      0.3257   37.6667        35.0000
+  utility_stop_v1      0.8755     0.8740  0.3247      0.3257   37.6667        35.0000
+
+initial ensemble (policy none), |difference| max over seeds: {4: 0.00019, 5: 0.00019}
+
+== 3. Cost after the 10 requests (drop_backfill: after its backlog), mean over seeds ==
+                    rounds  client_rounds  rows_x_rounds  rows_pct_of_single_retrain   bytes_raw  bytes_packed  compute_seconds_sum  makespan_seconds_simulated  policy_eval_seconds  wall_seconds_total  cal_macro_f1  cal_fpr
+S policy                                                                                                                                                                                                                       
+4 shard_full       200.000        800.000    3392640.000                      25.913  29299200.0  2.974887e+07               15.370                       6.922                0.000              16.563         0.865    0.321
+  shard_fixed      100.000        400.000    1696320.000                      12.956  14649600.0  1.485280e+07                7.568                       3.383                0.000               8.209         0.865    0.321
+  utility_stop     105.000        419.667    1540753.667                      11.768  15369872.0  1.558990e+07                7.254                       3.775                0.529               8.614         0.872    0.321
+  utility_stop_v1   75.333        300.000    1285379.000                       9.818  10987200.0  1.114453e+07                5.684                       2.807                0.342               6.539         0.873    0.322
+  dynamicfu        123.000        496.000    2172546.000                      16.594  24574704.0  2.494228e+07               12.801                       6.270                1.397              15.681         0.857    0.242
+  drop_backfill    122.000        470.000    1745248.000                      13.330  17213280.0  1.746683e+07                7.923                       3.662                0.000               8.652         0.865    0.321
+5 shard_full       200.000        720.000    2685500.000                      20.512  26369280.0  2.678037e+07               12.496                       6.809                0.000              13.614         0.868    0.325
+  shard_fixed      100.000        360.000    1342750.000                      10.256  13184640.0  1.336869e+07                6.096                       3.322                0.000               6.691         0.864    0.325
+  utility_stop      37.667        131.667     554632.333                       4.236   4822160.0  4.884814e+06                2.359                       1.580                0.185               2.820         0.876    0.325
+  utility_stop_v1   37.667        131.667     554632.333                       4.236   4822160.0  4.884814e+06                2.548                       1.685                0.181               3.023         0.876    0.325
+  dynamicfu        127.000        450.000    1756459.667                      13.416  22890000.0  2.324415e+07               11.191                       6.416                1.434              14.085         0.864    0.326
+  drop_backfill    121.000        424.000    1460587.000                      11.156  15528576.0  1.576832e+07                6.809                       3.661                0.000               7.503         0.868    0.325
+
+per request: slowest and median simulated makespan (s), worst utility during the stream
+                   makespan_max  makespan_median  clients_max  F1_min  FPR_max  fpr_gt_045  rss_peak_mb
+S policy                                                                                               
+4 shard_full              1.320            0.631          100   0.864    0.323           0      686.996
+  shard_fixed             0.637            0.311           50   0.865    0.324           0      687.668
+  utility_stop            2.710            0.066          296   0.865    0.323           0      687.926
+  utility_stop_v1         0.926            0.085           80   0.647    0.749           2      688.383
+  dynamicfu               1.399            0.644           80   0.841    0.323           0      689.211
+  drop_backfill           0.534            0.188           29   0.648    0.752           3      689.219
+5 shard_full              1.359            0.580          100   0.865    0.325           0      689.039
+  shard_fixed             0.631            0.280           50   0.864    0.325           0      689.086
+  utility_stop            0.758            0.070           76   0.869    0.327           0      689.605
+  utility_stop_v1         0.793            0.070           76   0.869    0.327           0      689.715
+  dynamicfu               1.200            0.568           95   0.863    0.326           0      690.531
+  drop_backfill           0.455            0.164           28   0.840    0.326           0      690.559
+
+base ensemble (fit), mean over seeds
+   rounds  client_rounds  rows_x_rounds  bytes_up_packed  bytes_down_packed  compute_seconds_sum  makespan_seconds_simulated  makespan_parallel_shards_seconds_simulated  wall_seconds_total  models_stored  state_bytes_in_memory  inference_ms_per_1k_rows  single_shard_ms_per_1k_rows
+S                                                                                                                                                                                                                                                                                        
+4    80.0          400.0      2285680.0      7445155.667        7437383.333                9.851                       4.529                                       2.442              11.179            4.0                73248.0                     0.404                        0.096
+5   100.0          400.0      2285680.0      7447743.667        7441665.333               10.771                       5.715                                       2.577              12.201            5.0                91560.0                     0.552                        0.109
+
+== 4. Client compute time of one local round against its samples (training records of every replay) ==
+5081 records, 17 clients, samples 85..15035
+seconds = 1.95 ms + 4.01 ms per 1000 samples; R^2 = 0.933; median |relative error| = 0.104
+payload per client and round: raw 18312 bytes, packed up 18442..18685 bytes

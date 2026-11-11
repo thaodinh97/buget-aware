@@ -1,5 +1,7 @@
 # Cấu hình train chuẩn cho hướng shard: kết quả xác nhận hai run 20 client
 
+> † **Code và kết quả của run này đã được gỡ khỏi nhánh**, vì protocol v2 ([shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md)) đã thay thế. Chúng vẫn còn nguyên ở tag `pre-cleanup` (`git checkout pre-cleanup`), gồm `evaluate_standard_config.py`, hai runner v1 và thư mục `results/shard_standard_config/`. Riêng `scripts/shard/train_config.py` và `analyze_shard_20c.py` vẫn được giữ, vì v2 dùng tới.
+
 **Protocol:** [shard_standard_config_plan.md](shard_standard_config_plan.md), viết trước khi chạy. **Kết quả:** `results/shard_standard_config/`, gồm CSV, JSON, `gates.json` (đầu ra của script đánh giá) và `analysis_20c.txt` (bảng tổng hợp).
 
 **Thực hiện:** CPU, 2 thread mỗi run, dữ liệu `connected_v3_auxfit_seed42`, hai run chạy song song.

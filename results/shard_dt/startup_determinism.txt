@@ -1,0 +1,6 @@
+$ python scripts/shard/check_startup_determinism.py --runs 300 --parallel 4
+plain: 300 processes, 2 distinct result(s); median seconds of the first training 0.861
+    296  9b7fb4c6a98a loss=0.15833854689262808
+      4  5db70750ee63 loss=0.15833856470417232
+warm: 300 processes, 1 distinct result(s); median seconds of the first training 0.043
+    300  9b7fb4c6a98a loss=0.15833854689262808

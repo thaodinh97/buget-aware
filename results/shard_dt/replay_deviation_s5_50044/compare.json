@@ -1,0 +1,621 @@
+{
+ "pass": false,
+ "discrete_equal": false,
+ "metrics_max_abs_diff": 0.01555970969209941,
+ "metrics_bit_equal": false,
+ "tolerance": 0.0,
+ "steps_compared": 61,
+ "policies": {
+  "shard_full": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.01555970969209941
+  },
+  "shard_fixed": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0
+  },
+  "utility_stop": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0013230587088468582
+  },
+  "utility_stop_v1": {
+   "steps_compared": 10,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 0.0013230587088468582
+  },
+  "dynamicfu": {
+   "steps_compared": 10,
+   "mismatches": 3,
+   "first_mismatch_step": 1,
+   "metrics_max_abs_diff": 9.310499847203779e-05
+  },
+  "drop_backfill": {
+   "steps_compared": 11,
+   "mismatches": 0,
+   "first_mismatch_step": null,
+   "metrics_max_abs_diff": 7.252228878751321e-05
+  }
+ },
+ "mismatches": [
+  {
+   "policy": "dynamicfu",
+   "step": 1,
+   "field": "contribution",
+   "replay": 0.5895695668849628,
+   "v2": 0.5932508640228318
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 2,
+   "field": "contribution",
+   "replay": 0.28167739925792407,
+   "v2": 0.2846406707382023
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 3,
+   "field": "contribution",
+   "replay": 0.5151868272580861,
+   "v2": 0.530668386291217
+  }
+ ],
+ "per_step": [
+  {
+   "policy": "shard_full",
+   "step": 1,
+   "cal_macro_f1": 0.0002133863020603588,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.00020359687818127803,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 8.924501130835871e-05
+  },
+  {
+   "policy": "shard_full",
+   "step": 2,
+   "cal_macro_f1": 0.005598465760864979,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.00529351883271123,
+   "client_f1_min": 0.01555970969209941,
+   "client_f1_mean": 0.003859957376367129
+  },
+  {
+   "policy": "shard_full",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_full",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "shard_fixed",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 1,
+   "cal_macro_f1": 0.00023901779772328435,
+   "cal_fpr": 0.00023185717597962174,
+   "cal_recall_attack": 0.00013573125212085202,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.00047906375812012403
+  },
+  {
+   "policy": "utility_stop",
+   "step": 2,
+   "cal_macro_f1": 9.80648722541666e-05,
+   "cal_fpr": 0.00023185717597962174,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0013230587088468582,
+   "client_f1_mean": 0.0004186857357859619
+  },
+  {
+   "policy": "utility_stop",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 1,
+   "cal_macro_f1": 0.00023901779772328435,
+   "cal_fpr": 0.00023185717597962174,
+   "cal_recall_attack": 0.00013573125212085202,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.00047906375812012403
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 2,
+   "cal_macro_f1": 9.80648722541666e-05,
+   "cal_fpr": 0.00023185717597962174,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0013230587088468582,
+   "client_f1_mean": 0.0004186857357859619
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "utility_stop_v1",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 2,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 9.310499847203779e-05
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "dynamicfu",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 1,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 2,
+   "cal_macro_f1": 7.252228878751321e-05,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 6.786562606042601e-05,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 3,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 4,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 5,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 6,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 7,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 8,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 9,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 10,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  },
+  {
+   "policy": "drop_backfill",
+   "step": 11,
+   "cal_macro_f1": 0.0,
+   "cal_fpr": 0.0,
+   "cal_recall_attack": 0.0,
+   "client_f1_min": 0.0,
+   "client_f1_mean": 0.0
+  }
+ ],
+ "reference": "runs/shard_dt/v2_reference_linux"
+}

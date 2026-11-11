@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
+from src.data.loading import load_data
 from src.data.prepare import fit_transformer, overlaps, prepare, split_groups, transform
 
 
@@ -121,6 +122,26 @@ class PreprocessingTests(unittest.TestCase):
                             np.testing.assert_array_equal(x["X"], y["X"])
                     with np.load(a / "train.npz") as x, np.load(b / "train.npz") as y:
                         self.assertFalse(np.array_equal(x["X"], y["X"]))
+
+    def test_load_data_accepts_prepared_output_and_rejects_tampering(self):
+        cfg = json.loads(Path("configs/data.json").read_text())
+        with tempfile.TemporaryDirectory(dir=".") as tmp:
+            rows = self._rows(cfg)
+            for i, row in enumerate(rows):  # distinct feature vectors, so the cross-split overlap gate opens
+                row.update({col: float(i) for col in cfg["numeric_features"]})
+            out = self._run(Path(tmp), "d", cfg, rows)
+            data = load_data(out)
+            self.assertEqual(set(data), {"train", "validation", "calibration", "test"})
+            self.assertEqual(sum(len(d["row_id"]) for d in data.values()), 200)
+            with np.load(out / "test.npz") as arrays:
+                tampered = {k: arrays[k] for k in arrays.files}
+            tampered["X"] = tampered["X"] + 1.
+            np.savez_compressed(out / "test.npz", **tampered)
+            with self.assertRaisesRegex(ValueError, "hash mismatch"):
+                load_data(out)
+            overlapping = self._run(Path(tmp), "o", cfg, self._rows(cfg))  # equal feature vectors cross splits
+            with self.assertRaisesRegex(ValueError, "gate is closed"):
+                load_data(overlapping)
 
     def test_unknown_transform_fit_fails(self):
         cfg = {**json.loads(Path("configs/data.json").read_text()), "transform_fit": "all_rows"}

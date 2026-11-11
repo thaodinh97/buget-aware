@@ -1,5 +1,7 @@
 # Khám phá: unlearn chính xác theo shard (kiểu SISA / DynamicFU)
 
+> † **Code và kết quả của run này đã được gỡ khỏi nhánh**, vì protocol v2 ([shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md)) đã thay thế. Chúng vẫn còn nguyên ở tag `pre-cleanup` (`git checkout pre-cleanup`), gồm các runner `run_shard_ensemble_check.py`, `run_shard_stream.py`, `run_shard_paper_scale.py`, `analyze_shard_paper_scale.py`, `diagnose_training_budget.py` và thư mục `results/shard_exploration/`, `results/shard_exploration_auxfit/`. Riêng `scripts/shard/train_config.py` và `analyze_shard_20c.py` vẫn được giữ, vì v2 dùng tới.
+
 **Trạng thái:** thực nghiệm khám phá, **sau đóng băng** ([fu_freeze.md](fu_freeze.md)), không có protocol đặt trước. Thiết kế của từng run được cố định trong docstring của script trước khi chạy. Các run này không thay đổi bước FU đã đóng băng; mục đích là đánh giá tính khả thi của việc chuyển thành phần FU sang unlearn chính xác theo shard. **Không được trích làm bằng chứng xác nhận.**
 
 **Mã nguồn:** `scripts/shard/`. **Kết quả:** `results/shard_exploration/`, gồm CSV, JSON và bảng tổng hợp `analysis_20c.txt` và `paper_scale/analysis.txt`.
