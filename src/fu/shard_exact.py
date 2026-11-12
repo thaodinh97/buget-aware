@@ -250,7 +250,10 @@ class _Trainer:
         self.ws = []
         for c in np.unique(owners):
             rows = self.idx[owners == c]
-            self.ws.append(ClientWorker(int(c), tr['X'][rows], tr['y'][rows], tr['row_id'][rows], cfg.device))
+            if hasattr(fed, 'worker_factory'):
+                self.ws.append(fed.worker_factory(int(c), rows))
+            else:
+                self.ws.append(ClientWorker(int(c), tr['X'][rows], tr['y'][rows], tr['row_id'][rows], cfg.device))
 
     def step(self, meter, phase):
         seed = self.seed + self.r * 10000

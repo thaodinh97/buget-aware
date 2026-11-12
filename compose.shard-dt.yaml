@@ -1,0 +1,10 @@
+services:
+  shard:
+    build: .
+    gpus: all
+    environment:
+      FL_DEVICE: cuda
+    volumes:
+      - ${SHARD_DATA_DIR:-./data/processed/connected_v3_auxfit_seed42}:/workspace/data/processed/connected_v3_auxfit_seed42:ro
+      - ./runs/shard_dt:/workspace/runs/shard_dt
+    entrypoint: [python]
