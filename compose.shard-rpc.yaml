@@ -1,0 +1,53 @@
+x-base: &base
+  image: shard-fu-dt-shard
+  gpus: all
+  entrypoint: [python, -m, scripts.shard.shard_rpc]
+  networks: [pilot]
+x-worker: &worker
+  <<: *base
+  healthcheck:
+    test: [CMD, python, -c, "from urllib.request import urlopen; urlopen('http://localhost:8080/health', timeout=3)"]
+    interval: 4s
+    timeout: 4s
+    retries: 45
+services:
+  worker0:
+    <<: *worker
+    command: [worker, --client, '0']
+    volumes:
+      - ./scripts/shard/shard_rpc.py:/workspace/scripts/shard/shard_rpc.py:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/manifest.json:/worker/manifest.json:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/client_0.npz:/worker/client.npz:ro
+  worker5:
+    <<: *worker
+    command: [worker, --client, '5']
+    volumes:
+      - ./scripts/shard/shard_rpc.py:/workspace/scripts/shard/shard_rpc.py:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/manifest.json:/worker/manifest.json:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/client_5.npz:/worker/client.npz:ro
+  worker9:
+    <<: *worker
+    command: [worker, --client, '9']
+    volumes:
+      - ./scripts/shard/shard_rpc.py:/workspace/scripts/shard/shard_rpc.py:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/manifest.json:/worker/manifest.json:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/client_9.npz:/worker/client.npz:ro
+  worker12:
+    <<: *worker
+    command: [worker, --client, '12']
+    volumes:
+      - ./scripts/shard/shard_rpc.py:/workspace/scripts/shard/shard_rpc.py:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/manifest.json:/worker/manifest.json:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/client_12.npz:/worker/client.npz:ro
+  coordinator:
+    <<: *base
+    profiles: [run]
+    volumes:
+      - ./scripts/shard/shard_rpc.py:/workspace/scripts/shard/shard_rpc.py:ro
+      - ./runs/shard_dt/rpc_client10_seed50042/manifest.json:/worker/manifest.json:ro
+      - ./src/fu/shard_exact.py:/workspace/src/fu/shard_exact.py:ro
+      - ./data/processed/connected_v3_auxfit_seed42:/workspace/data/processed/connected_v3_auxfit_seed42:ro
+      - ./runs/shard_dt:/workspace/runs/shard_dt
+networks:
+  pilot:
+    internal: true
