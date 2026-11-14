@@ -1,0 +1,143 @@
+{
+ "design": {
+  "scenarios": [
+   "stable",
+   "step",
+   "burst",
+   "drift",
+   "noisy"
+  ],
+  "budgets": {
+   "tight": 0.25,
+   "moderate": 0.5,
+   "loose": 1.0
+  },
+  "arms": {
+   "always_full": {
+    "group": "no_twin",
+    "rule": "full"
+   },
+   "always_fixed": {
+    "group": "no_twin",
+    "rule": "fixed"
+   },
+   "reactive": {
+    "group": "no_twin",
+    "rule": "inflight"
+   },
+   "static": {
+    "group": "profiler",
+    "source": "static"
+   },
+   "static_m1.5": {
+    "group": "profiler",
+    "source": "static",
+    "margin": 1.5
+   },
+   "static_m2": {
+    "group": "profiler",
+    "source": "static",
+    "margin": 2.0
+   },
+   "adaptive": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 0.3
+   },
+   "last_value": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 1.0
+   },
+   "adaptive_inflight": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 0.3,
+    "rule": "inflight"
+   },
+   "twin_fresh": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 0
+   },
+   "twin_stale": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 2
+   },
+   "twin_fresh_inflight": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 0,
+    "rule": "inflight"
+   },
+   "oracle": {
+    "group": "reference",
+    "rule": "oracle"
+   }
+  },
+  "shards": 4,
+  "train_config": "standard",
+  "seeds": [
+   50042
+  ],
+  "scenario_seeds": [
+   301
+  ]
+ },
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "sha256_at_start": {
+  "scripts/shard/dt_ablation.py": "7f2a1f0e503b2cb2ba257527ca8b41f4135f36ff93c2f6f1380f8a522fe82780",
+  "scripts/shard/shard_dt.py": "051f98adee3f038ee8f55daf8abe3ebab5e90d3dadd21c9e277fb4ddf0bc649d",
+  "src/fu/shard_exact.py": "90274a8afc7cf066e39e404264b732c96c5edf3c9b9113e5b874e07f6a476a86",
+  "src/fu/shard_cost.py": "6220322b9f9e45ca822055c9aae4d729f0542adb11e91fa7dba1de8db287c435"
+ },
+ "machine": {
+  "platform": "Linux-6.18.44-fc-v470-x86_64-with-glibc2.39",
+  "python": "3.13.18",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.5.4",
+  "threads": 2,
+  "cpus": 4
+ },
+ "seeds": [
+  {
+   "seed": 50042,
+   "reference_seconds": 6.519105253000161,
+   "retrains": 200,
+   "retrain_seconds": 297.760783902001,
+   "static_profile": {
+    "client": {
+     "1": 6.153532836383044e-06,
+     "3": 5.11393020321019e-06,
+     "4": 5.410689120092327e-06,
+     "14": 7.327723095842742e-06,
+     "17": 5.549809515940398e-06,
+     "2": 4.813212124693298e-06,
+     "6": 5.056971425697649e-06,
+     "8": 7.1316673295417456e-06,
+     "16": 3.2284300588317445e-05,
+     "18": 9.160899211406032e-06,
+     "0": 5.9176903838051095e-06,
+     "5": 5.7512570541274655e-06,
+     "9": 5.825357187850785e-06,
+     "10": 5.518105075553519e-06,
+     "12": 5.5540116960426165e-06,
+     "7": 6.04846506107454e-06,
+     "11": 6.485849076668897e-06,
+     "13": 6.015425440716306e-06,
+     "15": 7.1824090022177284e-06,
+     "19": 6.342903432093891e-06
+    },
+    "server": 0.0006404830500187586
+   },
+   "initial": {
+    "validation_macro_f1": 0.8979584044293634,
+    "validation_fpr": 0.24053351418559965
+   }
+  }
+ ],
+ "wall_seconds": 344.746735049,
+ "load": "simulated: measured client compute seconds x scenario factor",
+ "test_split": "unused"
+}

@@ -99,6 +99,11 @@ class ExperimentTests(TorchCase):
         stable = decisions[decisions.scenario == 'stable']
         self.assertEqual(stable[stable.arm == 'twin_fresh'].rounds.tolist(), stable[stable.arm == 'static'].rounds.tolist())
         self.assertTrue(checks.weights_equal.all())
+        self.assertEqual(set(decisions.level), {'tight', 'moderate', 'loose'})
+        # a shared factor of 1 leaves the static forecast: adaptive_global starts as the profiler
+        first = decisions[decisions.step == 1]
+        self.assertTrue(np.allclose(first[first.arm == 'adaptive_global'].forecast_full_seconds.values,
+                                    first[first.arm == 'static'].forecast_full_seconds.values))
         self.assertEqual(len(info), 1)
         self.assertFalse(ab.summarise(decisions, ['arm']).isna().ok.any())
 

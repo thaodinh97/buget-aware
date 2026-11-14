@@ -11,7 +11,9 @@ Arms
   profiler       static = scripts.shard.shard_dt.plan on the cost table calibrated at fit; static_m1.5 and static_m2 add a
                  fixed safety margin (forecast x margin <= budget)
   twin, history  adaptive = the current DT (per-client EWMA 0.3 after every executed request); last_value = EWMA 1.0;
-                 adaptive_inflight = admitted when the adaptive forecast of 10 rounds fits, then the reactive rule
+                 adaptive_global = the static table times one factor shared by all clients, an EWMA 0.5 of actual / static
+                 seconds of the executed requests; adaptive_inflight = admitted when the adaptive forecast of 10 rounds
+                 fits, then the reactive rule
   twin, state    twin_fresh = the static table times the load every client reports before the request. The report is the
                  injected factor itself, so this is idealised telemetry, an upper bound of what state sync can give;
                  twin_stale = the report is 2 requests old; twin_fresh_inflight = twin_fresh admission, then the reactive rule
@@ -21,9 +23,14 @@ Scenarios (load factor of client c during request k, from --scenario-seeds, inde
   stable 1; step = a random half of the clients x3 from request 4 on; burst = the same, requests 4-6 only;
   drift = every client from x1 (request 1) to x3 (request 10), linearly; noisy = LogNormal(0, 0.35) per client and request.
 
-Budgets: T_ref = the static forecast of a 20-round retrain of the largest shard of the initial ensemble; tight / moderate /
-loose = 0.25 / 0.5 / 1.0 x T_ref. The multipliers were chosen after looking at the stable per-request costs of seed 50042
-and before any arm was run.
+Budgets: T_ref = the static forecast of a 20-round retrain of the largest shard of the initial ensemble; six levels,
+0.2 / 0.3 (tight), 0.4 / 0.6 (moderate), 0.8 / 1.2 (loose) x T_ref.
+
+Changed after a first probe (commit 158521f; seed 50042, one scenario seed; kept in results/shard_dt/ablation/probe):
+- the probe used 0.25 / 0.5 / 1.0 x T_ref. The retrain of request 1 covers 49.5 % of the rows of the largest shard, so
+  0.25 and 0.5 x T_ref are the static forecasts of its 10- and 20-round retrain: the first decision of every forecasting
+  arm was decided by calibration noise. The grid avoids these multiples;
+- the arm adaptive_global and the repeat column of the sleep check were added.
 
 Measured and simulated
 - Measured: every ensemble state comes from real training through ShardedUnlearner (fork + unlearn), and the compute
@@ -32,7 +39,8 @@ Measured and simulated
   the sum over its rounds plus the measured server share. Round r of shard_full is round r of shard_fixed (same trainer,
   per-round seeds), so the first 10 rounds of the measured retrain are the trace of shard_fixed.
 - --sleep-check replays the always_full trajectory of the first seed under `step` with real sleeps in the workers and
-  writes measured against simulated seconds (sleep_check.csv); the weights must equal those of the run without sleeps.
+  writes measured against simulated seconds (sleep_check.csv), next to the difference between two plain measurements of
+  the same retrain (the noise floor of the machine); the weights must equal those of the run without sleeps.
 
 Outcome of a decision, against the oracle at the same state: `violation` (executed, actual seconds > budget), `conservative`
 (did less than what fits: 10 rounds instead of 20, or rejected), `ok`. A rejected request stays unserved, there is no retry.
@@ -66,7 +74,8 @@ from src.fu.shard_exact import ForgetRequest, ShardConfig, ShardedUnlearner, ass
 
 SCENARIOS = ('stable', 'step', 'burst', 'drift', 'noisy')
 SEEDED = ('step', 'burst', 'noisy')          # scenarios that depend on the scenario seed
-BUDGETS = {'tight': .25, 'moderate': .5, 'loose': 1.}
+BUDGETS = {'0.2': .2, '0.3': .3, '0.4': .4, '0.6': .6, '0.8': .8, '1.2': 1.2}      # share of T_ref
+LEVEL = {'0.2': 'tight', '0.3': 'tight', '0.4': 'moderate', '0.6': 'moderate', '0.8': 'loose', '1.2': 'loose'}
 ARMS = {
     'always_full':         {'group': 'no_twin', 'rule': 'full'},
     'always_fixed':        {'group': 'no_twin', 'rule': 'fixed'},
@@ -76,6 +85,7 @@ ARMS = {
     'static_m2':           {'group': 'profiler', 'source': 'static', 'margin': 2.},
     'adaptive':            {'group': 'twin_history', 'source': 'ewma', 'alpha': .3},
     'last_value':          {'group': 'twin_history', 'source': 'ewma', 'alpha': 1.},
+    'adaptive_global':     {'group': 'twin_history', 'source': 'ratio', 'alpha': .5},
     'adaptive_inflight':   {'group': 'twin_history', 'source': 'ewma', 'alpha': .3, 'rule': 'inflight'},
     'twin_fresh':          {'group': 'twin_state', 'source': 'telemetry', 'lag': 0},
     'twin_stale':          {'group': 'twin_state', 'source': 'telemetry', 'lag': 2},
@@ -172,7 +182,7 @@ class Tree:
 def run_arm(tree, spec, factors, budget, static):
     """One arm on the stream. Returns (one record per decision, final node, seconds spent forecasting)."""
     node, records, overhead = tree.root, [], 0.
-    learned = {'client': dict(static['client']), 'server': static['server']}
+    learned, scale = {'client': dict(static['client']), 'server': static['server']}, 1.
     rule, source = spec.get('rule'), spec.get('source')
     for k, item in enumerate(tree.stream):
         trace = tree.trace(node, k)
@@ -185,6 +195,8 @@ def run_arm(tree, spec, factors, budget, static):
             if source == 'telemetry':
                 seen = factors[k - spec['lag']] if k >= spec['lag'] else np.ones(factors.shape[1])
                 profile = {'client': {c: v * seen[int(c)] for c, v in static['client'].items()}, 'server': static['server']}
+            elif source == 'ratio':
+                profile = {'client': {c: v * scale for c, v in static['client'].items()}, 'server': scale * static['server']}
             else:
                 profile = learned if source == 'ewma' else static
             report = plan(node.fed, tree.request(k), profile, budget / spec.get('margin', 1.), NO_BYTE_LIMIT, True)
@@ -207,6 +219,8 @@ def run_arm(tree, spec, factors, budget, static):
             for c, value in seen['client'].items():
                 learned['client'][c] = (1 - a) * learned['client'][c] + a * value
             learned['server'] = (1 - a) * learned['server'] + a * seen['server']
+        if rounds and source == 'ratio':         # forecast[rounds] is the static forecast times the current scale
+            scale = (1 - spec['alpha']) * scale + spec['alpha'] * scale * spent / forecast[rounds]
         records.append({'step': k + 1, 'client': item['client'], 'kind': item['kind'], 'shard': trace['shard'],
                         'rounds': rounds, 'best_rounds': best, 'outcome': outcome, 'spent_seconds': spent,
                         'policy': {tree.full: 'full', tree.fixed: 'fixed', 0: 'reject'}[rounds],
@@ -236,18 +250,21 @@ def slow_factory(fed, factor):
 
 def sleep_check(tree, factors):
     """The always_full trajectory with real sleeps in the workers: measured against simulated seconds per request."""
-    node, records = tree.root, []
+    node, records, total = tree.root, [], lambda result: float(sum(r['wall_seconds'] for r in result.round_costs))
     for k in range(len(tree.stream)):
-        simulated = float(round_seconds(tree.trace(node, k), factors[k]).sum())
+        trace = tree.trace(node, k)
+        simulated = float(round_seconds(trace, factors[k]).sum())
+        repeat = total(node.fed.fork('shard_full').unlearn(tree.request(k)))         # the same retrain, measured again
         fed = node.fed.fork('shard_full')
         fed.worker_factory = slow_factory(fed, factors[k])
         result = fed.unlearn(tree.request(k))
         plain, j = node.kids[tree.full].fed, result.retrained_shard
         same = all(torch.equal(a, b) for a, b in zip(fed.shards[j].model.state_dict().values(),
                                                      plain.shards[j].model.state_dict().values()))
-        measured = float(sum(r['wall_seconds'] for r in result.round_costs))
+        measured, plain_seconds = total(result), float(round_seconds(trace, np.ones(factors.shape[1])).sum())
         records.append({'step': k + 1, 'simulated_seconds': simulated, 'measured_seconds': measured,
-                        'relative_error': measured / simulated - 1, 'weights_equal': same})
+                        'relative_error': measured / simulated - 1, 'repeat_relative_error': repeat / plain_seconds - 1,
+                        'weights_equal': same})
         node = node.kids[tree.full]
     return records
 
@@ -263,6 +280,7 @@ def summarise(decisions, by):
                     'conservative': (g.outcome == 'conservative').mean(),
                     'full': (g.policy == 'full').mean(), 'fixed': (g.policy == 'fixed').mean(),
                     'rejected': (g.policy == 'reject').mean(),
+                    'needless_reject': ((g.policy == 'reject') & (g.best_rounds > 0)).mean(),
                     'overshoot_mean': (late.spent_seconds / late.budget_seconds - 1).mean() if len(late) else np.nan,
                     'forecast_mape': ((known.forecast_full_seconds - known.actual_full_seconds).abs()
                                       / known.actual_full_seconds).mean() if len(known) else np.nan})
@@ -271,22 +289,25 @@ def summarise(decisions, by):
 
 def analysis(decisions, trajectories, checks):
     pct = lambda frame, cols: frame.assign(**{c: (100 * frame[c]).round(1) for c in cols})
-    shares = ['ok', 'violation', 'conservative', 'full', 'fixed', 'rejected', 'overshoot_mean', 'forecast_mape']
-    lines = ['Outcome shares in percent. overshoot_mean: mean excess over the budget of the violations. forecast_mape: mean '
-             'absolute error of the forecast of the 20-round retrain. Descriptive; decisions of one run are not independent.', '',
+    shares = ['ok', 'violation', 'conservative', 'full', 'fixed', 'rejected', 'needless_reject', 'overshoot_mean',
+              'forecast_mape']
+    lines = ['Outcome shares in percent. needless_reject: rejected although a policy fits (part of conservative). '
+             'overshoot_mean: mean excess over the budget of the violations. forecast_mape: mean absolute error of the '
+             'forecast of the 20-round retrain. Descriptive; decisions of one run are not independent.', '',
              '== all scenarios and budgets ==',
              pct(summarise(decisions, ['group', 'arm']), shares).to_string(index=False)]
     for scenario in decisions.scenario.unique():
         lines += ['', f'== scenario {scenario} ==',
                   pct(summarise(decisions[decisions.scenario == scenario], ['arm']), shares).to_string(index=False)]
-    for budget in decisions.budget.unique():
-        lines += ['', f'== budget {budget} ==',
-                  pct(summarise(decisions[decisions.budget == budget], ['arm']), shares).to_string(index=False)]
+    for level in decisions.level.unique():
+        lines += ['', f'== budget level {level} ==',
+                  pct(summarise(decisions[decisions.level == level], ['arm']), shares).to_string(index=False)]
     final = trajectories.groupby('arm', sort=False)[['served', 'validation_macro_f1', 'validation_fpr', 'spent_seconds',
                                                       'forecast_seconds']].mean().round(5)
     lines += ['', '== per run of 10 requests, mean over all runs ==', final.to_string()]
     if checks is not None:
-        lines += ['', '== sleep check: always_full under step, measured with real sleeps against simulated ==',
+        lines += ['', '== sleep check: always_full under step, measured with real sleeps against simulated; '
+                  'repeat_relative_error: a second plain measurement against the first ==',
                   checks.round(4).to_string(index=False)]
     return '\n'.join(lines) + '\n'
 
@@ -314,7 +335,7 @@ def experiment(data, seeds, scenario_seeds, shards=4, train_config='standard', c
                     for arm, spec in ARMS.items():
                         records, node, overhead = run_arm(tree, spec, factors, budget, static)
                         head = {'seed': seed, 'scenario': scenario, 'scenario_seed': scenario_seed, 'budget': budget_name,
-                                'budget_seconds': budget, 'group': spec['group'], 'arm': arm}
+                                'level': LEVEL[budget_name], 'budget_seconds': budget, 'group': spec['group'], 'arm': arm}
                         decisions += [{**head, **r} for r in records]
                         trajectories.append({**head, 'served': sum(r['rounds'] > 0 for r in records),
                                              'spent_seconds': sum(r['spent_seconds'] for r in records),
@@ -349,7 +370,7 @@ def main():
                                                        check=args.sleep_check, log=lambda m: print(m, file=sys.stderr, flush=True))
     decisions.to_csv(args.output / 'decisions.csv', index=False)
     trajectories.to_csv(args.output / 'trajectories.csv', index=False)
-    summarise(decisions, ['scenario', 'budget', 'group', 'arm']).to_csv(args.output / 'summary.csv', index=False)
+    summarise(decisions, ['scenario', 'level', 'group', 'arm']).to_csv(args.output / 'summary.csv', index=False)
     if checks is not None:
         checks.to_csv(args.output / 'sleep_check.csv', index=False)
     text = analysis(decisions, trajectories, checks)
