@@ -1,0 +1,225 @@
+{
+ "design": {
+  "scenarios": [
+   "stable",
+   "step",
+   "burst",
+   "drift",
+   "noisy"
+  ],
+  "budgets": {
+   "0.2": 0.2,
+   "0.3": 0.3,
+   "0.4": 0.4,
+   "0.6": 0.6,
+   "0.8": 0.8,
+   "1.2": 1.2
+  },
+  "arms": {
+   "always_full": {
+    "group": "no_twin",
+    "rule": "full"
+   },
+   "always_fixed": {
+    "group": "no_twin",
+    "rule": "fixed"
+   },
+   "reactive": {
+    "group": "no_twin",
+    "rule": "inflight"
+   },
+   "static": {
+    "group": "profiler",
+    "source": "static"
+   },
+   "static_m1.5": {
+    "group": "profiler",
+    "source": "static",
+    "margin": 1.5
+   },
+   "static_m2": {
+    "group": "profiler",
+    "source": "static",
+    "margin": 2.0
+   },
+   "adaptive": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 0.3
+   },
+   "last_value": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 1.0
+   },
+   "adaptive_global": {
+    "group": "twin_history",
+    "source": "ratio",
+    "alpha": 0.5
+   },
+   "adaptive_inflight": {
+    "group": "twin_history",
+    "source": "ewma",
+    "alpha": 0.3,
+    "rule": "inflight"
+   },
+   "twin_fresh": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 0
+   },
+   "twin_stale": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 2
+   },
+   "twin_fresh_inflight": {
+    "group": "twin_state",
+    "source": "telemetry",
+    "lag": 0,
+    "rule": "inflight"
+   },
+   "oracle": {
+    "group": "reference",
+    "rule": "oracle"
+   }
+  },
+  "shards": 4,
+  "train_config": "standard",
+  "seeds": [
+   50042,
+   50043,
+   50044
+  ],
+  "scenario_seeds": [
+   301,
+   302,
+   303
+  ]
+ },
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "sha256_at_start": {
+  "scripts/shard/dt_ablation.py": "0dbbd512ecb52c74185e298b841013f3d3ce01e7bd8873f87875196c3be4e059",
+  "scripts/shard/shard_dt.py": "051f98adee3f038ee8f55daf8abe3ebab5e90d3dadd21c9e277fb4ddf0bc649d",
+  "src/fu/shard_exact.py": "90274a8afc7cf066e39e404264b732c96c5edf3c9b9113e5b874e07f6a476a86",
+  "src/fu/shard_cost.py": "6220322b9f9e45ca822055c9aae4d729f0542adb11e91fa7dba1de8db287c435"
+ },
+ "machine": {
+  "platform": "Linux-6.18.44-fc-v470-x86_64-with-glibc2.39",
+  "python": "3.13.18",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.5.4",
+  "threads": 2,
+  "cpus": 4
+ },
+ "seeds": [
+  {
+   "seed": 50042,
+   "reference_seconds": 5.729721445249538,
+   "retrains": 389,
+   "retrain_seconds": 550.6108655099983,
+   "static_profile": {
+    "client": {
+     "1": 6.14858512998732e-06,
+     "3": 5.036959365783626e-06,
+     "4": 5.53619048750937e-06,
+     "14": 7.42981253071543e-06,
+     "17": 5.617454723951851e-06,
+     "2": 5.363890943393108e-06,
+     "6": 5.4837109839453144e-06,
+     "8": 7.726042092832068e-06,
+     "16": 3.555278235326649e-05,
+     "18": 1.0140688012685328e-05,
+     "0": 5.1891270134223e-06,
+     "5": 5.168749145961992e-06,
+     "9": 5.156500517440741e-06,
+     "10": 4.78503731452847e-06,
+     "12": 4.962966804122428e-06,
+     "7": 5.551228041534912e-06,
+     "11": 6.0283884759233095e-06,
+     "13": 5.697077146715515e-06,
+     "15": 6.497506075822392e-06,
+     "19": 5.842137679006375e-06
+    },
+    "server": 0.0006218038624467681
+   },
+   "initial": {
+    "validation_macro_f1": 0.8979584044293634,
+    "validation_fpr": 0.24053351418559965
+   }
+  },
+  {
+   "seed": 50043,
+   "reference_seconds": 6.0641798447491055,
+   "retrains": 335,
+   "retrain_seconds": 461.3217455519971,
+   "static_profile": {
+    "client": {
+     "1": 5.8381246177355065e-06,
+     "3": 4.722392559812526e-06,
+     "4": 5.337243757414148e-06,
+     "14": 6.646838697741201e-06,
+     "17": 5.314009418739055e-06,
+     "2": 5.222279934377608e-06,
+     "6": 5.575935381530947e-06,
+     "8": 7.643449763261253e-06,
+     "16": 3.336142470636653e-05,
+     "18": 9.813491009314962e-06,
+     "0": 5.404686000429595e-06,
+     "5": 5.274254370000701e-06,
+     "9": 5.312476265466311e-06,
+     "10": 5.2095128048570586e-06,
+     "12": 5.10084680079434e-06,
+     "7": 5.012254206026924e-06,
+     "11": 5.542077980369374e-06,
+     "13": 5.275260719363791e-06,
+     "15": 6.1654431717018925e-06,
+     "19": 5.290032123462475e-06
+    },
+    "server": 0.0006306351375087616
+   },
+   "initial": {
+    "validation_macro_f1": 0.8985476412641725,
+    "validation_fpr": 0.23951622018763422
+   }
+  },
+  {
+   "seed": 50044,
+   "reference_seconds": 5.782902091998608,
+   "retrains": 320,
+   "retrain_seconds": 447.21043627700465,
+   "static_profile": {
+    "client": {
+     "1": 6.216112117744958e-06,
+     "3": 4.975757718800743e-06,
+     "4": 5.261353805010131e-06,
+     "14": 7.163142997523225e-06,
+     "17": 5.407372725505883e-06,
+     "2": 4.597236529953019e-06,
+     "6": 5.109998734949833e-06,
+     "8": 6.948656439414497e-06,
+     "16": 3.102301529425484e-05,
+     "18": 8.859130757168959e-06,
+     "0": 5.199108546550149e-06,
+     "5": 4.976521151300439e-06,
+     "9": 5.304390809898364e-06,
+     "10": 4.855896080771706e-06,
+     "12": 5.015587093448452e-06,
+     "7": 4.77905107491667e-06,
+     "11": 5.187355808786843e-06,
+     "13": 4.752282264707296e-06,
+     "15": 5.578273244165571e-06,
+     "19": 4.999685024701233e-06
+    },
+    "server": 0.0005739231999370986
+   },
+   "initial": {
+    "validation_macro_f1": 0.8986272597580891,
+    "validation_fpr": 0.23951622018763422
+   }
+  }
+ ],
+ "wall_seconds": 1587.182660548,
+ "load": "simulated: measured client compute seconds x scenario factor",
+ "test_split": "unused"
+}
