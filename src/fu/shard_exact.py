@@ -110,9 +110,9 @@ class UnlearningResult:
     step: int
     policy: str
     client: int
-    kind: str                # 'client' | 'sample' | 'backlog_done'
+    kind: str                # 'client' | 'sample' | 'batch_end' | 'backlog_done'
     rows: int
-    event: str               # 'retrain' | 'merge_<j>_into_<t>' | 'removed_empty' | 'backlog_done'
+    event: str               # 'retrain' | 'merge_<j>_into_<t>' | 'removed_empty' | 'batch_end' | 'backlog_done'
     retrained_shard: object
     retired_shards: list
     shards_included: int
@@ -273,7 +273,7 @@ class _Trainer:
 
 
 class ShardedUnlearner:
-    """Sharded FedAvg ensemble with exact unlearning, one request at a time.
+    """Sharded FedAvg ensemble with exact unlearning, individually or in sample-level batches.
 
     train: {'X', 'y', 'row_id'} of the train split; validation: {'X', 'y'} (server-side auxiliary data, read by the policies);
     parts: train row indices of every client; assignment: client ids of every shard; seed: training seed (shard j uses
@@ -467,6 +467,67 @@ class ShardedUnlearner:
         self.history.append(record)
         return self._result(meter, checkpoint_dir, record, plan['retrain'], plan['retired'], extra)
 
+    def unlearn_batch(self, requests, checkpoint_dir=None):
+        """Apply sample-level requests, then retrain each touched shard once for R_base rounds.
+
+        This operation always uses the fixed ``shard_full`` rule, independently of the default policy. Every request
+        must leave some data at its client; client removal / merging and a pending backfill queue are not supported.
+        Validate the complete batch against successive live row sets before changing any state, including detecting
+        overlapping requests. ``step`` and the saved history advance once per request. The returned UnlearningResult
+        describes the complete batch, with per-request records and sorted ``retrained_shards`` in ``details``.
+        """
+        if not self.shards:
+            raise RuntimeError('fit() or load() first')
+        if self.pending:
+            raise RuntimeError('a drop_backfill backlog is pending: call finish_backlog() before batching')
+        requests = list(requests)
+        if not requests:
+            raise ValueError('batch must contain at least one sample request')
+
+        alive = self.alive.copy()
+        validated, touched = [], set()
+        for request in requests:
+            c = int(request.client)
+            if c not in self.present:
+                raise ValueError(f'client {c} holds no data (unknown or already deleted)')
+            if request.rows is None:
+                raise ValueError('batch requests must be sample-level and specify forget rows')
+            held = self.parts[c][alive[self.parts[c]]]
+            f = np.asarray(request.rows, np.int64).ravel()
+            if not len(f) or len(np.unique(f)) != len(f):
+                raise ValueError('forget rows must be a non-empty set of distinct train rows')
+            if not np.isin(f, held).all():
+                raise ValueError(f'forget rows must be rows client {c} currently holds, without overlap in the batch')
+            if len(f) == len(held):
+                raise ValueError('batch requests must be sample-level and leave data at every client')
+            f = np.sort(f)
+            alive[f] = False
+            touched.add(next(j for j, a in enumerate(self.assignment) if c in a))
+            validated.append((c, f))
+
+        meter = self._meter()
+        self.alive = alive
+        touched = sorted(touched)
+        for j in touched:
+            trn = self._trainer(j, self._shard_idx(self.assignment, j))
+            for _ in range(self.r_base):
+                trn.step(meter, 'retrain')
+            self.shards[j] = trn.entry()
+
+        records = []
+        for c, f in validated:
+            self.step += 1
+            records.append({'step': self.step, 'client': c, 'kind': 'sample', 'rows': int(len(f)),
+                            'policy': 'shard_full', 'event': 'retrain',
+                            'forget_request_hash': ids_hash(self.train['row_id'][f])})
+        self.history.extend(records)
+        all_rows = np.sort(np.concatenate([f for _, f in validated]))
+        record = {'step': self.step, 'client': -1, 'kind': 'batch_end', 'rows': int(len(all_rows)),
+                  'policy': 'shard_full', 'event': 'batch_end',
+                  'forget_request_hash': ids_hash(self.train['row_id'][all_rows])}
+        return self._result(meter, checkpoint_dir, record, touched, [],
+                            {'requests': records, 'retrained_shards': touched, 'batch_size': len(records)})
+
     def finish_backlog(self, checkpoint_dir=None):
         """drop_backfill only: train every pending shard to R_base rounds and put it back into the ensemble."""
         meter = self._meter()
@@ -643,7 +704,7 @@ class ShardedUnlearner:
                              'shards': [p.shard for p in self.pending]})
         if not self.included():
             warnings.append({'code': 'EMPTY_ENSEMBLE', 'detail': 'no shard is included; predictions are constant'})
-        if record['event'] != 'retrain' and record['kind'] != 'backlog_done':
+        if record['event'] != 'retrain' and record['kind'] not in ('backlog_done', 'batch_end'):
             warnings.append({'code': 'STRUCTURE_CHANGED', 'detail': record['event']})
         scope = EXACTNESS_SCOPE[record['policy']]
         if scope != 'unconditional':

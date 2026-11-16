@@ -1,8 +1,8 @@
 # Hướng shard, protocol v3: chuỗi yêu cầu sample-level có cấu trúc (kịch bản 6) và mô hình luồng yêu cầu (kịch bản C)
 
-**Trạng thái: BẢN NHÁP, chưa chạy.** Viết sau khi đã xem kết quả v2 ([shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md): **không xác nhận**).
-- Protocol được **chốt** khi runner và script đánh giá đã viết xong và smoke pass. Từ lúc đó, mọi thay đổi phải ghi vào mục "Thay đổi sau khi chạy".
-- Trước khi chốt, mọi sửa đổi được ghi vào mục "Lịch sử bản nháp" ở cuối.
+**Trạng thái: ĐÃ CHỐT TRIỂN KHAI ngày 2026-11-15; smoke tổng hợp pass, chưa chạy thực nghiệm xác nhận 10 seed.** Viết sau khi đã xem kết quả v2 ([shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md): **không xác nhận**).
+- Runner và script đánh giá đã viết xong; smoke kiểm tra đủ mọi họ, S và chính sách. Từ lúc chốt, mọi thay đổi phải ghi vào mục "Thay đổi sau khi chạy".
+- Các sửa đổi trước khi chốt được ghi vào mục "Lịch sử bản nháp" ở cuối. Smoke không dùng seed xác nhận, không làm bằng chứng cho các claim.
 
 ## Câu hỏi
 
@@ -18,11 +18,11 @@ v2 trộn yêu cầu client-level (5 bước xóa trọn client) với sample-le
 - **Đã có:**
   - `scripts/shard/stream_v3.py`: mô hình chuỗi, kế hoạch chi phí và kế hoạch `drop_backfill`. Chỉ dựa trên metadata.
   - `tests/test_stream_v3.py`: unit test.
-- **Phải viết trước khi chốt:**
-  - `scripts/shard/run_shard_stream_v3.py`: runner, **dựng trên thành phần `src/fu/shard_exact.py`** (`ShardedUnlearner`, xem [shard_dt_interface.md](shard_dt_interface.md)), không chép lại logic của runner v2. Thành phần đã được kiểm chứng trùng từng bit với runner v2 ở 366/366 bước. Runner train ensemble một lần cho mỗi (S, seed), rồi dùng `fork(policy)` cho từng chính sách. Nó nhận tên họ chuỗi qua `SHARD_V3_FAMILY`, để 4 họ chạy song song được.
+- **Phần triển khai v3:**
+  - `scripts/shard/run_shard_stream_v3.py`: runner, **dựng trên thành phần `src/fu/shard_exact.py`** (`ShardedUnlearner`, xem [shard_dt_interface.md](shard_dt_interface.md)), không chép lại logic của runner v2. Thành phần đã được kiểm chứng trùng từng bit với runner v2 ở 366/366 bước. Runner train ensemble một lần cho mỗi (S, seed) trong mỗi họ, rồi dùng `fork(policy)` cho từng chính sách. Nó nhận tên họ chuỗi qua `SHARD_V3_FAMILY`, để 4 họ chạy song song được.
   - **Phần bổ sung cho thành phần:** xử lý một lô yêu cầu (`unlearn_batch`: áp mọi yêu cầu của lô, rồi train lại mỗi shard bị chạm một lần). Hành vi hiện có của thành phần không được đổi; `tests/test_shard_exact.py` phải vẫn pass.
   - `scripts/shard/evaluate_shard_v3.py`: script đánh giá gate và tính toàn vẹn.
-  - Phần khởi chạy dùng chung của v3 (`start_run` với danh sách `TRACKED_V3`). Không sửa `shard_v2.start_run`, vì hàm đó chỉ nhận runner của v2.
+  - `scripts/shard/shard_v3.py`: phần khởi chạy dùng chung của v3 (`start_run` với danh sách `TRACKED_V3`). Không sửa `shard_v2.start_run`, vì hàm đó chỉ nhận runner của v2.
 - **Dùng lại mà không sửa:** `shard_v2.assign`, `data_content_sha256`, `norm_rel`, `noninferior`, `train_config.CONFIGS['standard']`. Mọi file của v1 và v2 **giữ nguyên từng byte**.
 - **Danh sách hash của v3** (`TRACKED_V3`) gồm thêm `src/fu/shard_exact.py` và `src/fu/shard_cost.py`, vì kết quả phụ thuộc vào chúng.
 
@@ -149,6 +149,8 @@ Shard được train lại luôn bắt đầu từ khởi tạo mới với seed
 | `batch_full_2`, `batch_full_5` | Gom các yêu cầu đến trong cửa sổ [mW, (m + 1)W). Ở cuối cửa sổ, train lại **một lần** mỗi shard bị chạm, đủ R_base vòng, trên dữ liệu sau mọi yêu cầu của cửa sổ. Trong cửa sổ, model phục vụ vẫn là model cũ, nên **còn chứa dữ liệu đang chờ xóa**. Cửa sổ cuối được xử lý ở thời điểm kết thúc của nó |
 | `full_retrain_single` | Tham chiếu S = 1: một model đơn train lại từ đầu, seed s, R_base vòng, trên toàn bộ dữ liệu còn lại. Chỉ ở bước 5, 10, 15, 20 |
 
+Model đơn tham chiếu được ghi theo **S của chuỗi đang so sánh**, dù bản thân nó luôn chỉ có một shard. `spread` và `concentrated` có yêu cầu khác nhau giữa S = 4 và S = 5, nên mỗi trường hợp cần model đơn trên đúng tập dữ liệu còn lại tương ứng.
+
 **Ensemble trống.** Khi không shard nào được đưa vào ensemble (chỉ có thể xảy ra ở `drop_backfill`), bước đó được ghi là `unavailable`: dịch vụ không có model, và metric bằng NaN. Không thay bằng một dự đoán mặc định.
 
 **Tính chất dự đoán của `batch_full_W`.** Ở cuối chuỗi, mỗi shard hoặc là model ban đầu (nếu chưa từng bị chạm), hoặc là model train mới với seed của nó trong R_base vòng trên dữ liệu cuối. Điều này đúng với cả `shard_full`. Vì vậy **trạng thái cuối của `batch_full_W` trùng từng bit với `shard_full`**. Khác biệt chỉ nằm ở trạng thái trung gian, chi phí và độ trễ. G1 kiểm tra tính chất này.
@@ -239,27 +241,71 @@ Với `batch_full_W`, dòng của bước k là model đang phục vụ ngay sau
 - Số vòng dự phòng và số bước không đạt ok() của `utility_stop`.
 - Utility của `full_retrain_single` ở bước 5, 10, 15, 20.
 
-## Lệnh chạy (sau khi runner và script đánh giá được viết)
+## Artifact của runner
+
+Mỗi họ được ghi trong `stream_<family>/`, không ghi đè thư mục đã có:
+- `run.json`: thiết kế, cấu hình train và thành phần, hash nguồn/dữ liệu, số dòng mỗi client, máy và phiên bản thư viện, thời gian làm nóng, kiểm tra tái lập sau `fit`, chi phí train ban đầu và thời gian chạy.
+- `stream.json`: metadata và yêu cầu riêng cho từng S; hash tập dòng bị xóa được dùng chung giữa mọi seed và chính sách.
+- `steps.csv`: `kind=request` cho mỗi lần đến, `batch_end` cho mỗi lần xử lý lô, `backlog_done` sau khi train hết hàng đợi, `reference` cho model đơn. Chi phí `rows_x_rounds`, `rounds`, `bytes`, `seconds` là lũy kế của chính sách, không gồm `fit` ban đầu hay kiểm tra bit; `delta_*` là chi phí thao tác vừa thực hiện. `bytes` là số byte tensor hai chiều của mô phỏng, không gồm overhead giao thức mạng.
+- `exactness.csv`: kiểm tra train mới ở cuối chuỗi và so sánh model cuối của hai chính sách gom lô với `shard_full`.
+- `attempt_1/` (và `attempt_2/` nếu cần): toàn bộ artifact của từng tiến trình. `run.json` ở thư mục họ giữ cả hai bản ghi và chỉ rõ lần được chọn. Chỉ thử lại khi kiểm tra tái lập thất bại; lỗi nạp dữ liệu hoặc train được báo lỗi trực tiếp.
+
+CLI cố định CPU, 2 luồng PyTorch và thuật toán tất định. Các dòng đến của gom lô để trống `exact`/`structure_ok`: chỉ đánh giá hai cờ ở `batch_end`, như gate G1 quy định. Các metric của ensemble rỗng cũng để trống trong CSV (`NaN` khi đọc bằng pandas); JSON đánh giá dùng `null`.
+
+## Lệnh chạy
+
+Smoke tích hợp trên dữ liệu tổng hợp (20 client, đủ 4 họ × 2 mức S × 2 seed × 7 chính sách; dùng model nhỏ và kích thước yêu cầu nhỏ, không phải bằng chứng xác nhận):
+
+```bash
+python -m unittest discover -s tests -p "test_shard_v3.py" -v
+```
+
+Test kế hoạch:
+
 ```bash
 python -m unittest discover -s tests -p "test_stream_v3.py" -v
 ```
+Các test bổ sung: `test_shard_batch.py` (xóa theo lô và checkpoint), `test_shard_v3_cli.py` (nạp dữ liệu, cấu hình và chạy lại), `test_evaluate_shard_v3.py` (gate, dữ liệu thiếu/trùng và tính toàn vẹn). `test_shard_exact.py` tiếp tục kiểm tra tương đương với runner v2.
+
 ```bash
 python scripts/shard/stream_v3.py results/shard_v2/ensemble_check_20c/meta.json
 ```
+
+`SHARD_DESIGN` và `SHARD_V3_FAMILY` **không có giá trị mặc định**, và thư mục đầu ra phải tên `stream_<họ>`. Nếu thiếu một biến, hoặc tên thư mục không khớp họ, runner dừng trước khi tạo thư mục hay train.
+
+Chạy chuẩn trên Bash, mỗi họ một tiến trình:
+
 ```bash
 export SHARD_DESIGN=v3 FL_DEVICE=cpu
-```
-```bash
 for f in proportional spread concentrated poisson_zipf; do SHARD_V3_FAMILY=$f python scripts/shard/run_shard_stream_v3.py runs/shard_v3/stream_$f & done; wait
-```
-```bash
 python scripts/shard/evaluate_shard_v3.py runs/shard_v3 runs/shard_v3/gates.json
 ```
-Ước lượng thô từ thời gian của v2: 6–10 giờ CPU cho cả 4 họ, chia cho 4 tiến trình song song. Thời gian thật được đo ở smoke và ghi vào mục "Lịch sử bản nháp"; nó không làm đổi thiết kế.
+
+PowerShell (chạy tuần tự 4 họ):
+
+```powershell
+$env:SHARD_DESIGN = 'v3'
+$env:FL_DEVICE = 'cpu'
+foreach ($family in @('proportional', 'spread', 'concentrated', 'poisson_zipf')) {
+    $env:SHARD_V3_FAMILY = $family
+    python scripts/shard/run_shard_stream_v3.py "runs/shard_v3/stream_$family"
+    if ($LASTEXITCODE -ne 0) { throw "Runner failed: $family" }
+}
+python scripts/shard/evaluate_shard_v3.py runs/shard_v3 runs/shard_v3/gates.json
+```
+
+Smoke trên **dữ liệu thật** dùng `SHARD_DESIGN=smoke_v3` và thư mục gốc riêng, ví dụ `runs/shard_v3_smoke/stream_<họ>`: vẫn đủ 20 yêu cầu và mọi họ/S, nhưng chỉ 3 vòng train, seed 7–8. Bộ đánh giá luôn để P và mọi claim xác nhận bằng false cho smoke. `run_experiment(...)` cho phép dữ liệu tổng hợp qua API và tự ghi nhãn `synthetic_smoke` khi không có bản ghi khởi động chuẩn.
+
+Ước lượng thô từ thời gian của v2: 6–10 giờ CPU cho cả 4 họ chạy chuẩn, chia cho 4 tiến trình song song. Thời gian smoke với model và dữ liệu nhỏ không dùng để suy ra thời gian thực nghiệm đầy đủ.
 
 ## Lịch sử bản nháp
 - 2026-11-11: bản nháp đầu tiên. Đã có `stream_v3.py` và `tests/test_stream_v3.py`; chưa có runner, script đánh giá, hay smoke run.
 - 2026-11-11, cùng ngày: sau khi rebase lên các commit mới của nhánh (thành phần `src/fu/shard_exact.py`, [shard_dt_interface.md](shard_dt_interface.md)), runner được đổi sang dùng thành phần. Thêm mục "Tính tất định và máy chạy" (làm nóng, kiểm tra tái lập sau `fit`, một máy, phạm vi chính xác của `utility_stop`), và hai dòng "không được tuyên bố" tương ứng. Mô hình chuỗi, gate và biên không đổi.
+- 2026-11-15: hoàn tất `shard_v3.py`, runner, bộ đánh giá và `unlearn_batch`; chốt sau smoke tổng hợp. Giữ nguyên tham số chuỗi, seed chuẩn, gate và biên. Làm rõ model đơn phải ghép với chuỗi riêng của mỗi S; ghi cấu hình thành phần, lịch sử chạy lại và kiểm tra thiếu/trùng tổ hợp. Mọi file v1/v2 giữ nguyên.
+- Kiểm chứng ngày chốt: **74 test pass** (10 kế hoạch chuỗi, 5 batch, 5 smoke runner, 10 khởi động/CLI, 12 đánh giá gate, 18 thành phần shard hiện có, 14 protocol v2). Smoke tổng hợp chạy **211,4 giây** trên Windows, Python 3.13.2, PyTorch 2.6.0+cu124 chạy CPU/2 luồng; có các test khác chạy đồng thời nên đây không phải benchmark độc lập. Smoke có đủ 4 họ × 2 mức S × 2 seed (7, 8), 20 yêu cầu, 7 chính sách; G1/G2 đạt, P không đạt theo thiết kế vì là `synthetic_smoke`. Model nhỏ `(8, 4)`, 800 dòng train, R_base = 3, backfill = 1, trung vị kích thước yêu cầu = 2; các thay đổi này chỉ áp dụng fixture test. Bộ khởi động cũng đã kiểm tra dữ liệu thật khớp hash và 20 client/114.284 dòng, chỉ nạp train/validation/calibration. **Chưa chạy huấn luyện v3 trên dữ liệu thật hoặc 10 seed xác nhận.**
 
 ## Thay đổi sau khi chạy
-(chưa có)
+- 2026-11-17, **sau khi chốt nhưng trước mọi lần train v3 trên dữ liệu thật** (chưa có `run.json` nào của v3):
+  - `SHARD_DESIGN` và `SHARD_V3_FAMILY` không còn giá trị mặc định (trước đây là `v3` và `proportional`). Runner dừng trước khi tạo thư mục nếu thiếu một trong hai biến, hoặc nếu thư mục đầu ra không tên `stream_<họ>`.
+  - Lý do: quên đặt biến không được phép khởi động seed xác nhận, hay ghi chuỗi của họ này vào thư mục của họ khác.
+  - File đổi: `scripts/shard/shard_v3.py`, `scripts/shard/run_shard_stream_v3.py`, `tests/test_shard_v3_cli.py` và tài liệu này (mục "Lệnh chạy"). Mô hình chuỗi, seed, cấu hình train, gate, biên và bộ đánh giá không đổi.
