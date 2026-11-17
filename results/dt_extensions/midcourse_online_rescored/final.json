@@ -1,0 +1,31 @@
+{
+ "verify_bit_exact": {
+  "bit_exact": true,
+  "shards_checked": 4,
+  "per_shard": {
+   "0": true,
+   "1": true,
+   "2": true,
+   "3": true
+  },
+  "included_equals_active": true,
+  "exact": true,
+  "structure_ok": true
+ },
+ "validation_macro_f1": 0.8936014284976028,
+ "validation_fpr": 0.2366904035266192,
+ "shard_rounds": {
+  "0": 10,
+  "1": 20,
+  "2": 20,
+  "3": 10
+ },
+ "dt_overhead": {
+  "state": 0.0021646999994118232,
+  "plan": 0.006792399992264109,
+  "sync": 0.0009821000021474902,
+  "fu_round_seconds": 92.55038220000279,
+  "dt_seconds": 0.009939199993823422,
+  "share_of_fu_round_seconds": 0.0001073923171094492
+ }
+}

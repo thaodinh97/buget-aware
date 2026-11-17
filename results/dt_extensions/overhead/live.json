@@ -1,0 +1,224 @@
+{
+ "seed": 50042,
+ "shards": 4,
+ "train_config": "standard",
+ "process": {
+  "platform": "win32",
+  "applied": true,
+  "power_throttling_off": true,
+  "priority_above_normal": true
+ },
+ "state": {
+  "shard_counts": {
+   "0": {
+    "rows": 16732,
+    "median_seconds": 3.50499994965503e-05,
+    "max_seconds": 7.969999933266081e-05,
+    "repeats": 50
+   },
+   "1": {
+    "rows": 10043,
+    "median_seconds": 2.4900000425986946e-05,
+    "max_seconds": 3.399999695830047e-05,
+    "repeats": 50
+   },
+   "2": {
+    "rows": 58073,
+    "median_seconds": 9.345000034954865e-05,
+    "max_seconds": 0.00021330000163288787,
+    "repeats": 50
+   },
+   "3": {
+    "rows": 29436,
+    "median_seconds": 5.509999937203247e-05,
+    "max_seconds": 7.560000085504726e-05,
+    "repeats": 50
+   }
+  },
+  "client_state": {
+   "median_seconds": 0.008977150000646361,
+   "max_seconds": 0.010682500000257278,
+   "repeats": 10,
+   "clients": 20,
+   "json_bytes": 2730
+  },
+  "profile_json_bytes": 573
+ },
+ "metering": {
+  "requests": 8,
+  "weights_identical": true,
+  "round_wall_seconds_total": {
+   "metered": 32.78085969997119,
+   "unmetered": 32.26268139997774
+  },
+  "outside_rounds_seconds_total": {
+   "metered": 1.1102597000281094,
+   "unmetered": 0.23049300001730444
+  },
+  "payload_pack_seconds_total": 0.8156253999659384,
+  "metering_seconds_per_client_round": 0.0010997083750135062,
+  "metering_share_of_round_time": 0.026837816581472333,
+  "per_request": [
+   {
+    "step": 1,
+    "shard": 0,
+    "variant": "metered",
+    "operation_wall_seconds": 2.4669737000003806,
+    "round_wall_seconds": 2.342404599996371,
+    "payload_pack_seconds": 0.09658840000702185,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 1,
+    "shard": 0,
+    "variant": "unmetered",
+    "operation_wall_seconds": 2.532533699999476,
+    "round_wall_seconds": 2.506345500005409,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 2,
+    "shard": 1,
+    "variant": "unmetered",
+    "operation_wall_seconds": 1.7245046999996703,
+    "round_wall_seconds": 1.7026057000039145,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 2,
+    "shard": 1,
+    "variant": "metered",
+    "operation_wall_seconds": 1.868490799999563,
+    "round_wall_seconds": 1.7270754999990459,
+    "payload_pack_seconds": 0.11431099997935235,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 3,
+    "shard": 2,
+    "variant": "metered",
+    "operation_wall_seconds": 9.203143300001102,
+    "round_wall_seconds": 9.058121100006247,
+    "payload_pack_seconds": 0.0963229000044521,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 3,
+    "shard": 2,
+    "variant": "unmetered",
+    "operation_wall_seconds": 8.528497700001026,
+    "round_wall_seconds": 8.489795499983302,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 4,
+    "shard": 3,
+    "variant": "unmetered",
+    "operation_wall_seconds": 3.8704929999985325,
+    "round_wall_seconds": 3.838207799999509,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 4,
+    "shard": 3,
+    "variant": "metered",
+    "operation_wall_seconds": 4.187955699999293,
+    "round_wall_seconds": 4.028273899999476,
+    "payload_pack_seconds": 0.10267879998355056,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 5,
+    "shard": 0,
+    "variant": "metered",
+    "operation_wall_seconds": 2.4832870999998704,
+    "round_wall_seconds": 2.352056799983984,
+    "payload_pack_seconds": 0.10312249999697087,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 5,
+    "shard": 0,
+    "variant": "unmetered",
+    "operation_wall_seconds": 2.4027086999994935,
+    "round_wall_seconds": 2.3789653000021644,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 6,
+    "shard": 1,
+    "variant": "unmetered",
+    "operation_wall_seconds": 1.1341823999973712,
+    "round_wall_seconds": 1.113148899999942,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 6,
+    "shard": 1,
+    "variant": "metered",
+    "operation_wall_seconds": 1.4466724999983853,
+    "round_wall_seconds": 1.3105262999997649,
+    "payload_pack_seconds": 0.10809870002776734,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 7,
+    "shard": 2,
+    "variant": "metered",
+    "operation_wall_seconds": 8.458825500001694,
+    "round_wall_seconds": 8.313901399993483,
+    "payload_pack_seconds": 0.09901159999208176,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 7,
+    "shard": 2,
+    "variant": "unmetered",
+    "operation_wall_seconds": 8.304154199999175,
+    "round_wall_seconds": 8.265487499993469,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 8,
+    "shard": 3,
+    "variant": "unmetered",
+    "operation_wall_seconds": 3.996100000000297,
+    "round_wall_seconds": 3.968125199990027,
+    "payload_pack_seconds": 0.0,
+    "rounds": 20,
+    "client_rounds": 100
+   },
+   {
+    "step": 8,
+    "shard": 3,
+    "variant": "metered",
+    "operation_wall_seconds": 3.775770799999009,
+    "round_wall_seconds": 3.648500099992816,
+    "payload_pack_seconds": 0.0954914999747416,
+    "rounds": 20,
+    "client_rounds": 100
+   }
+  ]
+ }
+}

@@ -1,0 +1,7 @@
+environment,comparator,wins,ties,losses,joint_success_delta,service_seconds_delta
+gradual_clients,last_shard,1,5,0,1,-4.123924000009538
+gradual_clients,rows_ewma,1,3,2,-1,2.602372699996522
+jitter_bandwidth,last_shard,2,3,1,-1,2.427828999999292
+jitter_bandwidth,rows_ewma,1,2,3,-5,1.206364200002099
+none,last_shard,2,3,1,0,0.3330557000135741
+none,rows_ewma,0,3,3,-4,4.801606199989692

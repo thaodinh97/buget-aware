@@ -20,7 +20,7 @@ v2 trộn yêu cầu client-level (5 bước xóa trọn client) với sample-le
   - `tests/test_stream_v3.py`: unit test.
 - **Phải viết trước khi chốt:**
   - `scripts/shard/run_shard_stream_v3.py`: runner, **dựng trên thành phần `src/fu/shard_exact.py`** (`ShardedUnlearner`, xem [shard_dt_interface.md](shard_dt_interface.md)), không chép lại logic của runner v2. Thành phần đã được kiểm chứng trùng từng bit với runner v2 ở 366/366 bước. Runner train ensemble một lần cho mỗi (S, seed), rồi dùng `fork(policy)` cho từng chính sách. Nó nhận tên họ chuỗi qua `SHARD_V3_FAMILY`, để 4 họ chạy song song được.
-  - **Phần bổ sung cho thành phần:** xử lý một lô yêu cầu (`unlearn_batch`: áp mọi yêu cầu của lô, rồi train lại mỗi shard bị chạm một lần). Hành vi hiện có của thành phần không được đổi; `tests/test_shard_exact.py` phải vẫn pass.
+  - **Phần bổ sung cho thành phần:** xử lý một lô yêu cầu (`unlearn_batch`: áp mọi yêu cầu của lô, rồi train lại mỗi shard bị chạm một lần). Hành vi hiện có của thành phần không được đổi; `tests/test_shard_exact.py` phải vẫn pass. **Đã viết (2026-11-15)**, xem "Lịch sử bản nháp".
   - `scripts/shard/evaluate_shard_v3.py`: script đánh giá gate và tính toàn vẹn.
   - Phần khởi chạy dùng chung của v3 (`start_run` với danh sách `TRACKED_V3`). Không sửa `shard_v2.start_run`, vì hàm đó chỉ nhận runner của v2.
 - **Dùng lại mà không sửa:** `shard_v2.assign`, `data_content_sha256`, `norm_rel`, `noninferior`, `train_config.CONFIGS['standard']`. Mọi file của v1 và v2 **giữ nguyên từng byte**.
@@ -260,6 +260,11 @@ python scripts/shard/evaluate_shard_v3.py runs/shard_v3 runs/shard_v3/gates.json
 ## Lịch sử bản nháp
 - 2026-11-11: bản nháp đầu tiên. Đã có `stream_v3.py` và `tests/test_stream_v3.py`; chưa có runner, script đánh giá, hay smoke run.
 - 2026-11-11, cùng ngày: sau khi rebase lên các commit mới của nhánh (thành phần `src/fu/shard_exact.py`, [shard_dt_interface.md](shard_dt_interface.md)), runner được đổi sang dùng thành phần. Thêm mục "Tính tất định và máy chạy" (làm nóng, kiểm tra tái lập sau `fit`, một máy, phạm vi chính xác của `utility_stop`), và hai dòng "không được tuyên bố" tương ứng. Mô hình chuỗi, gate và biên không đổi.
+- 2026-11-15: thành phần `src/fu/shard_exact.py` (thuộc `TRACKED_V3`) được bổ sung **trước khi chốt**, cho các hướng mở rộng của DT ([dt_extensions.md](dt_extensions.md)):
+  - `unlearn_batch(requests, policy)`: phần bổ sung mà mục "File" yêu cầu. Kiểm tra mọi yêu cầu theo thứ tự trước khi đổi trạng thái, đi theo `structure_step` từng yêu cầu, rồi train lại mỗi shard bị chạm một lần trên dữ liệu sau cả lô (`shard_full` hoặc `shard_fixed`). Test: lô một yêu cầu train đúng như `unlearn`; lô nhiều yêu cầu kết thúc trùng từng bit với chuỗi `shard_full` tuần tự; chế độ `window` của bộ lập lịch DT tái lập đúng `stream_v3.cost_plan` (dòng × vòng, số lần train lại, độ trễ) ở cả 4 họ và W ∈ {0, 2, 5}.
+  - Chính sách `shard_checkpoint` của DT. Nó **không** thuộc v3; `POLICIES` vẫn là sáu chính sách của v2 (thêm `DT_POLICIES`, `ALL_POLICIES`), nên `tests/test_shard_exact.py` không đổi và vẫn pass.
+  - Phần kiểm tra yêu cầu được tách thành `_forget_rows`, dùng chung cho `unlearn` và `unlearn_batch`, với cùng điều kiện và cùng thông báo lỗi.
+  - **Phần dữ liệu đã được nhìn thêm:** thực nghiệm DT chạy chuỗi `spread`, `proportional` (hướng 1–2) và cả 4 họ (hướng 3) với S = 4 và seed train của v2 (50042, 50043), và đọc utility trên **validation**. Calibration, test và seed v3 60042–60051 không được dùng. Mô hình chuỗi, gate và biên không đổi.
 
 ## Thay đổi sau khi chạy
 (chưa có)

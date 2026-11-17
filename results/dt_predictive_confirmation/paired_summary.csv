@@ -1,0 +1,3 @@
+comparator,wins,ties,losses,joint_delta,service_delta,f1_delta_mean
+rows_legacy,15,3,0,44,-3.9383073999979388,-9.634842195641345e-05
+rows_queue,3,10,5,-6,32.46147949999886,0.0004816180358037905

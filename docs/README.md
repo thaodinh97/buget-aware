@@ -24,6 +24,9 @@ Dấu † đánh dấu bước có code và kết quả đã được gỡ khỏ
 | Hướng shard, protocol v2: gate noninferiority, ≥ 4 client mỗi shard, sửa `utility_stop` (**không xác nhận**: G2, G5a, G5b fail; G3, G6 pass) | [shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md) |
 | **Hướng shard làm đầu vào của DT:** thành phần gọi được, checkpoint, bản ghi chi phí (chốt 2026-11-10); chạy trên dữ liệu thật: khớp runner v2 cùng máy từng bit, không tái lập từng bit trên máy khác | [shard_dt_interface.md](shard_dt_interface.md) |
 | Hướng shard, protocol v3 (**bản nháp, chưa chạy**): chỉ yêu cầu sample-level; 4 họ chuỗi (`proportional`, `spread`, `concentrated`, `poisson_zipf`), thời điểm Poisson, gom lô theo cửa sổ | [shard_v3_plan.md](shard_v3_plan.md) |
+| DT, ba hướng mở rộng (**mô tả, không gate**): ngân sách chặt, stress và biên an toàn; điều chỉnh giữa chừng (`shard_checkpoint`); gom lô và hoãn theo deadline (`unlearn_batch`). Bổ sung 2026-11-16: đối chứng đơn giản, độ nhạy theo trọng số EWMA, chi phí của chính DT | [dt_extensions.md](dt_extensions.md) |
+| DT online có đối chứng (2026-11-17): **54 chuỗi, 648 yêu cầu; chưa xác nhận ưu thế DT**; deadline đo tới model-ready gồm cả chờ và xử lý thật | [Protocol](dt_online_confirmation_plan.md), [kết quả và đánh giá](dt_online_confirmation_results.md), [bảng gốc](../results/dt_online_confirmation/report.md) |
+| DT cải tiến (2026-11-17): **đạt ngưỡng so với controller cũ; DT kết hợp chưa vượt dự báo đơn giản cùng controller mới**. 54 chuỗi, 648 yêu cầu | [Protocol](dt_predictive_plan.md), [kết quả và đánh giá](dt_predictive_results.md), [bảng gốc](../results/dt_predictive_confirmation/report.md) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 
 ## Vai trò của các tập dữ liệu

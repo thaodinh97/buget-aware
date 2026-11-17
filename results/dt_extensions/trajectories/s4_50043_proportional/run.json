@@ -1,0 +1,337 @@
+{
+ "seed": 50043,
+ "family": "proportional",
+ "shards": 4,
+ "envs": [
+  "none",
+  "slow_clients",
+  "low_bandwidth",
+  "transient_slow"
+ ],
+ "train_config": "standard",
+ "config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7,
+  "hidden": [
+   64,
+   32
+  ],
+  "eps": 0.005,
+  "merge_below": 3,
+  "min_clients_design": 4,
+  "dynamicfu": {
+   "theta": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+   ],
+   "lam": [
+    0.5,
+    0.5
+   ],
+   "eta": [
+    0.2,
+    1.0
+   ],
+   "rho": 1.0,
+   "mu": 1.0,
+   "omega": [
+    0.5,
+    0.5
+   ],
+   "tau_ctrl": 0.01,
+   "tau_drop": 0.02
+  },
+  "device": "cpu"
+ },
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "data_is_v2": true,
+ "stream": {
+  "K": 20,
+  "cap": 0.5,
+  "size_median": 200,
+  "size_sigma": 1.5,
+  "rate": 1.0,
+  "zipf_s": 1.0,
+  "seed_size": 203,
+  "seed_time": 204,
+  "seed_choice": 201,
+  "seed_rank": 202,
+  "seed_rows": 205
+ },
+ "stress": {
+  "onset": 6,
+  "transient_end": 12,
+  "slow_factor": 4.0,
+  "bandwidth_bps": 2000000.0,
+  "seed_slow": 301
+ },
+ "slow_clients": [
+  0,
+  3,
+  8,
+  11
+ ],
+ "assignment": [
+  [
+   1,
+   3,
+   4,
+   14,
+   17
+  ],
+  [
+   2,
+   6,
+   8,
+   16,
+   18
+  ],
+  [
+   0,
+   5,
+   9,
+   10,
+   12
+  ],
+  [
+   7,
+   11,
+   13,
+   15,
+   19
+  ]
+ ],
+ "model_bytes": 18312,
+ "fit": {
+  "reference": {
+   "validation_macro_f1": 0.8983804687177055,
+   "validation_fpr": 0.23962925285407483
+  },
+  "shard_seconds": {
+   "0": {
+    "full": 2.7171331999979884,
+    "fixed": 1.4305729999987307
+   },
+   "1": {
+    "full": 1.5379383000017697,
+    "fixed": 0.7668947000001936
+   },
+   "2": {
+    "full": 8.193215799999962,
+    "fixed": 4.107205700000122
+   },
+   "3": {
+    "full": 4.045312699998249,
+    "fixed": 2.0428670999999667
+   }
+  },
+  "largest_shard_full_seconds": 8.193215799999962,
+  "largest_shard_fixed_seconds": 4.107205700000122,
+  "backend_warmup_seconds": 1.4509191999995892
+ },
+ "requests": [
+  {
+   "step": 1,
+   "time": 0.31291745568572193,
+   "client": 19,
+   "shard": 3,
+   "requested": 91,
+   "rows": 91,
+   "kind": "sample"
+  },
+  {
+   "step": 2,
+   "time": 2.496285789278196,
+   "client": 10,
+   "shard": 2,
+   "requested": 119,
+   "rows": 119,
+   "kind": "sample"
+  },
+  {
+   "step": 3,
+   "time": 3.7559551200457184,
+   "client": 10,
+   "shard": 2,
+   "requested": 823,
+   "rows": 823,
+   "kind": "sample"
+  },
+  {
+   "step": 4,
+   "time": 3.832505371128341,
+   "client": 10,
+   "shard": 2,
+   "requested": 2323,
+   "rows": 2323,
+   "kind": "sample"
+  },
+  {
+   "step": 5,
+   "time": 3.8607723635514914,
+   "client": 12,
+   "shard": 2,
+   "requested": 49,
+   "rows": 49,
+   "kind": "sample"
+  },
+  {
+   "step": 6,
+   "time": 4.149390185418101,
+   "client": 10,
+   "shard": 2,
+   "requested": 5871,
+   "rows": 5871,
+   "kind": "sample"
+  },
+  {
+   "step": 7,
+   "time": 4.238388410014189,
+   "client": 3,
+   "shard": 0,
+   "requested": 793,
+   "rows": 793,
+   "kind": "sample"
+  },
+  {
+   "step": 8,
+   "time": 4.362723638680588,
+   "client": 10,
+   "shard": 2,
+   "requested": 58,
+   "rows": 58,
+   "kind": "sample"
+  },
+  {
+   "step": 9,
+   "time": 6.892146147280776,
+   "client": 15,
+   "shard": 3,
+   "requested": 55,
+   "rows": 55,
+   "kind": "sample"
+  },
+  {
+   "step": 10,
+   "time": 8.235667768701223,
+   "client": 18,
+   "shard": 1,
+   "requested": 173,
+   "rows": 158,
+   "kind": "sample"
+  },
+  {
+   "step": 11,
+   "time": 11.530967194889518,
+   "client": 10,
+   "shard": 2,
+   "requested": 88,
+   "rows": 88,
+   "kind": "sample"
+  },
+  {
+   "step": 12,
+   "time": 11.613210068996347,
+   "client": 10,
+   "shard": 2,
+   "requested": 21,
+   "rows": 21,
+   "kind": "sample"
+  },
+  {
+   "step": 13,
+   "time": 11.843360691819873,
+   "client": 3,
+   "shard": 0,
+   "requested": 10,
+   "rows": 10,
+   "kind": "sample"
+  },
+  {
+   "step": 14,
+   "time": 12.493522605641498,
+   "client": 0,
+   "shard": 2,
+   "requested": 588,
+   "rows": 588,
+   "kind": "sample"
+  },
+  {
+   "step": 15,
+   "time": 12.521311366908156,
+   "client": 12,
+   "shard": 2,
+   "requested": 43,
+   "rows": 43,
+   "kind": "sample"
+  },
+  {
+   "step": 16,
+   "time": 12.785853052445505,
+   "client": 6,
+   "shard": 1,
+   "requested": 2075,
+   "rows": 1245,
+   "kind": "sample"
+  },
+  {
+   "step": 17,
+   "time": 13.097933879163774,
+   "client": 2,
+   "shard": 1,
+   "requested": 4839,
+   "rows": 3047,
+   "kind": "sample"
+  },
+  {
+   "step": 18,
+   "time": 13.967459978457342,
+   "client": 7,
+   "shard": 3,
+   "requested": 97,
+   "rows": 97,
+   "kind": "sample"
+  },
+  {
+   "step": 19,
+   "time": 14.906050429266816,
+   "client": 7,
+   "shard": 3,
+   "requested": 1679,
+   "rows": 1679,
+   "kind": "sample"
+  },
+  {
+   "step": 20,
+   "time": 15.054975303122104,
+   "client": 10,
+   "shard": 2,
+   "requested": 85,
+   "rows": 85,
+   "kind": "sample"
+  }
+ ],
+ "machine": {
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "cpu_count": 16,
+  "python": "3.13.2",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.3.5",
+  "threads": 2,
+  "device": "cpu",
+  "process": {
+   "platform": "win32",
+   "applied": true,
+   "power_throttling_off": true,
+   "priority_above_normal": true
+  }
+ }
+}

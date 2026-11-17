@@ -1,0 +1,25 @@
+{
+ "seed": 50042,
+ "family": "spread",
+ "env": "slow_clients",
+ "stress": {
+  "onset": 6,
+  "transient_end": 12,
+  "slow_factor": 4.0,
+  "bandwidth_bps": 2000000.0,
+  "seed_slow": 301
+ },
+ "budget_level": "mid",
+ "budget_seconds": 7.0212926249994325,
+ "largest_shard_full_seconds": 9.361723499999243,
+ "planner": "adaptive_margin_midcourse",
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "data_is_v2": true,
+ "train_config": "standard",
+ "process": {
+  "platform": "win32",
+  "applied": true,
+  "power_throttling_off": true,
+  "priority_above_normal": true
+ }
+}

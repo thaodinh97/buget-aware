@@ -1,0 +1,26 @@
+{
+  "pre_run_tests": {
+    "command": "python -m unittest discover -s tests -q",
+    "passed": 99,
+    "failed": 0,
+    "seconds": 108.987,
+    "temp_directory": "E:/budget-aware-code/tmp"
+  },
+  "new_tests": 7,
+  "compile_check": "passed",
+  "git_diff_check_before_run": "passed",
+  "post_run_audit": {
+    "blocks": 18,
+    "arms": 54,
+    "requests": 648,
+    "bit_exact_passed": 54,
+    "event_summary_consistency": "passed",
+    "request_coverage_and_no_future_arrivals": "passed",
+    "latency_equals_wait_plus_service": "passed",
+    "source_config_hash_mismatches": 0,
+    "windows_launcher_resume_verified": true,
+    "completion_deadline_misses": 177,
+    "misses_hidden_by_waiting_only": 128
+  },
+  "note": "One interrupted calibration block was preserved separately and rerun before any online request in that block; see incident.json."
+}

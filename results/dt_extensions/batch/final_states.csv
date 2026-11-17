@@ -1,0 +1,5 @@
+family,seed,shard_full_modes,final_states_equal,bit_exact_checked,bit_exact
+concentrated,50042,"immediate,window5,lazy",True,True,True
+poisson_zipf,50042,"immediate,window5,lazy",True,True,True
+proportional,50042,"immediate,window5,lazy",True,True,True
+spread,50042,"immediate,window5,lazy",True,True,True

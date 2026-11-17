@@ -1,0 +1,10 @@
+{
+  "observed_utc": "2026-11-16T22:07:00Z",
+  "affected_block": "r0_proportional_none",
+  "phase": "baseline fit, before any request in any arm",
+  "invalid_largest_shard_full_seconds": 14861.621915799991,
+  "observation": "Tool host timed out and was replaced; UTC clock advanced by over four hours during calibration. Exact cause (suspend or host pause) was not independently established.",
+  "action": "Stopped the waiting run; preserved the interrupted block and log in ../dt_online_confirmation_interrupted; resumed identical frozen code/config, skipping the five completed blocks and rerunning only the interrupted block.",
+  "reason_for_exclusion": "External interruption contaminated calibration and scaled all arrival times, budgets and deadlines by roughly three orders of magnitude; no online result from this block was inspected or scored.",
+  "prevention": "Resumed process requests Windows ES_SYSTEM_REQUIRED while running; releases it on exit. No persistent power-plan setting or benchmark parameter changed."
+}

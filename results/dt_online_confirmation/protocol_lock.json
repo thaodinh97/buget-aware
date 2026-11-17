@@ -1,0 +1,83 @@
+{
+  "config": {
+    "version": 1,
+    "purpose": "Prospective local online comparison with measured completion deadlines",
+    "seeds": [
+      71042,
+      71043,
+      71044
+    ],
+    "families": [
+      "spread",
+      "proportional"
+    ],
+    "environments": [
+      "none",
+      "gradual_clients",
+      "jitter_bandwidth"
+    ],
+    "predictors": [
+      "adaptive",
+      "last_shard",
+      "rows_ewma"
+    ],
+    "alpha": 0.3,
+    "margin_q": 0.9,
+    "margin_window": 10,
+    "requests": 12,
+    "stream_seed_base": 81000,
+    "shards": 4,
+    "threads": 2,
+    "train_config": "standard",
+    "budget_scale": 0.75,
+    "deadline_scale": 1.5,
+    "mean_interarrival_scale": 0.2,
+    "service_padding_seconds": 0.05,
+    "stress_seed": 91000,
+    "slow_factor_max": 4.0,
+    "bandwidth_mbps_range": [
+      5.0,
+      20.0
+    ],
+    "noise_bucket_seconds": 1.0
+  },
+  "source_sha256": {
+    "configs/dt_online_confirmation.json": "ec540dde5189f6e67610b5fa1274471c5153ca3254c1eed91e45d1ff180af3ad",
+    "scripts/dt/analyze_batch.py": "9ced9b8494eb6f9863a74c867f760335f1696eb399a118bc7ca3cbd6c544ac50",
+    "scripts/dt/analyze_online_confirmation.py": "fb335c2c627afb5d5dc9961c8f36c4b0a9f7747eed48544e37bd64219e30dbf8",
+    "scripts/dt/evaluate_stress.py": "31f2ee3caa593c17ed60e9e3585084ace8c9ebab1dd2472db82ec337fdc6d753",
+    "scripts/dt/machine.py": "b3e7be30ecc2964cf87b9279f7af573fdeb41cfd260abecd071bf138e6fb9842",
+    "scripts/dt/measure_dt_overhead.py": "1343a8d90ef6c293d23d5b9064e126e88aa7a3d0f92dca3566d62d33240579e3",
+    "scripts/dt/run_batch_dt.py": "dfa3738dd07094e04ead0e319d8320fecfa202c302dc489c3c2709c1d8a8a22a",
+    "scripts/dt/run_midcourse_online.py": "ae51cb2caa07bd1c2a2a29e79145227aa95f09f0ded238bee86324c946e44391",
+    "scripts/dt/run_online_confirmation.py": "bf68eb35f990b56c26fff2278264b2335acdb871895e23c4680101a0f929bd8b",
+    "scripts/dt/run_stress_trajectories.py": "7df153c788a848d121bbceff3bb60bb2366cf9fe015b782fb6de75d281c51160",
+    "scripts/shard/shard_dt.py": "5fb066f148607a75a9532e5eba94a7d9e3adc9508598197fbedc5e84abd43701",
+    "scripts/shard/shard_v2.py": "487236596891f69c09a4523aa6a6122e27d2557d0e0dd2eefd0dd93c0e3f675f",
+    "scripts/shard/stream_v3.py": "3137c462ff8a4f3bbccdf10d8472e98173bdc3a2fd8036927cc34ab96ff4374d",
+    "scripts/shard/train_config.py": "0c44f75ef8ca8032252952c6357ea5ab6a9e946b5541d55cd8576b71df8d1f92",
+    "src/data/federated.py": "9a3e758ff3c808b7afc1d5e198f103f40ada7a5c37c47a51fd9ab4810d5d6ab9",
+    "src/data/loading.py": "7c9b348e3660528a2a574a83e73d9ea7c225a0f3f9ce05bb6368ecbace66a459",
+    "src/data/prepare.py": "31a725951734ba909ecbee08602f185718a242731ce481db37e31eac1ac98178",
+    "src/dt/overhead.py": "30503ad41a28cd5d65fab37e657e22514f354c6ded82d63e29f08308119ec6f9",
+    "src/dt/planner.py": "43bff515f4888a313131f77da22cfe8fc31b7b90ed91ee4738359ac63e6c8a7f",
+    "src/dt/realtime.py": "b1a106505e40f829b55c89371e3243fc44a3a2618bda534d76fae5a26e962be2",
+    "src/dt/scheduler.py": "60982a0ad0a3a57733ea5b52fc1f1120629760770a4163319836c0360516b015",
+    "src/dt/stress.py": "126094d12a6aee5558da5c6e936980c9dda50ddb1c3978809f40432126459603",
+    "src/eval/membership_validation.py": "e021d706a1cb6e0645c3aaddeb16f2b27fcdf25ce20e3bd1e2165e9522d2aaf6",
+    "src/eval/metrics.py": "e2e9becb03bfa068ec947fcdcfd7699ed11a370625432131a95584dbb7d721cd",
+    "src/eval/utility_breakdown.py": "e12ae2e050418bcb2c7c7aada7f63cceb1fbbb2cf455ea917291c6f72efd8ba6",
+    "src/fl/distributed.py": "55c345414f4252ac58109e4590f821279a9e4b10101fb041699875a65311b38d",
+    "src/fl/fedavg_core.py": "110a6f960e8940c96aec7b0b784ae7478ea6a1fe6e93eb66422db8b11aada39c",
+    "src/fu/conpfu_inspired.py": "6467b951b275babfb43ed8987227ba3805f727d084683daadac596842ab160a4",
+    "src/fu/shard_cost.py": "9545f74cb7cdbbab67aeb78310b45daa51f8941c2f0dbe6d47d1bd62ce9a72c5",
+    "src/fu/shard_exact.py": "fc6cd5a9b2b5bfa113c989e3db48339bbe96fec67e36dc9f2b6d41a794a4798e"
+  },
+  "frozen_utc": "2026-11-16T17:29:54Z",
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.2",
+    "torch": "2.6.0+cu124",
+    "numpy": "2.3.5"
+  }
+}

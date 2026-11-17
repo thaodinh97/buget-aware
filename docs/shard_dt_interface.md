@@ -226,6 +226,25 @@ Với `dynamicfu`, bước ước lượng đóng góp được ghi riêng (`pha
 - **Số chi phí hiện có là của một máy và 3 seed.** Số đếm (vòng, dòng-lượt, byte) của các chính sách có số vòng cố định không phụ thuộc máy; thời gian thì có, và số vòng của các chính sách dừng theo ngưỡng cũng có.
 - **Mỗi lệnh CLI là một tiến trình**, nên mỗi yêu cầu qua CLI trả thêm `backend_warmup_seconds`. Một dịch vụ chạy lâu chỉ trả một lần.
 
+## Bổ sung cho các hướng mở rộng của DT (2026-11-15)
+
+Hai phần mới, chi tiết và kết quả ở [dt_extensions.md](dt_extensions.md). Sáu chính sách v2 và hành vi của chúng không đổi; `POLICIES` vẫn chỉ gồm sáu chính sách đó.
+
+```python
+r = fed.unlearn(ForgetRequest(11, rows), policy='shard_checkpoint', budget_seconds=12.0, margin=0.1)
+r.details   # checkpoint_round, elapsed_seconds, forecast_remaining_seconds, budget_seconds, margin, continued
+fed.unlearn_batch([ForgetRequest(11, rows_a), ForgetRequest(3, rows_b)], policy='shard_full')
+```
+
+- **`shard_checkpoint`** train `shard_fixed_rounds` vòng. Sau đó nó train tiếp tới R_base khi thời gian đã đo cộng dự báo phần còn lại vẫn trong ngân sách: elapsed + (R_base − 10) · (thời gian trung bình một vòng đã đo) · (1 + margin) ≤ budget. Nếu không thì dừng.
+  - Model cuối trùng từng bit với `shard_fixed` hoặc `shard_full` (có test). Thời gian đo là tổng `wall_seconds` của các vòng, đúng đại lượng mà ngân sách của DT dùng.
+  - `exactness_scope = unconditional`, vì quyết định chỉ dùng tín hiệu chi phí của chính lần train lại trên dữ liệu còn giữ, không dùng model hay điểm validation nào.
+  - Khi dừng, kết quả có cảnh báo `STOPPED_AT_CHECKPOINT`. `budget_seconds` và `margin` chỉ dùng được với chính sách này.
+- **`unlearn_batch`** áp mọi yêu cầu của lô, rồi train lại mỗi shard bị chạm một lần (`shard_full` hoặc `shard_fixed`).
+  - Trả một `UnlearningResult` với `kind = 'batch'`, `details['requests']` và `details['shards_retrained']`. History vẫn ghi một bản ghi cho mỗi yêu cầu.
+  - Lô không hợp lệ (dòng trùng giữa hai yêu cầu, client đã bị xóa, chính sách khác) báo lỗi trước khi đổi trạng thái.
+- **`worker_factory`** vẫn là hook duy nhất để tiêm độ trễ. `src/dt/stress.py` bọc `ClientWorker` và ngủ thật sau khi train, nên trọng số không đổi.
+
 ## Còn để ngỏ cho phase DT
 
 - **Chính sách mặc định.** `shard_full` là chính sách duy nhất vừa chính xác vô điều kiện vừa là mốc của G5a; `utility_stop` là chính sách duy nhất noninferior so với model đơn (G5b) nhưng chính xác có điều kiện. CLI buộc chọn rõ qua `--method` khi cần khác giá trị lưu trong state.
