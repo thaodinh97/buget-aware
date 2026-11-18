@@ -105,7 +105,7 @@ class BatchTests(unittest.TestCase):
             fed.unlearn_batch([request])
         fed.fit()
         with self.assertRaisesRegex(ValueError, 'at least one'):
-            fed.unlearn_batch([])
+            fed.unlearn_batch([], 'shard_full')
         fed.unlearn(request)
         with self.assertRaisesRegex(RuntimeError, 'backlog'):
             fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])], 'shard_full')

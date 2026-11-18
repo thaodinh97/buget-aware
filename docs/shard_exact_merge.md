@@ -28,7 +28,11 @@ Ngày 2026-11-18. Merge `dt2/thao-dinh` (commit `a0dc8e8`) vào `dt/thao-dinh` (
 - Muốn tái lập hay đánh giá lại kết quả v3 đúng như lúc chạy: `git checkout f118050`.
 
 ## Kiểm chứng
-**Chưa chạy** lúc commit merge (môi trường chưa có PyTorch). Sẽ chạy: toàn bộ `tests/`; so từng bit thành phần cũ (`f118050`) với thành phần đã merge trên các đường code v3; và smoke tổng hợp v3 chạy ở cả hai cây code rồi so đầu ra. Kết quả ghi vào đây ở commit sau.
+Chạy sau commit merge, trên Linux, 4 CPU, Python 3.13.18, PyTorch 2.6.0+cu124 chạy CPU (2 luồng), NumPy 2.5.3, pandas 3.0.5. Các script so sánh không nằm trong repo; chúng chỉ đọc hai cây code.
+- **Toàn bộ `tests/`: 143 pass, 1 skip** (`tests/test_shard_v2.py:79`, chỉ chạy trên Windows). Lần chạy đầu có 1 fail trong `tests/test_shard_batch.py`: test lô rỗng trên unlearner `drop_backfill` cần truyền `'shard_full'`, vì hàm còn lại kiểm tra chính sách trước. Đã sửa test; code không đổi.
+- **So thành phần cũ (`f118050`) với thành phần đã merge, cùng tiến trình:** 6 bộ dữ liệu tổng hợp (800 dòng, 20 client, S ∈ {4, 5}, 10 yêu cầu sample-level ngẫu nhiên) × 5 đường code của v3 (`unlearn` với `shard_full`, `shard_fixed`, `utility_stop`, `drop_backfill` + `finish_backlog`, và `unlearn_batch` `shard_full` với lô 3, 1, 6 yêu cầu). Cả **30/30 tổ hợp trùng**: trọng số mọi shard (từng byte), dòng và số vòng của shard, mọi trường chi phí không phải thời gian hay bộ nhớ, shard được train lại hoặc bỏ, history (trừ hai khóa mới), assignment, client còn dữ liệu, dòng còn sống.
+- **Smoke tổng hợp v3 (đúng dữ liệu và cấu hình của `tests/test_shard_v3.py`) chạy ở cả hai cây code** (`f118050` và cây đã merge): 4 họ × S ∈ {4, 5} × seed {7, 8} × mọi chính sách. `stream.json` trùng ở cả 4 họ. Trong 106.656 ô của `steps.csv` và `exactness.csv`, chỉ hai cột thời gian chạy `seconds` và `delta_seconds` khác; mọi cột utility, chi phí, exact và cấu trúc trùng.
+- **Không chạy lại trên dữ liệu thật.** Kết luận "đường code v3 cho kết quả như cũ" dựa trên hai phép so ở trên, không phải trên một lần chạy lại 10 seed.
 
 ## Ghi chú 2026-11-15 của nhánh DT (chuyển từ `shard_v3_plan.md`)
 Nguyên văn phần nhánh DT thêm vào mục "Lịch sử bản nháp" của `shard_v3_plan.md`:
