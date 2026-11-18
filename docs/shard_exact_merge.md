@@ -28,11 +28,21 @@ Ngày 2026-11-18. Merge `dt2/thao-dinh` (commit `a0dc8e8`) vào `dt/thao-dinh` (
 - Muốn tái lập hay đánh giá lại kết quả v3 đúng như lúc chạy: `git checkout f118050`.
 
 ## Kiểm chứng
-Lúc commit merge chưa chạy được (môi trường chưa có PyTorch). Đã chạy ngày 2026-11-18, sau merge, trên Windows, Python 3.13.2, PyTorch 2.6.0+cu124 chạy CPU:
-- **Toàn bộ `tests/`:** 144 test. Lần đầu 143 pass, 1 fail: `test_shard_batch.test_requires_fit_nonempty_batch_and_no_pending_backlog` gọi `unlearn_batch([])` trên unlearner có chính sách mặc định `drop_backfill` mà không truyền chính sách. Hàm còn lại kiểm tra chính sách trước khi kiểm tra lô rỗng, nên báo `supports` thay vì `at least one`. Đây là chỗ sót khi sửa test theo hàm còn lại (mục "Cách giải quyết"): dòng đó nay truyền `'shard_full'`. Sau khi sửa, `test_shard_batch.py` pass 5/5. `src/fu/shard_exact.py` không đổi.
-- **So hai cây code trên đường code v3:** lấy cây `f118050` (`git archive`), chạy cùng smoke tổng hợp của `tests/test_shard_v3.py` (4 họ, S ∈ {4, 5}, seed 7 và 8, đủ 7 chính sách cùng model đơn tham chiếu) bằng `run_experiment` ở cả hai cây, mỗi cây một tiến trình. Mỗi dòng `steps.csv` có thêm SHA-256 của trọng số, chỉ số dòng, seed và số vòng của mọi shard đang phục vụ. Runner v3 trùng từng byte giữa hai cây; chỉ `shard_exact.py` khác.
-- **Kết quả: trùng hoàn toàn.** Ở cả 4 họ, 628 dòng `steps.csv` và 24 dòng `exactness.csv` giống hệt nhau ở mọi cột trừ thời gian (`seconds`, `delta_seconds`), kể cả hash trọng số ở từng bước (266–290 hash khác nhau mỗi họ). Như vậy trên dữ liệu tổng hợp, thành phần đã merge cho đúng các model, chi phí dòng × vòng và cờ chính xác như thành phần mà các run v3 đã dùng.
-- Giới hạn: đây là dữ liệu tổng hợp và model nhỏ của smoke, không phải chạy lại v3 trên dữ liệu thật. Script so sánh không nằm trong repo.
+Lúc commit merge chưa chạy được (môi trường chưa có PyTorch). Ngày 2026-11-18, sau merge, kiểm chứng được chạy **hai lần độc lập** ở hai môi trường (commit `6de550a` và `ec46f68`). Hai lần cùng tìm ra và sửa **cùng một dòng test**, giống hệt nhau; `src/fu/shard_exact.py` không đổi. Script so sánh của cả hai lần không nằm trong repo; chúng chỉ đọc hai cây code.
+
+**Lỗi test chung.** `test_shard_batch.test_requires_fit_nonempty_batch_and_no_pending_backlog` gọi `unlearn_batch([])` trên unlearner có chính sách mặc định `drop_backfill` mà không truyền chính sách. Hàm còn lại kiểm tra chính sách trước khi kiểm tra lô rỗng, nên báo `supports` thay vì `at least one`. Đây là chỗ sót khi sửa test theo hàm còn lại (mục "Cách giải quyết"); dòng đó nay truyền `'shard_full'`.
+
+**Lần 1: Linux** (4 CPU, Python 3.13.18, PyTorch 2.6.0+cu124 chạy CPU 2 luồng, NumPy 2.5.3, pandas 3.0.5).
+- **Toàn bộ `tests/`: 143 pass, 1 skip** (`tests/test_shard_v2.py:79`, chỉ chạy trên Windows), sau khi sửa test.
+- **So thành phần cũ (`f118050`) với thành phần đã merge, cùng tiến trình:** 6 bộ dữ liệu tổng hợp (800 dòng, 20 client, S ∈ {4, 5}, 10 yêu cầu sample-level ngẫu nhiên) × 5 đường code của v3 (`unlearn` với `shard_full`, `shard_fixed`, `utility_stop`, `drop_backfill` + `finish_backlog`, và `unlearn_batch` `shard_full` với lô 3, 1, 6 yêu cầu). Cả **30/30 tổ hợp trùng**: trọng số mọi shard (từng byte), dòng và số vòng của shard, mọi trường chi phí không phải thời gian hay bộ nhớ, shard được train lại hoặc bỏ, history (trừ hai khóa mới), assignment, client còn dữ liệu, dòng còn sống.
+- **Smoke tổng hợp v3 (đúng dữ liệu và cấu hình của `tests/test_shard_v3.py`) ở cả hai cây code:** 4 họ × S ∈ {4, 5} × seed {7, 8} × mọi chính sách. `stream.json` trùng ở cả 4 họ. Trong 106.656 ô của `steps.csv` và `exactness.csv`, chỉ hai cột thời gian chạy `seconds` và `delta_seconds` khác; mọi cột utility, chi phí, exact và cấu trúc trùng.
+
+**Lần 2: Windows** (Python 3.13.2, PyTorch 2.6.0+cu124 chạy CPU).
+- **Toàn bộ `tests/`:** lần đầu 143 pass, 1 fail (lỗi test chung ở trên). Sau khi sửa, toàn bộ bộ test pass, kể cả test chỉ chạy trên Windows; về sau là 153 test, gồm các test mới của phần FPR ([fpr_threshold_results.md](fpr_threshold_results.md)).
+- **Smoke tổng hợp v3 ở hai cây code** (`f118050` lấy bằng `git archive`, mỗi cây một tiến trình), cùng dữ liệu và cấu hình như lần 1. Mỗi dòng `steps.csv` có thêm SHA-256 của trọng số, chỉ số dòng, seed và số vòng của mọi shard đang phục vụ. Runner v3 trùng từng byte giữa hai cây; chỉ `shard_exact.py` khác.
+- **Kết quả: trùng hoàn toàn.** Ở cả 4 họ, 628 dòng `steps.csv` và 24 dòng `exactness.csv` giống hệt nhau ở mọi cột trừ `seconds` và `delta_seconds`, kể cả hash trọng số ở từng bước (266–290 hash khác nhau mỗi họ).
+
+**Kết luận và giới hạn.** Hai môi trường, hai cách so (trong cùng tiến trình, và giữa hai cây code có hash trọng số từng bước), đều cho thấy thành phần đã merge cho đúng các model, chi phí dòng × vòng và cờ chính xác như thành phần mà các run v3 đã dùng. **Không chạy lại trên dữ liệu thật:** kết luận dựa trên dữ liệu tổng hợp và model nhỏ của smoke, không phải một lần chạy lại 10 seed.
 
 ## Ghi chú 2026-11-15 của nhánh DT (chuyển từ `shard_v3_plan.md`)
 Nguyên văn phần nhánh DT thêm vào mục "Lịch sử bản nháp" của `shard_v3_plan.md`:
