@@ -1,0 +1,9 @@
+label,type,proto,service,conn_state,rows
+0,normal,udp,dns,SF,588
+1,ddos,udp,dns,SF,523
+1,dos,udp,dns,SF,187
+1,mitm,udp,dns,SF,5
+1,password,udp,dns,SF,5
+1,scanning,udp,dns,SF,4
+1,xss,udp,dns,SF,4
+1,injection,udp,dns,SF,2

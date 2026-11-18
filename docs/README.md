@@ -23,11 +23,12 @@ Dấu † đánh dấu bước có code và kết quả đã được gỡ khỏ
 | Cấu hình train chuẩn cho hướng shard và xác nhận hai run 20 client (**không xác nhận**) † | [shard_standard_config_plan.md](shard_standard_config_plan.md), [shard_standard_config_results.md](shard_standard_config_results.md) |
 | Hướng shard, protocol v2: gate noninferiority, ≥ 4 client mỗi shard, sửa `utility_stop` (**không xác nhận**: G2, G5a, G5b fail; G3, G6 pass) | [shard_v2_plan.md](shard_v2_plan.md), [shard_v2_results.md](shard_v2_results.md) |
 | **Hướng shard làm đầu vào của DT:** thành phần gọi được, checkpoint, bản ghi chi phí (chốt 2026-11-10); chạy trên dữ liệu thật: khớp runner v2 cùng máy từng bit, không tái lập từng bit trên máy khác | [shard_dt_interface.md](shard_dt_interface.md) |
-| Hướng shard, protocol v3 (**đã triển khai và smoke tổng hợp pass; chưa chạy xác nhận**): chỉ yêu cầu sample-level; 4 họ chuỗi (`proportional`, `spread`, `concentrated`, `poisson_zipf`), thời điểm Poisson, gom lô theo cửa sổ | [shard_v3_plan.md](shard_v3_plan.md) |
+| Hướng shard, protocol v3 (**không xác nhận**: G3, G4, G5 fail; P, G1, G2, G6 pass): chỉ yêu cầu sample-level; 4 họ chuỗi (`proportional`, `spread`, `concentrated`, `poisson_zipf`), thời điểm Poisson, gom lô theo cửa sổ; 10 seed 60042–60051 | [shard_v3_plan.md](shard_v3_plan.md), [shard_v3_results.md](shard_v3_results.md) |
 | Merge nhánh DT (`dt2/thao-dinh`) vào nhánh v3 (2026-11-18): hai bản `unlearn_batch` gộp thành một; hash `src/fu/shard_exact.py` của các run v3 không còn khớp | [shard_exact_merge.md](shard_exact_merge.md) |
 | DT, ba hướng mở rộng (**mô tả, không gate**): ngân sách chặt, stress và biên an toàn; điều chỉnh giữa chừng (`shard_checkpoint`); gom lô và hoãn theo deadline (`unlearn_batch`). Bổ sung 2026-11-16: đối chứng đơn giản, độ nhạy theo trọng số EWMA, chi phí của chính DT | [dt_extensions.md](dt_extensions.md) |
 | DT online có đối chứng (2026-11-17): **54 chuỗi, 648 yêu cầu; chưa xác nhận ưu thế DT**; deadline đo tới model-ready gồm cả chờ và xử lý thật | [Protocol](dt_online_confirmation_plan.md), [kết quả và đánh giá](dt_online_confirmation_results.md), [bảng gốc](../results/dt_online_confirmation/report.md) |
 | DT cải tiến (2026-11-17): **đạt ngưỡng so với controller cũ; DT kết hợp chưa vượt dự báo đơn giản cùng controller mới**. 54 chuỗi, 648 yêu cầu | [Protocol](dt_predictive_plan.md), [kết quả và đánh giá](dt_predictive_results.md), [bảng gốc](../results/dt_predictive_confirmation/report.md) |
+| FPR của detector (2026-11-18, **mô tả, không gate**): nguyên nhân chính là chuẩn hóa z-score không log làm số byte của flow nhỏ bị ép phẳng; cùng 11 feature, chỉ lấy `log1p` hạ FPR mặc định từ 0,32 xuống 0,078; gradient boosting tập trung đạt 0,018. Ngưỡng một mình chỉ đổi FP lấy FN; thêm trường giao thức không cần thiết. Đã cài `src/data/prepare_log1p.py` (thêm cột `log1p`, giữ nguyên split): FPR mặc định 0,080–0,094, cải thiện ở cả 15 cặp (seed, S) | [Protocol](fpr_threshold_plan.md), [kết quả](fpr_threshold_results.md) |
 | Đặc tả ban đầu | [AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md](AGENT_IMPLEMENTATION_GUIDE_FU_BUDGET_AWARE_DT.md) |
 
 ## Vai trò của các tập dữ liệu
@@ -42,6 +43,7 @@ Một số tập dữ liệu giữ nhiều vai trò cùng lúc. Bảng dưới l
 | | **Dữ liệu phụ trợ:** pool của kNN (`knn_aux`), dữ liệu train reference (`ref_aux`) và control cùng pool | `run_deployable_forget.py`, `run_confirmation.py` |
 | | Nonmember khi audit model | `run_membership_validation.py` |
 | | **Fit tiền xử lý** (scaler, median, vocabulary) cho bản dữ liệu `connected_v3_auxfit_seed42`, và tín hiệu cho các chính sách shard (`utility_stop`, DynamicFU) | `configs/data_connected_auxfit.json`, `scripts/shard/` |
+| | **Chọn ngưỡng quyết định** trong thăm dò FPR (chưa dùng trong protocol nào) | `scripts/shard/fpr_threshold_check.py` |
 | **calibration** | Shadow model và ngưỡng của shadow MIA | `run_membership_validation.py`, `run_pilot.py` |
 | **test** | Utility (macro-F1, FPR); **chỉ số chính của canary** (P(normal) trung bình trên attack test được đóng dấu); pool nonmember của LiRA trên request tự nhiên | mọi bước; `run_lira.py` |
 

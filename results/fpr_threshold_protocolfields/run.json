@@ -1,0 +1,119 @@
+{
+ "plan": "docs/fpr_threshold_plan.md",
+ "sha256": {
+  "docs/fpr_threshold_plan.md": "4f101b89b4d68785b5fdd381a95fbda3dffc5eb4badee3445f5da155486adbfd",
+  "scripts/shard/fpr_threshold_check.py": "cc5de10dba0b0c17256a64f130a31d60b31924c6ccb3e490f2821b359a853350"
+ },
+ "data_dir": "data/processed/connected_v3_auxfit_protocolfields_seed42",
+ "frozen_data": false,
+ "partition_seed": 43,
+ "manifest_artifacts_sha256": {
+  "audit.json": "e571943db7217a9a78caa515363d7665ce8e82c75ff05bccb06df1c4dcb39f07",
+  "calibration.npz": "c8bb59517f6e3d75f2e3532d78e4c2d218b4cc50ff8b7143b6d14c4d998e0110",
+  "duplicate_mapping.csv": "a6dd82a330df6dc5713ea1dd37b9b295297f76d627d9e9c96cc0062a1d9c6ad2",
+  "metadata.csv": "59f003d2031db7b05687971f44669dc3b4adbee5fd24344eda3cd3a23b8ca9a7",
+  "test.npz": "84241d627e75dc18683ebb691b0d9f4e1c04c8d0e393dad19a82e56465a85306",
+  "train.npz": "9789df9d93f15b694c868703f5f890d3214c6bc8781ccceb593aa3eaafc3fd75",
+  "transformer.json": "1f4bcc49bce0abd62e33f0523ffd9719bf4ffcbf29e731d270873e319ff8265b",
+  "validation.npz": "d9a5d06f76f8970deb30ae9f490a218796d7511c4be4fd9a073df87d0c4afbf3"
+ },
+ "client_rows": [
+  325,
+  9279,
+  5834,
+  15042,
+  5275,
+  5703,
+  20399,
+  4039,
+  315,
+  6892,
+  254,
+  6333,
+  2890,
+  10201,
+  1243,
+  876,
+  8502,
+  810,
+  439,
+  9633
+ ],
+ "data_content_sha256": "5ccda584da7244b37fe616966fc820a818baff714cc9f4c6ee140351f732a50b",
+ "seeds": [
+  50042,
+  50043,
+  50044,
+  50045,
+  50046
+ ],
+ "shards": [
+  1,
+  4,
+  5
+ ],
+ "rules": [
+  "default",
+  "max_f1",
+  "youden",
+  "fpr10",
+  "fpr05"
+ ],
+ "component_config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7,
+  "hidden": [
+   64,
+   32
+  ],
+  "eps": 0.005,
+  "merge_below": 3,
+  "min_clients_design": 4,
+  "dynamicfu": {
+   "theta": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+   ],
+   "lam": [
+    0.5,
+    0.5
+   ],
+   "eta": [
+    0.2,
+    1.0
+   ],
+   "rho": 1.0,
+   "mu": 1.0,
+   "omega": [
+    0.5,
+    0.5
+   ],
+   "tau_ctrl": 0.01,
+   "tau_drop": 0.02
+  },
+  "device": "cpu"
+ },
+ "machine": {
+  "hostname": "MSI",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "python": "3.13.2",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "scipy": "1.17.0",
+  "sklearn": "1.8.0",
+  "torch": "2.6.0+cu124",
+  "threads": 2,
+  "device": "cpu"
+ },
+ "completed": true,
+ "backend_warmup_seconds": 3.9711748999998235
+}

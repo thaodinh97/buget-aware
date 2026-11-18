@@ -1,0 +1,84 @@
+{
+ "plan": "docs/fpr_threshold_plan.md",
+ "sha256": {
+  "docs/fpr_threshold_plan.md": "54bbf199101afc8047a51486052065ffd83f6e0ef1e37a4cf4011f3771d7c8be",
+  "scripts/shard/fpr_threshold_check.py": "b2327c53a49b1860765147032864da8ec582c4ddc81a70cc8bdcb37302cf2f8c"
+ },
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "seeds": [
+  50042,
+  50043,
+  50044,
+  50045,
+  50046
+ ],
+ "shards": [
+  1,
+  4,
+  5
+ ],
+ "rules": [
+  "default",
+  "max_f1",
+  "youden",
+  "fpr10",
+  "fpr05"
+ ],
+ "component_config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7,
+  "hidden": [
+   64,
+   32
+  ],
+  "eps": 0.005,
+  "merge_below": 3,
+  "min_clients_design": 4,
+  "dynamicfu": {
+   "theta": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+   ],
+   "lam": [
+    0.5,
+    0.5
+   ],
+   "eta": [
+    0.2,
+    1.0
+   ],
+   "rho": 1.0,
+   "mu": 1.0,
+   "omega": [
+    0.5,
+    0.5
+   ],
+   "tau_ctrl": 0.01,
+   "tau_drop": 0.02
+  },
+  "device": "cpu"
+ },
+ "machine": {
+  "hostname": "MSI",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "python": "3.13.2",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "scipy": "1.17.0",
+  "sklearn": "1.8.0",
+  "torch": "2.6.0+cu124",
+  "threads": 2,
+  "device": "cpu"
+ },
+ "completed": true,
+ "backend_warmup_seconds": 3.5941186999998536
+}

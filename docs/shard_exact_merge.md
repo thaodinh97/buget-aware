@@ -28,7 +28,11 @@ Ngày 2026-11-18. Merge `dt2/thao-dinh` (commit `a0dc8e8`) vào `dt/thao-dinh` (
 - Muốn tái lập hay đánh giá lại kết quả v3 đúng như lúc chạy: `git checkout f118050`.
 
 ## Kiểm chứng
-**Chưa chạy** lúc commit merge (môi trường chưa có PyTorch). Sẽ chạy: toàn bộ `tests/`; so từng bit thành phần cũ (`f118050`) với thành phần đã merge trên các đường code v3; và smoke tổng hợp v3 chạy ở cả hai cây code rồi so đầu ra. Kết quả ghi vào đây ở commit sau.
+Lúc commit merge chưa chạy được (môi trường chưa có PyTorch). Đã chạy ngày 2026-11-18, sau merge, trên Windows, Python 3.13.2, PyTorch 2.6.0+cu124 chạy CPU:
+- **Toàn bộ `tests/`:** 144 test. Lần đầu 143 pass, 1 fail: `test_shard_batch.test_requires_fit_nonempty_batch_and_no_pending_backlog` gọi `unlearn_batch([])` trên unlearner có chính sách mặc định `drop_backfill` mà không truyền chính sách. Hàm còn lại kiểm tra chính sách trước khi kiểm tra lô rỗng, nên báo `supports` thay vì `at least one`. Đây là chỗ sót khi sửa test theo hàm còn lại (mục "Cách giải quyết"): dòng đó nay truyền `'shard_full'`. Sau khi sửa, `test_shard_batch.py` pass 5/5. `src/fu/shard_exact.py` không đổi.
+- **So hai cây code trên đường code v3:** lấy cây `f118050` (`git archive`), chạy cùng smoke tổng hợp của `tests/test_shard_v3.py` (4 họ, S ∈ {4, 5}, seed 7 và 8, đủ 7 chính sách cùng model đơn tham chiếu) bằng `run_experiment` ở cả hai cây, mỗi cây một tiến trình. Mỗi dòng `steps.csv` có thêm SHA-256 của trọng số, chỉ số dòng, seed và số vòng của mọi shard đang phục vụ. Runner v3 trùng từng byte giữa hai cây; chỉ `shard_exact.py` khác.
+- **Kết quả: trùng hoàn toàn.** Ở cả 4 họ, 628 dòng `steps.csv` và 24 dòng `exactness.csv` giống hệt nhau ở mọi cột trừ thời gian (`seconds`, `delta_seconds`), kể cả hash trọng số ở từng bước (266–290 hash khác nhau mỗi họ). Như vậy trên dữ liệu tổng hợp, thành phần đã merge cho đúng các model, chi phí dòng × vòng và cờ chính xác như thành phần mà các run v3 đã dùng.
+- Giới hạn: đây là dữ liệu tổng hợp và model nhỏ của smoke, không phải chạy lại v3 trên dữ liệu thật. Script so sánh không nằm trong repo.
 
 ## Ghi chú 2026-11-15 của nhánh DT (chuyển từ `shard_v3_plan.md`)
 Nguyên văn phần nhánh DT thêm vào mục "Lịch sử bản nháp" của `shard_v3_plan.md`:

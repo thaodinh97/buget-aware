@@ -1,0 +1,29 @@
+{
+ "train": {
+  "rows": 114284,
+  "distinct_vectors": 30838,
+  "normal_rows": 22817,
+  "vectors_with_both_labels": 12,
+  "rows_in_conflicting_vectors": 5671,
+  "bayes_error": 0.0008750131251968779,
+  "fpr_floor_majority": 0.0017969058158390674
+ },
+ "validation": {
+  "rows": 28571,
+  "distinct_vectors": 21286,
+  "normal_rows": 8847,
+  "vectors_with_both_labels": 3,
+  "rows_in_conflicting_vectors": 210,
+  "bayes_error": 0.0030800462006930103,
+  "fpr_floor_majority": 0.004747371990505256
+ },
+ "calibration": {
+  "rows": 19048,
+  "distinct_vectors": 18428,
+  "normal_rows": 4313,
+  "vectors_with_both_labels": 0,
+  "rows_in_conflicting_vectors": 0,
+  "bayes_error": 0.0,
+  "fpr_floor_majority": 0.0
+ }
+}

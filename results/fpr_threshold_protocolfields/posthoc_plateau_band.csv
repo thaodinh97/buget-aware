@@ -1,0 +1,17 @@
+label,type,proto,service,conn_state,rows
+1,dos,tcp,-,S0,203
+0,normal,udp,-,S0,55
+0,normal,tcp,http,SF,32
+0,normal,icmp,-,OTH,20
+0,normal,tcp,-,S0,7
+1,password,tcp,http,SF,4
+1,injection,udp,-,SF,3
+0,normal,tcp,-,SHR,3
+1,mitm,udp,-,SF,3
+1,backdoor,udp,-,SF,2
+1,mitm,udp,dns,SF,2
+1,dos,tcp,-,RSTO,1
+1,injection,udp,dns,SF,1
+1,dos,udp,-,SF,1
+1,password,udp,-,SF,1
+1,xss,tcp,-,SF,1
