@@ -1,0 +1,139 @@
+{
+ "twins": {
+  "static": {
+   "requests": 320,
+   "plan_microseconds": {
+    "median": 3.4000004234258085,
+    "p95": 4.605002141033766,
+    "max": 6.70000008540228
+   },
+   "sync_microseconds": {
+    "median": 9.60000033956021,
+    "p95": 12.500000593718141,
+    "max": 16.199999663513154
+   },
+   "dt_seconds_total": 0.004360700011602603,
+   "fu_seconds_total_full": 2644.356893699988,
+   "dt_share_of_fu_total": 1.6490588021577924e-06,
+   "dt_share_of_fu_worst_request": 2.820394736417232e-05
+  },
+  "adaptive": {
+   "requests": 320,
+   "plan_microseconds": {
+    "median": 3.4999975468963385,
+    "p95": 3.9000005926936865,
+    "max": 4.400000761961564
+   },
+   "sync_microseconds": {
+    "median": 34.40000000409782,
+    "p95": 37.900001188972965,
+    "max": 40.59999992023222
+   },
+   "dt_seconds_total": 0.012235999984113732,
+   "fu_seconds_total_full": 2644.356893699988,
+   "dt_share_of_fu_total": 4.62721201259377e-06,
+   "dt_share_of_fu_worst_request": 7.722785319290954e-05
+  },
+  "adaptive_margin": {
+   "requests": 320,
+   "plan_microseconds": {
+    "median": 140.10000086273067,
+    "p95": 158.81500130490167,
+    "max": 237.0000001974404
+   },
+   "sync_microseconds": {
+    "median": 38.899997889529914,
+    "p95": 42.91000277589774,
+    "max": 65.50000034621917
+   },
+   "dt_seconds_total": 0.058502700052486034,
+   "fu_seconds_total_full": 2644.356893699988,
+   "dt_share_of_fu_total": 2.2123602223234312e-05,
+   "dt_share_of_fu_worst_request": 0.000358787751544781
+  },
+  "adaptive_margin_rescored": {
+   "requests": 320,
+   "plan_microseconds": {
+    "median": 173.2499986246694,
+    "p95": 196.85999977809843,
+    "max": 293.2999996119179
+   },
+   "sync_microseconds": {
+    "median": 38.99999865097925,
+    "p95": 41.81999811407877,
+    "max": 59.59999907645397
+   },
+   "dt_seconds_total": 0.06855269992956892,
+   "fu_seconds_total_full": 2644.356893699988,
+   "dt_share_of_fu_total": 2.5924148171107824e-05,
+   "dt_share_of_fu_worst_request": 0.0006025306992389944
+  },
+  "last_shard": {
+   "requests": 320,
+   "plan_microseconds": {
+    "median": 1.2000018614344299,
+    "p95": 2.0000006770715117,
+    "max": 3.1000017770566046
+   },
+   "sync_microseconds": {
+    "median": 10.700001439545304,
+    "p95": 18.305000958207533,
+    "max": 25.699999241624027
+   },
+   "dt_seconds_total": 0.004023100009362679,
+   "fu_seconds_total_full": 2644.356893699988,
+   "dt_share_of_fu_total": 1.5213907090028046e-06,
+   "dt_share_of_fu_worst_request": 2.800402070161193e-05
+  }
+ },
+ "telemetry": {
+  "full": {
+   "rounds": 20,
+   "clients_per_shard": [
+    5
+   ],
+   "records_json": {
+    "median": 10295.0,
+    "max": 10366
+   },
+   "records_zlib": {
+    "median": 1712.0,
+    "max": 1762
+   },
+   "summary_json": {
+    "median": 315.0,
+    "max": 320
+   },
+   "payload_bytes_raw_median": 3662400.0,
+   "share_of_payload": {
+    "records_json": 0.002810998252512014,
+    "records_zlib": 0.0004674530362603757,
+    "summary_json": 8.600917431192661e-05
+   }
+  },
+  "fixed": {
+   "rounds": 10,
+   "clients_per_shard": [
+    5
+   ],
+   "records_json": {
+    "median": 5132.0,
+    "max": 5172
+   },
+   "records_zlib": {
+    "median": 934.0,
+    "max": 967
+   },
+   "summary_json": {
+    "median": 316.0,
+    "max": 322
+   },
+   "payload_bytes_raw_median": 1831200.0,
+   "share_of_payload": {
+    "records_json": 0.0028025338575797293,
+    "records_zlib": 0.0005100480559196155,
+    "summary_json": 0.00017256443861948448
+   }
+  }
+ }
+}

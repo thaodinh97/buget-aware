@@ -1,0 +1,360 @@
+{
+ "seed": 50042,
+ "family": "concentrated",
+ "shards": 4,
+ "modes": [
+  "immediate",
+  "window5",
+  "lazy",
+  "dt_mid",
+  "dt_tight"
+ ],
+ "deadline": 5.0,
+ "train_config": "standard",
+ "config": {
+  "fl": {
+   "rounds": 20,
+   "local_epochs": 2,
+   "batch_size": 512,
+   "lr": 0.01
+  },
+  "shard_fixed_rounds": 10,
+  "backfill_rounds": 7,
+  "hidden": [
+   64,
+   32
+  ],
+  "eps": 0.005,
+  "merge_below": 3,
+  "min_clients_design": 4,
+  "dynamicfu": {
+   "theta": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+   ],
+   "lam": [
+    0.5,
+    0.5
+   ],
+   "eta": [
+    0.2,
+    1.0
+   ],
+   "rho": 1.0,
+   "mu": 1.0,
+   "omega": [
+    0.5,
+    0.5
+   ],
+   "tau_ctrl": 0.01,
+   "tau_drop": 0.02
+  },
+  "device": "cpu"
+ },
+ "data_content_sha256": "f130057e20f1d9eb0857dac5b8ce90c9f0f16b544a8d4b5675b88f24eea0ef3a",
+ "data_is_v2": true,
+ "stream": {
+  "K": 20,
+  "cap": 0.5,
+  "size_median": 200,
+  "size_sigma": 1.5,
+  "rate": 1.0,
+  "zipf_s": 1.0,
+  "seed_size": 203,
+  "seed_time": 204,
+  "seed_choice": 201,
+  "seed_rank": 202,
+  "seed_rows": 205
+ },
+ "budgets": {
+  "tight": 4.7046181999999135,
+  "mid": 7.05692729999987,
+  "wide": 14.11385459999974
+ },
+ "budget_levels": {
+  "tight": 0.5,
+  "mid": 0.75,
+  "wide": 1.5
+ },
+ "fit": {
+  "reference": {
+   "validation_macro_f1": 0.898213321147906,
+   "validation_fpr": 0.23974228552051544
+  },
+  "shard_seconds": {
+   "0": 2.8224180000006527,
+   "1": 1.7977638000020306,
+   "2": 9.409236399999827,
+   "3": 5.1244754999997895
+  },
+  "largest_shard_full_seconds": 9.409236399999827,
+  "profile": {
+   "client": {
+    "1": 9.388275993870213e-06,
+    "3": 7.954243690581322e-06,
+    "4": 8.505034185495264e-06,
+    "14": 1.0797137592292169e-05,
+    "17": 8.229051321928681e-06,
+    "2": 7.900668580794764e-06,
+    "6": 8.215580321347258e-06,
+    "8": 1.0883839962056727e-05,
+    "16": 5.207147058867764e-05,
+    "18": 1.4983580441346856e-05,
+    "0": 8.665723573830178e-06,
+    "5": 8.583449423232666e-06,
+    "9": 8.531067491556506e-06,
+    "10": 7.856946822659254e-06,
+    "12": 8.085875956111978e-06,
+    "7": 8.182165716605637e-06,
+    "11": 9.233824216903412e-06,
+    "13": 8.842861814053773e-06,
+    "15": 1.0327996098041152e-05,
+    "19": 8.612869135785006e-06
+   },
+   "server": 0.000607666250107286
+  },
+  "initial_ratios": [
+   [
+    0.9997628748594841,
+    0.9999994298477726,
+    1.0000168852895392,
+    1.0000998396965994
+   ],
+   [
+    0.9132734874276724,
+    0.8600220873010599,
+    1.0155260366154104,
+    1.0875537126512707
+   ]
+  ]
+ },
+ "assignment": [
+  [
+   1,
+   3,
+   4,
+   14,
+   17
+  ],
+  [
+   2,
+   6,
+   8,
+   16,
+   18
+  ],
+  [
+   0,
+   5,
+   9,
+   10,
+   12
+  ],
+  [
+   7,
+   11,
+   13,
+   15,
+   19
+  ]
+ ],
+ "requests": [
+  {
+   "step": 1,
+   "time": 0.31291745568572193,
+   "client": 0,
+   "shard": 2,
+   "requested": 91,
+   "rows": 91,
+   "kind": "sample"
+  },
+  {
+   "step": 2,
+   "time": 2.496285789278196,
+   "client": 0,
+   "shard": 2,
+   "requested": 119,
+   "rows": 119,
+   "kind": "sample"
+  },
+  {
+   "step": 3,
+   "time": 3.7559551200457184,
+   "client": 0,
+   "shard": 2,
+   "requested": 823,
+   "rows": 823,
+   "kind": "sample"
+  },
+  {
+   "step": 4,
+   "time": 3.832505371128341,
+   "client": 12,
+   "shard": 2,
+   "requested": 2323,
+   "rows": 2323,
+   "kind": "sample"
+  },
+  {
+   "step": 5,
+   "time": 3.8607723635514914,
+   "client": 10,
+   "shard": 2,
+   "requested": 49,
+   "rows": 49,
+   "kind": "sample"
+  },
+  {
+   "step": 6,
+   "time": 4.149390185418101,
+   "client": 5,
+   "shard": 2,
+   "requested": 5871,
+   "rows": 2254,
+   "kind": "sample"
+  },
+  {
+   "step": 7,
+   "time": 4.238388410014189,
+   "client": 12,
+   "shard": 2,
+   "requested": 793,
+   "rows": 793,
+   "kind": "sample"
+  },
+  {
+   "step": 8,
+   "time": 4.362723638680588,
+   "client": 10,
+   "shard": 2,
+   "requested": 58,
+   "rows": 58,
+   "kind": "sample"
+  },
+  {
+   "step": 9,
+   "time": 6.892146147280776,
+   "client": 9,
+   "shard": 2,
+   "requested": 55,
+   "rows": 55,
+   "kind": "sample"
+  },
+  {
+   "step": 10,
+   "time": 8.235667768701223,
+   "client": 10,
+   "shard": 2,
+   "requested": 173,
+   "rows": 173,
+   "kind": "sample"
+  },
+  {
+   "step": 11,
+   "time": 11.530967194889518,
+   "client": 10,
+   "shard": 2,
+   "requested": 88,
+   "rows": 88,
+   "kind": "sample"
+  },
+  {
+   "step": 12,
+   "time": 11.613210068996347,
+   "client": 0,
+   "shard": 2,
+   "requested": 21,
+   "rows": 21,
+   "kind": "sample"
+  },
+  {
+   "step": 13,
+   "time": 11.843360691819873,
+   "client": 10,
+   "shard": 2,
+   "requested": 10,
+   "rows": 10,
+   "kind": "sample"
+  },
+  {
+   "step": 14,
+   "time": 12.493522605641498,
+   "client": 10,
+   "shard": 2,
+   "requested": 588,
+   "rows": 588,
+   "kind": "sample"
+  },
+  {
+   "step": 15,
+   "time": 12.521311366908156,
+   "client": 10,
+   "shard": 2,
+   "requested": 43,
+   "rows": 43,
+   "kind": "sample"
+  },
+  {
+   "step": 16,
+   "time": 12.785853052445505,
+   "client": 10,
+   "shard": 2,
+   "requested": 2075,
+   "rows": 2075,
+   "kind": "sample"
+  },
+  {
+   "step": 17,
+   "time": 13.097933879163774,
+   "client": 10,
+   "shard": 2,
+   "requested": 4839,
+   "rows": 4839,
+   "kind": "sample"
+  },
+  {
+   "step": 18,
+   "time": 13.967459978457342,
+   "client": 10,
+   "shard": 2,
+   "requested": 97,
+   "rows": 97,
+   "kind": "sample"
+  },
+  {
+   "step": 19,
+   "time": 14.906050429266816,
+   "client": 10,
+   "shard": 2,
+   "requested": 1679,
+   "rows": 1679,
+   "kind": "sample"
+  },
+  {
+   "step": 20,
+   "time": 15.054975303122104,
+   "client": 12,
+   "shard": 2,
+   "requested": 85,
+   "rows": 85,
+   "kind": "sample"
+  }
+ ],
+ "machine": {
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "cpu_count": 16,
+  "python": "3.13.2",
+  "torch": "2.6.0+cu124",
+  "numpy": "2.3.5",
+  "threads": 2,
+  "device": "cpu",
+  "process": {
+   "platform": "win32",
+   "applied": true,
+   "power_throttling_off": true,
+   "priority_above_normal": true
+  }
+ }
+}

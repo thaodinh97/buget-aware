@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "blocks": 18,
+  "streams": 54,
+  "requests": 648,
+  "bit_exact_streams": 54,
+  "hash_files_checked": {
+    "predictive": 33,
+    "previous_online": 30
+  },
+  "weight_replay_events": {
+    "dt_queue": 152,
+    "rows_queue": 148
+  },
+  "max_weight_abs_error": 0.0,
+  "weight_replay_scope": "Pre-execution weights from earlier executed-event errors and final weights; does not reconstruct internal client-cost predictor states or prove statistical superiority.",
+  "causal_arrivals_and_rollouts": true,
+  "one_worker": true,
+  "no_missing_duplicate_or_dropped_requests": true,
+  "cost_flags_and_latency_audited": true,
+  "identical_alive_rows_within_blocks": true,
+  "final_policy_rounds_match": true,
+  "fit_round_seconds_range": [
+    0.07026009999935923,
+    0.7183138999989751
+  ]
+}

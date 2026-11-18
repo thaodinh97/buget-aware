@@ -1,0 +1,31 @@
+{
+  "pre_run_tests": {
+    "command": "unittest discover tests, under keep_awake()",
+    "passed": 108,
+    "failed": 0,
+    "seconds": 94.65,
+    "new_predictive_tests": 9,
+    "log": "test_run.log"
+  },
+  "compile_check": "passed",
+  "diff_check": "passed",
+  "post_run_audit": {
+    "status": "passed",
+    "frozen_analyzer_passed": true,
+    "blocks": 18,
+    "streams": 54,
+    "requests": 648,
+    "bit_exact_streams": 54,
+    "causal_weight_replay_events": {
+      "dt_queue": 152,
+      "rows_queue": 148
+    },
+    "hash_files_checked": {
+      "predictive": 33,
+      "previous_online": 30
+    },
+    "supplemental_details": "supplemental_audit.json",
+    "all_practical_targets_met": true,
+    "statistical_significance_tested": false
+  }
+}

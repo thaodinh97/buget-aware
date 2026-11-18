@@ -19,14 +19,24 @@ Policies (how many rounds the affected shard gets):
   utility_stop_v1  the first phase of utility_stop only
   dynamicfu        re-implementation of DynamicFU's adaptive round count (contribution probes on every present client)
   drop_backfill    the affected shard leaves the ensemble at once and is retrained from a per-request round budget
+  shard_checkpoint (Digital Twin, not a v2 policy) shard_fixed_rounds rounds, then a decision from the measured round time
+                   of this retraining only: continue to R_base rounds iff elapsed + forecast of the remaining rounds stays
+                   within the time budget the caller passes; else stop. The model is then bit-identical to shard_fixed or to
+                   shard_full (same trainer, same per-round seeds), i.e. one of two models with a round count fixed in advance
 ok(): validation macro-F1 >= F1_0 - eps and validation FPR <= FPR_0 + eps, (F1_0, FPR_0) of the ensemble after fit().
+unlearn_batch() applies several requests and then retrains every touched shard once (shard_full or shard_fixed rounds) on the
+data left after all of them; it is the batching step of the v3 plan (docs/shard_v3_plan.md, batch_full_W).
 
 Exactness. After every request no included shard has trained on a deleted row (`exact`) and every included shard is trained on
 exactly the current data of its shard (`structure_ok`); verify_bit_exact() retrains every included shard from scratch and
 compares the weights bit for bit. For shard_full, shard_fixed and drop_backfill the round count is fixed in advance. For
 utility_stop, utility_stop_v1 and dynamicfu the round count is chosen from signals of the state before the deletion (F1_0 and
 FPR_0 come from models trained on the rows deleted later; DynamicFU also probes the rows being deleted), so their exactness
-is conditional on the round count. EXACTNESS_SCOPE records this per policy and every result carries it.
+is conditional on the round count. EXACTNESS_SCOPE records this per policy and every result carries it. shard_checkpoint
+chooses between the two fixed round counts from cost signals only (the wall time of the rounds just trained on the retained
+data, the caller's budget and margin); no model, no validation score and no deleted record enters the choice, so its scope is
+unconditional. The only request-related quantity a time measurement can carry is the number of rows, which the history keeps
+openly anyway.
 
 Determinism is the caller's job: torch.use_deterministic_algorithms(True) and a fixed thread count, as in the v2 runners.
 The first training of a process is special on some machines: it carries the one-time initialisation of the numeric backend
@@ -50,12 +60,15 @@ from src.data.federated import ids_hash
 from src.eval.membership_validation import logit_margin
 from src.eval.utility_breakdown import detector_metrics
 from src.fl.fedavg_core import ClientWorker, fedavg, model, state
-from src.fu.shard_cost import CostMeter, state_bytes
+from src.fu.shard_cost import TRAIN_PHASES, CostMeter, state_bytes
 
-POLICIES = ('shard_full', 'shard_fixed', 'utility_stop', 'utility_stop_v1', 'dynamicfu', 'drop_backfill')
+POLICIES = ('shard_full', 'shard_fixed', 'utility_stop', 'utility_stop_v1', 'dynamicfu', 'drop_backfill')   # the v2 policies
+DT_POLICIES = ('shard_checkpoint',)                  # added for the Digital Twin; kept out of POLICIES, which mirrors v2
+ALL_POLICIES = POLICIES + DT_POLICIES
+BATCH_POLICIES = ('shard_full', 'shard_fixed')
 EXACTNESS_SCOPE = {'shard_full': 'unconditional', 'shard_fixed': 'unconditional', 'drop_backfill': 'unconditional',
                    'utility_stop': 'conditional_on_round_count', 'utility_stop_v1': 'conditional_on_round_count',
-                   'dynamicfu': 'conditional_on_round_count'}
+                   'dynamicfu': 'conditional_on_round_count', 'shard_checkpoint': 'unconditional'}
 DYNAMICFU_DEFAULT = {'theta': [1/3, 1/3, 1/3], 'lam': [.5, .5], 'eta': [.2, 1.], 'rho': 1., 'mu': 1., 'omega': [.5, .5],
                      'tau_ctrl': .01, 'tau_drop': .02}
 FORMAT = 1
@@ -110,9 +123,9 @@ class UnlearningResult:
     step: int
     policy: str
     client: int
-    kind: str                # 'client' | 'sample' | 'batch_end' | 'backlog_done'
+    kind: str                # 'client' | 'sample' | 'backlog_done'
     rows: int
-    event: str               # 'retrain' | 'merge_<j>_into_<t>' | 'removed_empty' | 'batch_end' | 'backlog_done'
+    event: str               # 'retrain' | 'merge_<j>_into_<t>' | 'removed_empty' | 'backlog_done'
     retrained_shard: object
     retired_shards: list
     shards_included: int
@@ -178,6 +191,17 @@ def _sha(*arrays):
 
 def _file_sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _check_budget(policy, budget_seconds, margin):
+    """shard_checkpoint needs a finite budget >= 0 and a finite margin > -1; the other policies take neither."""
+    if policy == 'shard_checkpoint':
+        if budget_seconds is None or not np.isfinite(budget_seconds) or budget_seconds < 0:
+            raise ValueError('shard_checkpoint needs a finite, nonnegative budget_seconds')
+        if not np.isfinite(margin) or margin <= -1:
+            raise ValueError('margin must be finite and > -1')
+    elif budget_seconds is not None or margin:
+        raise ValueError('budget_seconds and margin apply to shard_checkpoint only')
 
 
 _WARM = False
@@ -273,7 +297,7 @@ class _Trainer:
 
 
 class ShardedUnlearner:
-    """Sharded FedAvg ensemble with exact unlearning, individually or in sample-level batches.
+    """Sharded FedAvg ensemble with exact unlearning, one request at a time.
 
     train: {'X', 'y', 'row_id'} of the train split; validation: {'X', 'y'} (server-side auxiliary data, read by the policies);
     parts: train row indices of every client; assignment: client ids of every shard; seed: training seed (shard j uses
@@ -281,8 +305,8 @@ class ShardedUnlearner:
     """
 
     def __init__(self, train, validation, parts, assignment, seed, policy, config, measure_payload=True):
-        if policy not in POLICIES:
-            raise ValueError(f'policy must be one of {POLICIES}, got {policy!r}')
+        if policy not in ALL_POLICIES:
+            raise ValueError(f'policy must be one of {ALL_POLICIES}, got {policy!r}')
         self.train, self.validation, self.config, self.seed, self.policy = train, validation, config, int(seed), policy
         self.measure_payload = measure_payload
         self.parts = [np.asarray(p, np.int64) for p in parts]
@@ -392,19 +416,12 @@ class ShardedUnlearner:
         return self._finish(meter, checkpoint_dir, {'reference': {'validation_macro_f1': f1, 'validation_fpr': fpr}},
                             accumulate=False)
 
-    def unlearn(self, request, policy=None, checkpoint_dir=None):
-        """Apply one deletion request exactly. Returns an UnlearningResult; the unlearner then serves the new ensemble."""
-        if not self.shards:
-            raise RuntimeError('fit() or load() first')
-        pol = policy or self.policy
-        if pol not in POLICIES:
-            raise ValueError(f'policy must be one of {POLICIES}, got {pol!r}')
-        if self.pending and pol != 'drop_backfill':
-            raise RuntimeError('a drop_backfill backlog is pending: call finish_backlog() before using another policy')
+    def _forget_rows(self, request, alive, present):
+        """Validate one request against (alive, present) without changing them. Returns (client, sorted rows, kind)."""
         c = int(request.client)
-        if c not in self.present:
+        if c not in present:
             raise ValueError(f'client {c} holds no data (unknown or already deleted)')
-        held = self.parts[c][self.alive[self.parts[c]]]
+        held = self.parts[c][alive[self.parts[c]]]
         if request.rows is None:
             f = held
         else:
@@ -414,7 +431,21 @@ class ShardedUnlearner:
             if not np.isin(f, held).all():
                 raise ValueError(f'forget rows must be rows client {c} currently holds')
             f = np.sort(f)
-        kind = 'client' if len(f) == len(held) else 'sample'
+        return c, f, 'client' if len(f) == len(held) else 'sample'
+
+    def unlearn(self, request, policy=None, checkpoint_dir=None, budget_seconds=None, margin=0.):
+        """Apply one deletion request exactly. Returns an UnlearningResult; the unlearner then serves the new ensemble.
+        budget_seconds, margin: time budget of this request and relative margin on the forecast of the remaining rounds;
+        shard_checkpoint only (see _checkpoint_decision)."""
+        if not self.shards:
+            raise RuntimeError('fit() or load() first')
+        pol = policy or self.policy
+        if pol not in ALL_POLICIES:
+            raise ValueError(f'policy must be one of {ALL_POLICIES}, got {pol!r}')
+        _check_budget(pol, budget_seconds, margin)
+        if self.pending and pol != 'drop_backfill':
+            raise RuntimeError('a drop_backfill backlog is pending: call finish_backlog() before using another policy')
+        c, f, kind = self._forget_rows(request, self.alive, self.present)
         cfg, rb, meter = self.config, self.r_base, self._meter()
         plan = structure_step(self.assignment, c, kind, cfg.merge_below)
         alive_before = self.alive.copy()
@@ -434,6 +465,15 @@ class ShardedUnlearner:
             trn = self._trainer(j, idx)
             for _ in range(rb if pol == 'shard_full' else cfg.shard_fixed_rounds):
                 trn.step(meter, 'retrain')
+            sh[j] = trn.entry()
+        elif pol == 'shard_checkpoint' and j is not None:   # = shard_fixed up to the checkpoint, then maybe shard_full
+            trn = self._trainer(j, idx)
+            for _ in range(min(cfg.shard_fixed_rounds, rb)):
+                trn.step(meter, 'retrain')
+            extra.update(self._checkpoint_decision(meter, budget_seconds, margin))
+            if extra['continued']:
+                while trn.r < rb:
+                    trn.step(meter, 'retrain')
             sh[j] = trn.entry()
         elif pol in ('utility_stop', 'utility_stop_v1'):
             if j is not None:
@@ -467,67 +507,6 @@ class ShardedUnlearner:
         self.history.append(record)
         return self._result(meter, checkpoint_dir, record, plan['retrain'], plan['retired'], extra)
 
-    def unlearn_batch(self, requests, checkpoint_dir=None):
-        """Apply sample-level requests, then retrain each touched shard once for R_base rounds.
-
-        This operation always uses the fixed ``shard_full`` rule, independently of the default policy. Every request
-        must leave some data at its client; client removal / merging and a pending backfill queue are not supported.
-        Validate the complete batch against successive live row sets before changing any state, including detecting
-        overlapping requests. ``step`` and the saved history advance once per request. The returned UnlearningResult
-        describes the complete batch, with per-request records and sorted ``retrained_shards`` in ``details``.
-        """
-        if not self.shards:
-            raise RuntimeError('fit() or load() first')
-        if self.pending:
-            raise RuntimeError('a drop_backfill backlog is pending: call finish_backlog() before batching')
-        requests = list(requests)
-        if not requests:
-            raise ValueError('batch must contain at least one sample request')
-
-        alive = self.alive.copy()
-        validated, touched = [], set()
-        for request in requests:
-            c = int(request.client)
-            if c not in self.present:
-                raise ValueError(f'client {c} holds no data (unknown or already deleted)')
-            if request.rows is None:
-                raise ValueError('batch requests must be sample-level and specify forget rows')
-            held = self.parts[c][alive[self.parts[c]]]
-            f = np.asarray(request.rows, np.int64).ravel()
-            if not len(f) or len(np.unique(f)) != len(f):
-                raise ValueError('forget rows must be a non-empty set of distinct train rows')
-            if not np.isin(f, held).all():
-                raise ValueError(f'forget rows must be rows client {c} currently holds, without overlap in the batch')
-            if len(f) == len(held):
-                raise ValueError('batch requests must be sample-level and leave data at every client')
-            f = np.sort(f)
-            alive[f] = False
-            touched.add(next(j for j, a in enumerate(self.assignment) if c in a))
-            validated.append((c, f))
-
-        meter = self._meter()
-        self.alive = alive
-        touched = sorted(touched)
-        for j in touched:
-            trn = self._trainer(j, self._shard_idx(self.assignment, j))
-            for _ in range(self.r_base):
-                trn.step(meter, 'retrain')
-            self.shards[j] = trn.entry()
-
-        records = []
-        for c, f in validated:
-            self.step += 1
-            records.append({'step': self.step, 'client': c, 'kind': 'sample', 'rows': int(len(f)),
-                            'policy': 'shard_full', 'event': 'retrain',
-                            'forget_request_hash': ids_hash(self.train['row_id'][f])})
-        self.history.extend(records)
-        all_rows = np.sort(np.concatenate([f for _, f in validated]))
-        record = {'step': self.step, 'client': -1, 'kind': 'batch_end', 'rows': int(len(all_rows)),
-                  'policy': 'shard_full', 'event': 'batch_end',
-                  'forget_request_hash': ids_hash(self.train['row_id'][all_rows])}
-        return self._result(meter, checkpoint_dir, record, touched, [],
-                            {'requests': records, 'retrained_shards': touched, 'batch_size': len(records)})
-
     def finish_backlog(self, checkpoint_dir=None):
         """drop_backfill only: train every pending shard to R_base rounds and put it back into the ensemble."""
         meter = self._meter()
@@ -535,6 +514,78 @@ class ShardedUnlearner:
         record = {'step': self.step, 'client': -1, 'kind': 'backlog_done', 'rows': 0, 'policy': 'drop_backfill',
                   'event': 'backlog_done', 'forget_request_hash': ''}
         return self._result(meter, checkpoint_dir, record, None, [], {'pending': 0})
+
+    def unlearn_batch(self, requests, policy=None, checkpoint_dir=None):
+        """Apply several deletion requests, then retrain every shard they touch once, from a fresh initialisation with its seed,
+        on the data left after all of them: R_base rounds (shard_full) or shard_fixed_rounds (shard_fixed).
+
+        The requests are validated in order (a later request may not name rows an earlier one deletes) before any state
+        changes. Structure changes (merge, removal) follow structure_step request by request; a shard retired by a later
+        request of the batch is not retrained. A batch of one request trains exactly what unlearn() trains. Returns one
+        UnlearningResult with kind 'batch' (client -1 when the batch spans several clients; details['requests'] lists them);
+        the history keeps one record per request."""
+        if not self.shards:
+            raise RuntimeError('fit() or load() first')
+        pol = policy or self.policy
+        if pol not in BATCH_POLICIES:
+            raise ValueError(f'unlearn_batch supports {BATCH_POLICIES}, got {pol!r}')
+        if self.pending:
+            raise RuntimeError('a drop_backfill backlog is pending: call finish_backlog() before a batch')
+        requests = list(requests)
+        if not requests:
+            raise ValueError('a batch needs at least one request')
+        alive, present, assignment = self.alive.copy(), set(self.present), [list(a) for a in self.assignment]
+        items, touched, retired = [], [], []
+        for request in requests:
+            c, f, kind = self._forget_rows(request, alive, present)
+            plan = structure_step(assignment, c, kind, self.config.merge_below)
+            alive[f] = False
+            if kind == 'client':
+                present.discard(c)
+            assignment = plan['assign_after']
+            touched = [t for t in touched if t not in plan['retired']]
+            retired += plan['retired']
+            if plan['retrain'] is not None and plan['retrain'] not in touched:
+                touched.append(plan['retrain'])
+            items.append((c, f, kind, plan['event']))
+        meter = self._meter()
+        self.alive, self.present, self.assignment = alive, present, assignment
+        for jr in retired:
+            self.shards[jr] = None
+        rounds = self.r_base if pol == 'shard_full' else self.config.shard_fixed_rounds
+        for j in sorted(touched):
+            trn = self._trainer(j, self._shard_idx(assignment, j))
+            for _ in range(rounds):
+                trn.step(meter, 'retrain')
+            self.shards[j] = trn.entry()
+        first, log = self.step + 1, []
+        for c, f, kind, event in items:
+            self.step += 1
+            record = {'step': self.step, 'client': c, 'kind': kind, 'rows': int(len(f)), 'policy': pol, 'event': event,
+                      'forget_request_hash': ids_hash(self.train['row_id'][f]), 'batch_first_step': first,
+                      'batch_size': len(items)}
+            self.history.append(record)
+            log.append({k: record[k] for k in ('step', 'client', 'kind', 'rows', 'event', 'forget_request_hash')})
+        clients = sorted({c for c, _, _, _ in items})
+        changes = [e for _, _, _, e in items if e != 'retrain']
+        rows = np.concatenate([f for _, f, _, _ in items])
+        record = {'step': self.step, 'client': clients[0] if len(clients) == 1 else -1, 'kind': 'batch', 'rows': int(len(rows)),
+                  'policy': pol, 'event': ';'.join(changes) if changes else 'retrain',
+                  'forget_request_hash': ids_hash(self.train['row_id'][rows])}
+        extra = {'batch_size': len(items), 'shards_retrained': sorted(touched), 'requests': log}
+        return self._result(meter, checkpoint_dir, record, sorted(touched), retired, extra)
+
+    def _checkpoint_decision(self, meter, budget_seconds, margin):
+        """shard_checkpoint: after the rounds trained so far in this operation, continue to R_base rounds iff
+        elapsed + (R_base - done) * mean round wall time so far * (1 + margin) <= budget_seconds. Inputs are cost signals of
+        this retraining only (round wall times, as summed by the Digital Twin's time budget) and the caller's numbers."""
+        walls = [r['wall_seconds'] for r in meter.rounds if r['phase'] in TRAIN_PHASES]
+        done, elapsed = len(walls), float(sum(walls))
+        left = self.r_base - done
+        forecast = elapsed / done * left * (1 + margin) if done else 0.
+        return {'checkpoint_round': done, 'elapsed_seconds': elapsed, 'forecast_remaining_seconds': float(forecast),
+                'budget_seconds': float(budget_seconds), 'margin': float(margin),
+                'continued': bool(left > 0 and elapsed + forecast <= budget_seconds)}
 
     def _run_rounds(self, trn, j, rule, meter):
         """Train shard j round by round; rule(rounds, shards_with_candidate) -> True to stop. Returns the new shard entry."""
@@ -668,8 +719,8 @@ class ShardedUnlearner:
         """Independent copy sharing the data and the (immutable) shard models: a what-if branch for another policy."""
         other = copy.copy(self)
         other.policy = policy or self.policy
-        if other.policy not in POLICIES:
-            raise ValueError(f'policy must be one of {POLICIES}, got {other.policy!r}')
+        if other.policy not in ALL_POLICIES:
+            raise ValueError(f'policy must be one of {ALL_POLICIES}, got {other.policy!r}')
         other.assignment = [list(a) for a in self.assignment]
         other.alive, other.present = self.alive.copy(), set(self.present)
         other.shards = list(self.shards)
@@ -704,8 +755,11 @@ class ShardedUnlearner:
                              'shards': [p.shard for p in self.pending]})
         if not self.included():
             warnings.append({'code': 'EMPTY_ENSEMBLE', 'detail': 'no shard is included; predictions are constant'})
-        if record['event'] != 'retrain' and record['kind'] not in ('backlog_done', 'batch_end'):
+        if record['event'] != 'retrain' and record['kind'] != 'backlog_done':
             warnings.append({'code': 'STRUCTURE_CHANGED', 'detail': record['event']})
+        if extra.get('continued') is False:
+            warnings.append({'code': 'STOPPED_AT_CHECKPOINT', 'detail': f'{extra["checkpoint_round"]} rounds: the measured '
+                             'round time forecasts the remaining rounds over the budget; the model equals shard_fixed'})
         scope = EXACTNESS_SCOPE[record['policy']]
         if scope != 'unconditional':
             warnings.append({'code': 'ROUND_COUNT_DEPENDS_ON_PRE_DELETION_STATE',
@@ -787,7 +841,8 @@ class ShardExactMethod:
     """UnlearningMethod interface of the implementation guide (section 5.4) over saved states.
 
     run() loads the state in `original_checkpoint`, applies one request and saves the new state to `output_dir`.
-    forget_request: train row indices, or None for the whole client; config: {'policy': name} (optional).
+    forget_request: train row indices, or None for the whole client; config: {'policy': name} (optional), plus
+    {'budget_seconds', 'margin'} for shard_checkpoint.
     """
 
     def __init__(self, train, validation, parts, measure_payload=True):
@@ -797,4 +852,6 @@ class ShardExactMethod:
         if Path(output_dir).exists():
             raise FileExistsError(f'Refusing overwrite: {output_dir}')
         fed = ShardedUnlearner.load(original_checkpoint, self.train, self.validation, self.parts, self.measure_payload)
-        return fed.unlearn(ForgetRequest(target_client, forget_request), (config or {}).get('policy'), output_dir)
+        config = config or {}
+        return fed.unlearn(ForgetRequest(target_client, forget_request), config.get('policy'), output_dir,
+                           config.get('budget_seconds'), config.get('margin', 0.))

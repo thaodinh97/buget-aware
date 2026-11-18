@@ -1,0 +1,23 @@
+{
+ "verify_bit_exact": {
+  "bit_exact": true,
+  "shards_checked": 4,
+  "per_shard": {
+   "0": true,
+   "1": true,
+   "2": true,
+   "3": true
+  },
+  "included_equals_active": true,
+  "exact": true,
+  "structure_ok": true
+ },
+ "validation_macro_f1": 0.8955197157975527,
+ "validation_fpr": 0.23635130552729738,
+ "shard_rounds": {
+  "0": 20,
+  "1": 20,
+  "2": 20,
+  "3": 10
+ }
+}

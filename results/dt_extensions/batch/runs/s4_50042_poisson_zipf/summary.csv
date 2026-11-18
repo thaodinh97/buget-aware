@@ -1,0 +1,6 @@
+mode,budget_level,budget_seconds,events,requests_served,retrains,seconds_total,rows_x_rounds,latency_mean,latency_max,exposure_row_time,deadline_misses,over_budget_events,forced_over_budget_events,overrun_seconds,served_full_share,validation_f1_min,validation_f1_final,validation_fpr_final,exact_all_events,final_exact
+immediate,mid,7.05451,20,20,20,99.9914,11773140,0,0,0,0,5,0,12.2731,1,0.897592,0.897807,0.241551,True,True
+window5,mid,7.05451,4,20,11,46.1628,6064780,2.15243,4.94502,11809.2,0,0,0,0,1,0.897807,0.897807,0.241551,True,True
+lazy,mid,7.05451,9,20,9,42.1347,5465120,4.00031,5,35119.9,0,1,0,1.64789,1,0.897807,0.897807,0.241551,True,True
+dt_mid,mid,7.05451,18,20,18,72.0022,8882910,0.49942,5,1324.58,0,0,0,0,0.95,0.894996,0.897807,0.241551,True,True
+dt_tight,tight,4.70301,17,20,17,56.2854,8296570,0.567644,5,1486.95,0,0,0,0,0.95,0.894996,0.897807,0.241551,True,True

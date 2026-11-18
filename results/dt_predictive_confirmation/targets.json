@@ -1,0 +1,26 @@
+{
+  "measured": {
+    "joint_gain_pp": 20.370370370370374,
+    "positive_environments": 3,
+    "service_ratio": 0.9937270521846459,
+    "mean_f1_delta": -9.634842195641345e-05,
+    "worst_f1_delta": -0.002533767175264323
+  },
+  "targets": {
+    "joint_success_gain_pp_vs_rows_legacy": 5.0,
+    "environments_with_positive_gain": 2,
+    "max_service_ratio_vs_rows_legacy": 1.1,
+    "min_mean_paired_validation_f1_delta": -0.002,
+    "min_block_validation_f1_delta": -0.005
+  },
+  "gates": {
+    "joint_gain": true,
+    "environments": true,
+    "service_cost": true,
+    "mean_utility": true,
+    "worst_utility": true,
+    "exactness": true
+  },
+  "all_practical_targets_met": true,
+  "statistical_significance_tested": false
+}

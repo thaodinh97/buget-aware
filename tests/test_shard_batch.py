@@ -1,4 +1,8 @@
-"""Batch deletion preserves exact retraining while charging each touched shard once."""
+"""Batch deletion preserves exact retraining while charging each touched shard once.
+
+Written for the v3 branch's own unlearn_batch; adapted on 2026-11-18 to the single unlearn_batch kept when the DT branch
+was merged (docs/shard_exact_merge.md): result kind 'batch', details['shards_retrained'], two extra history keys, the
+unlearner's policy as default (shard_full / shard_fixed only), client-level requests allowed."""
 import json
 from pathlib import Path
 import tempfile
@@ -8,6 +12,8 @@ import numpy as np
 import torch
 
 from src.fu.shard_exact import ForgetRequest, ShardConfig, ShardedUnlearner
+
+BATCH_KEYS = ('batch_first_step', 'batch_size')   # history keys only unlearn_batch writes
 
 
 class BatchTests(unittest.TestCase):
@@ -53,15 +59,17 @@ class BatchTests(unittest.TestCase):
         sequential = [immediate.unlearn(request) for request in requests]
         self.assert_models_equal(batch, immediate)
         self.assertTrue(batch.verify_bit_exact()['bit_exact'])
-        self.assertEqual(got.details['retrained_shards'], [0, 1])
+        self.assertEqual(got.details['shards_retrained'], [0, 1])
         self.assertEqual(got.details['batch_size'], 4)
-        self.assertEqual((got.step, got.rows, got.kind, got.exactness_scope), (4, 27, 'batch_end', 'unconditional'))
+        self.assertEqual((got.step, got.rows, got.kind, got.exactness_scope), (4, 27, 'batch', 'unconditional'))
+        self.assertEqual(got.client, -1)
         self.assertTrue(got.exact and got.structure_ok)
         self.assertEqual(got.cost['rounds'], 6)
         self.assertEqual(got.cost['rows_x_rounds'], (320 - 27)*3)
         self.assertLess(got.cost['rows_x_rounds'], sum(r.cost['rows_x_rounds'] for r in sequential))
         self.assertEqual(sum(r['samples'] for r in got.round_costs), got.cost['rows_x_rounds'])
-        self.assertEqual(batch.history, immediate.history)
+        self.assertEqual([{k: v for k, v in r.items() if k not in BATCH_KEYS} for r in batch.history], immediate.history)
+        self.assertEqual([(r['batch_first_step'], r['batch_size']) for r in batch.history], [(1, 4)]*4)
         self.assertEqual(batch.assignment, self.assignment)
         self.assertEqual(batch.present, set(range(8)))
         self.assertTrue(base.alive.all())
@@ -74,10 +82,9 @@ class BatchTests(unittest.TestCase):
         fed.fit()
         original = fed.fork()
         first = ForgetRequest(0, self.parts[0][:4])
-        invalid = [ForgetRequest(99, [0]), ForgetRequest(1), ForgetRequest(1, []),
+        invalid = [ForgetRequest(99, [0]), ForgetRequest(1, []),
                    ForgetRequest(1, [40, 40]), ForgetRequest(1, [80]),
-                   ForgetRequest(0, self.parts[0][2:5]), ForgetRequest(0, self.parts[0][4:]),
-                   ForgetRequest(1, self.parts[1])]
+                   ForgetRequest(0, self.parts[0][2:5])]
         for request in invalid:
             with self.subTest(request=request), self.assertRaises(ValueError):
                 fed.unlearn_batch([first, request])
@@ -101,16 +108,20 @@ class BatchTests(unittest.TestCase):
             fed.unlearn_batch([])
         fed.unlearn(request)
         with self.assertRaisesRegex(RuntimeError, 'backlog'):
-            fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])])
+            fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])], 'shard_full')
         fed.finish_backlog()
-        self.assertTrue(fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])]).exact)
+        with self.assertRaisesRegex(ValueError, 'supports'):
+            fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])])
+        self.assertTrue(fed.unlearn_batch([ForgetRequest(1, self.parts[1][:3])], 'shard_full').exact)
 
-    def test_one_request_matches_unlearn_and_uses_full_rounds_regardless_of_default(self):
+    def test_one_request_matches_unlearn_with_explicit_full_rounds(self):
         base = self.make('utility_stop')
         base.fit()
         batch, single = base.fork(), base.fork('shard_full')
         request = ForgetRequest(3, self.parts[3][:5])
-        got, expected = batch.unlearn_batch([request]), single.unlearn(request)
+        with self.assertRaisesRegex(ValueError, 'supports'):
+            batch.unlearn_batch([request])
+        got, expected = batch.unlearn_batch([request], 'shard_full'), single.unlearn(request)
         self.assert_models_equal(batch, single)
         self.assertEqual(got.cost['rounds'], self.cfg.fl['rounds'])
         self.assertEqual(got.cost['cumulative_unlearning'], expected.cost['cumulative_unlearning'])

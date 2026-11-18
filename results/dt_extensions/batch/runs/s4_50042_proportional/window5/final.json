@@ -1,0 +1,32 @@
+{
+ "validation_macro_f1": 0.8978226672259619,
+ "validation_fpr": 0.24132474285068384,
+ "exact": true,
+ "structure_ok": true,
+ "weights_sha256": {
+  "0": "10a6ec2f42e21e836d43739ed1172cc3327455fbc8c6c70dfc8e80b760d89d63",
+  "1": "d79d4444b0c2110e837e04cd46aea611bde7b85a2ebda8e20a58c8ebf8b69470",
+  "2": "1b144494b082d595cefe23aa04a59a4e5c4156a70445774a0713b347c0fd25b9",
+  "3": "47e81657075b5c304547fd45d6f60428962b20dfa4385b19604b521a89e5c016"
+ },
+ "shard_rounds": {
+  "0": 20,
+  "1": 20,
+  "2": 20,
+  "3": 20
+ },
+ "alive_rows": 97041,
+ "verify_bit_exact": {
+  "bit_exact": true,
+  "shards_checked": 4,
+  "per_shard": {
+   "0": true,
+   "1": true,
+   "2": true,
+   "3": true
+  },
+  "included_equals_active": true,
+  "exact": true,
+  "structure_ok": true
+ }
+}
