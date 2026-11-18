@@ -1,0 +1,22 @@
+spread: design=v3, seeds 60042..60051, output runs/shard_v3/stream_spread
+spread S=4 seed=60042 done; initial reproducible=True
+spread S=4 seed=60043 done; initial reproducible=True
+spread S=4 seed=60044 done; initial reproducible=True
+spread S=4 seed=60045 done; initial reproducible=True
+spread S=4 seed=60046 done; initial reproducible=True
+spread S=4 seed=60047 done; initial reproducible=True
+spread S=4 seed=60048 done; initial reproducible=True
+spread S=4 seed=60049 done; initial reproducible=True
+spread S=4 seed=60050 done; initial reproducible=True
+spread S=4 seed=60051 done; initial reproducible=True
+spread S=5 seed=60042 done; initial reproducible=True
+spread S=5 seed=60043 done; initial reproducible=True
+spread S=5 seed=60044 done; initial reproducible=True
+spread S=5 seed=60045 done; initial reproducible=True
+spread S=5 seed=60046 done; initial reproducible=True
+spread S=5 seed=60047 done; initial reproducible=True
+spread S=5 seed=60048 done; initial reproducible=True
+spread S=5 seed=60049 done; initial reproducible=True
+spread S=5 seed=60050 done; initial reproducible=True
+spread S=5 seed=60051 done; initial reproducible=True
+DONE spread; reproducible=True; attempts=1

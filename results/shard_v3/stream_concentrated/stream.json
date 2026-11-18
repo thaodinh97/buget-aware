@@ -1,0 +1,509 @@
+{
+ "format": 1,
+ "family": "concentrated",
+ "stream_config": {
+  "K": 20,
+  "cap": 0.5,
+  "size_median": 200,
+  "size_sigma": 1.5,
+  "rate": 1.0,
+  "zipf_s": 1.0,
+  "seed_size": 203,
+  "seed_time": 204,
+  "seed_choice": 201,
+  "seed_rank": 202,
+  "seed_rows": 205
+ },
+ "client_rows": [
+  4768,
+  1308,
+  6095,
+  6102,
+  3364,
+  4508,
+  2490,
+  12280,
+  1056,
+  4445,
+  29317,
+  4278,
+  15035,
+  7034,
+  814,
+  1794,
+  85,
+  5144,
+  317,
+  4050
+ ],
+ "assignments": {
+  "4": [
+   [
+    1,
+    3,
+    4,
+    14,
+    17
+   ],
+   [
+    2,
+    6,
+    8,
+    16,
+    18
+   ],
+   [
+    0,
+    5,
+    9,
+    10,
+    12
+   ],
+   [
+    7,
+    11,
+    13,
+    15,
+    19
+   ]
+  ],
+  "5": [
+   [
+    0,
+    3,
+    16,
+    19
+   ],
+   [
+    7,
+    8,
+    10,
+    17
+   ],
+   [
+    2,
+    4,
+    12,
+    15
+   ],
+   [
+    1,
+    9,
+    13,
+    18
+   ],
+   [
+    5,
+    6,
+    11,
+    14
+   ]
+  ]
+ },
+ "streams": {
+  "4": [
+   {
+    "step": 1,
+    "time": 0.31291745568572193,
+    "client": 0,
+    "shard": 2,
+    "requested": 91,
+    "rows": 91,
+    "kind": "sample",
+    "forget_request_hash": "43dadb3cc22ed3697473550e4b8092d53dbebca5a68f239c3455cfa57ed86a25"
+   },
+   {
+    "step": 2,
+    "time": 2.496285789278196,
+    "client": 0,
+    "shard": 2,
+    "requested": 119,
+    "rows": 119,
+    "kind": "sample",
+    "forget_request_hash": "0a7cd4ed38c03997de79e9db519a27c8d1297b707479776a874c9a3e50e5b82a"
+   },
+   {
+    "step": 3,
+    "time": 3.7559551200457184,
+    "client": 0,
+    "shard": 2,
+    "requested": 823,
+    "rows": 823,
+    "kind": "sample",
+    "forget_request_hash": "ac3997f5322f1f0da2ca284aa80b7f3f8f63e802847caca22b7ab80000658229"
+   },
+   {
+    "step": 4,
+    "time": 3.832505371128341,
+    "client": 12,
+    "shard": 2,
+    "requested": 2323,
+    "rows": 2323,
+    "kind": "sample",
+    "forget_request_hash": "8192d61aa18980bc0116b43d50971ba7e5b69497efed62429f315107fefd2fba"
+   },
+   {
+    "step": 5,
+    "time": 3.8607723635514914,
+    "client": 10,
+    "shard": 2,
+    "requested": 49,
+    "rows": 49,
+    "kind": "sample",
+    "forget_request_hash": "ecf1e72e70083138ff2952fa2258a3e095d4959adaa5382c069500dbbe951821"
+   },
+   {
+    "step": 6,
+    "time": 4.149390185418101,
+    "client": 5,
+    "shard": 2,
+    "requested": 5871,
+    "rows": 2254,
+    "kind": "sample",
+    "forget_request_hash": "7c2137cc5dac9028c8e77570c2f4e5331900dcebb4dfe9da75f84cda8aaf22cc"
+   },
+   {
+    "step": 7,
+    "time": 4.238388410014189,
+    "client": 12,
+    "shard": 2,
+    "requested": 793,
+    "rows": 793,
+    "kind": "sample",
+    "forget_request_hash": "ba150f6367244dad8f7983289d23bb65525555f550c6c5cda324406e1a9a32f5"
+   },
+   {
+    "step": 8,
+    "time": 4.362723638680588,
+    "client": 10,
+    "shard": 2,
+    "requested": 58,
+    "rows": 58,
+    "kind": "sample",
+    "forget_request_hash": "7fb2bce7384617fc09b3dd09a60732ebbb389341ef95fc9631522ec9c0da85b5"
+   },
+   {
+    "step": 9,
+    "time": 6.892146147280776,
+    "client": 9,
+    "shard": 2,
+    "requested": 55,
+    "rows": 55,
+    "kind": "sample",
+    "forget_request_hash": "1dd62c0bb845ac39f56b4b45e3915f32ed776aa90fb657a6b1fe39b0b2fca18f"
+   },
+   {
+    "step": 10,
+    "time": 8.235667768701223,
+    "client": 10,
+    "shard": 2,
+    "requested": 173,
+    "rows": 173,
+    "kind": "sample",
+    "forget_request_hash": "0ab93218b7f02e4a6a241d3d934f71a9122b8f5c6fb4cb56fb004c098509c3d3"
+   },
+   {
+    "step": 11,
+    "time": 11.530967194889518,
+    "client": 10,
+    "shard": 2,
+    "requested": 88,
+    "rows": 88,
+    "kind": "sample",
+    "forget_request_hash": "d4443eda6877c85fd0909fbdea72da803457e5b28cfe8cd881830821eb14dee4"
+   },
+   {
+    "step": 12,
+    "time": 11.613210068996347,
+    "client": 0,
+    "shard": 2,
+    "requested": 21,
+    "rows": 21,
+    "kind": "sample",
+    "forget_request_hash": "0ecef92c25237eba47d4c9ef048b3e160e8ea44c4809d5357dc11fc340e08844"
+   },
+   {
+    "step": 13,
+    "time": 11.843360691819873,
+    "client": 10,
+    "shard": 2,
+    "requested": 10,
+    "rows": 10,
+    "kind": "sample",
+    "forget_request_hash": "1c200560c9d3e6ad6c18409511562388af3fd81e0520c5fb1c228cd581849781"
+   },
+   {
+    "step": 14,
+    "time": 12.493522605641498,
+    "client": 10,
+    "shard": 2,
+    "requested": 588,
+    "rows": 588,
+    "kind": "sample",
+    "forget_request_hash": "8fa342d21fd4a14ba4b058b74c906d31387d0031d2a72398c5d2dc3b83e83c08"
+   },
+   {
+    "step": 15,
+    "time": 12.521311366908156,
+    "client": 10,
+    "shard": 2,
+    "requested": 43,
+    "rows": 43,
+    "kind": "sample",
+    "forget_request_hash": "f0e0b0a7137ca0e02ceff58c37c7c8c21256f3958492984c538db953b7b46ab4"
+   },
+   {
+    "step": 16,
+    "time": 12.785853052445505,
+    "client": 10,
+    "shard": 2,
+    "requested": 2075,
+    "rows": 2075,
+    "kind": "sample",
+    "forget_request_hash": "bd330979e3d41c249aef529d546a5e4af189cae55fccdb5f1b09bfc1b02e7092"
+   },
+   {
+    "step": 17,
+    "time": 13.097933879163774,
+    "client": 10,
+    "shard": 2,
+    "requested": 4839,
+    "rows": 4839,
+    "kind": "sample",
+    "forget_request_hash": "ca93b95981017f163fe1a1ae10f3f3c1135e38463babceb86387a7c01a440ab7"
+   },
+   {
+    "step": 18,
+    "time": 13.967459978457342,
+    "client": 10,
+    "shard": 2,
+    "requested": 97,
+    "rows": 97,
+    "kind": "sample",
+    "forget_request_hash": "cf4ac102caa4cb6575a8fd33dccc2c050c81cdee254e1d00c9408b2ed7736396"
+   },
+   {
+    "step": 19,
+    "time": 14.906050429266816,
+    "client": 10,
+    "shard": 2,
+    "requested": 1679,
+    "rows": 1679,
+    "kind": "sample",
+    "forget_request_hash": "080868cf7121d06dd045853f164f84e47f0e7f1bfab1864d51c798da3a13959f"
+   },
+   {
+    "step": 20,
+    "time": 15.054975303122104,
+    "client": 12,
+    "shard": 2,
+    "requested": 85,
+    "rows": 85,
+    "kind": "sample",
+    "forget_request_hash": "6ff92db33917f41947cbc417f4f750a811bbccf50de1274eec75d28010941082"
+   }
+  ],
+  "5": [
+   {
+    "step": 1,
+    "time": 0.31291745568572193,
+    "client": 7,
+    "shard": 1,
+    "requested": 91,
+    "rows": 91,
+    "kind": "sample",
+    "forget_request_hash": "b4768d5fe164c2051b3da5df39ecdaa66f2552da219955670556add48eb74d39"
+   },
+   {
+    "step": 2,
+    "time": 2.496285789278196,
+    "client": 7,
+    "shard": 1,
+    "requested": 119,
+    "rows": 119,
+    "kind": "sample",
+    "forget_request_hash": "430827865a233b16caf31e2b1c8056b16ba141e770a9e6cec62d7481b4dfb7cc"
+   },
+   {
+    "step": 3,
+    "time": 3.7559551200457184,
+    "client": 7,
+    "shard": 1,
+    "requested": 823,
+    "rows": 823,
+    "kind": "sample",
+    "forget_request_hash": "3ef9850a58704e5a97d340035cb919f755c4429d627559494e61579a2cb6e324"
+   },
+   {
+    "step": 4,
+    "time": 3.832505371128341,
+    "client": 10,
+    "shard": 1,
+    "requested": 2323,
+    "rows": 2323,
+    "kind": "sample",
+    "forget_request_hash": "1df2a1bbf1ad820a472f48cf85498b9f6ec89bd26f0c6da6916a00b153dcdbb4"
+   },
+   {
+    "step": 5,
+    "time": 3.8607723635514914,
+    "client": 7,
+    "shard": 1,
+    "requested": 49,
+    "rows": 49,
+    "kind": "sample",
+    "forget_request_hash": "af18394388d96b56598f51b492c8c254243e4d96c01426aede4bf31a9cee88be"
+   },
+   {
+    "step": 6,
+    "time": 4.149390185418101,
+    "client": 7,
+    "shard": 1,
+    "requested": 5871,
+    "rows": 5058,
+    "kind": "sample",
+    "forget_request_hash": "028ef105567013fad9e23d2976cb06594fdd16a1606bf9483f7db0c4bffa50ea"
+   },
+   {
+    "step": 7,
+    "time": 4.238388410014189,
+    "client": 10,
+    "shard": 1,
+    "requested": 793,
+    "rows": 793,
+    "kind": "sample",
+    "forget_request_hash": "14b97a2e76f148ba4848eed0ca11c90b8a8b59794e1232d44a5f81449c57fd58"
+   },
+   {
+    "step": 8,
+    "time": 4.362723638680588,
+    "client": 10,
+    "shard": 1,
+    "requested": 58,
+    "rows": 58,
+    "kind": "sample",
+    "forget_request_hash": "9c1dcc03f6d2eea12ed6f58faa58ab78f3207f7484508fe544783847795cc38e"
+   },
+   {
+    "step": 9,
+    "time": 6.892146147280776,
+    "client": 10,
+    "shard": 1,
+    "requested": 55,
+    "rows": 55,
+    "kind": "sample",
+    "forget_request_hash": "74ae40e47960a944cc34b8c11c69f026ecc395df18ae358b8de1e7b6c9047b07"
+   },
+   {
+    "step": 10,
+    "time": 8.235667768701223,
+    "client": 10,
+    "shard": 1,
+    "requested": 173,
+    "rows": 173,
+    "kind": "sample",
+    "forget_request_hash": "b6515458b9a9aa535fe3aa4736a5c66c957dd2f613fdc8b28238aebd20ef91d4"
+   },
+   {
+    "step": 11,
+    "time": 11.530967194889518,
+    "client": 10,
+    "shard": 1,
+    "requested": 88,
+    "rows": 88,
+    "kind": "sample",
+    "forget_request_hash": "ff54143fa0342ae550496f57ab4e09128dac9ffdbc8c519f6f9405bc661d5fc3"
+   },
+   {
+    "step": 12,
+    "time": 11.613210068996347,
+    "client": 10,
+    "shard": 1,
+    "requested": 21,
+    "rows": 21,
+    "kind": "sample",
+    "forget_request_hash": "6d84334cd96d961e0c415e4fe527cf78ff842216660b10e3187dcb3e72d4b3e5"
+   },
+   {
+    "step": 13,
+    "time": 11.843360691819873,
+    "client": 10,
+    "shard": 1,
+    "requested": 10,
+    "rows": 10,
+    "kind": "sample",
+    "forget_request_hash": "692b3f13cdfd12cee8c4c15098025582721c70c848bdb88abd26b7da55e99d2c"
+   },
+   {
+    "step": 14,
+    "time": 12.493522605641498,
+    "client": 10,
+    "shard": 1,
+    "requested": 588,
+    "rows": 588,
+    "kind": "sample",
+    "forget_request_hash": "ac5bc280db9b0c11080288083f22292f8c60cabfcdf62a54df20666e51c33c25"
+   },
+   {
+    "step": 15,
+    "time": 12.521311366908156,
+    "client": 10,
+    "shard": 1,
+    "requested": 43,
+    "rows": 43,
+    "kind": "sample",
+    "forget_request_hash": "82f4eaba19cf1f06e90fb701ec76603156c651f47ad7fbfbf17d60c004121f1a"
+   },
+   {
+    "step": 16,
+    "time": 12.785853052445505,
+    "client": 10,
+    "shard": 1,
+    "requested": 2075,
+    "rows": 2075,
+    "kind": "sample",
+    "forget_request_hash": "76acbd982caff8b5f804be26ab720875985b1006bda2a1b4d9d072f4d64d9f70"
+   },
+   {
+    "step": 17,
+    "time": 13.097933879163774,
+    "client": 10,
+    "shard": 1,
+    "requested": 4839,
+    "rows": 4839,
+    "kind": "sample",
+    "forget_request_hash": "058540367dd0a29211c7c370eec276758560d6f0bf05c4bce2ace92bf2bd1dc7"
+   },
+   {
+    "step": 18,
+    "time": 13.967459978457342,
+    "client": 10,
+    "shard": 1,
+    "requested": 97,
+    "rows": 97,
+    "kind": "sample",
+    "forget_request_hash": "3639f6e2f769dd64e6a076b727f64d93c770ce5b970931f271e5b1ecf969ece9"
+   },
+   {
+    "step": 19,
+    "time": 14.906050429266816,
+    "client": 17,
+    "shard": 1,
+    "requested": 1679,
+    "rows": 1679,
+    "kind": "sample",
+    "forget_request_hash": "074455b2117d11a513a2cfbaae4f715debe8a750f6b9ec49bbd82eec06f78cd7"
+   },
+   {
+    "step": 20,
+    "time": 15.054975303122104,
+    "client": 10,
+    "shard": 1,
+    "requested": 85,
+    "rows": 85,
+    "kind": "sample",
+    "forget_request_hash": "16245dd2256c76ff3decbcd12cff074e42061c9f5ce45bb3960d76fd26b6cf43"
+   }
+  ]
+ }
+}

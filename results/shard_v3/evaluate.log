@@ -1,0 +1,8 @@
+P: PASS
+G1: PASS
+G2: PASS
+G3: FAIL
+G4: FAIL
+G5: FAIL
+G6: PASS
+CONFIRMED (all gates): False
