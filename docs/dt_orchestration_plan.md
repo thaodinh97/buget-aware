@@ -1,6 +1,6 @@
 # Điều phối unlearn chính xác theo shard: controller đề xuất so với chiến lược đã có (C1) và ablation (C2)
 
-**Trạng thái: BẢN NHÁP, chưa chốt; smoke đã xong, lần chạy chính hoãn lại (2026-11-19).** Viết ngày 2026-11-18, sau khi xem mọi kết quả DT trước đó ([dt_extensions.md](dt_extensions.md), [dt_online_confirmation_results.md](dt_online_confirmation_results.md), [dt_predictive_results.md](dt_predictive_results.md)) và phần FPR ([fpr_threshold_results.md](fpr_threshold_results.md)). Các kết quả đó là dữ liệu phát triển của protocol này.
+**Trạng thái: ĐÃ CHỐT ngày 2026-11-19 với 3 seed** (commit chứa dòng này; lock trong `results/dt_orchestration/protocol_lock.json`). Một lần chạy 2 seed bắt đầu từ commit `8389859` đã bị dừng để chuyển sang 3 seed; xem mục "Lịch sử bản nháp". Viết ngày 2026-11-18, sau khi xem mọi kết quả DT trước đó ([dt_extensions.md](dt_extensions.md), [dt_online_confirmation_results.md](dt_online_confirmation_results.md), [dt_predictive_results.md](dt_predictive_results.md)) và phần FPR ([fpr_threshold_results.md](fpr_threshold_results.md)). Các kết quả đó là dữ liệu phát triển của protocol này.
 - Trước khi chốt: một lần **smoke** (`configs/dt_orchestration_smoke.json`, seed 7, không phải bằng chứng) để đo thời gian và kiểm tra đường ống. Sau smoke chỉ được đổi **số seed** trong `configs/dt_orchestration.json` (để vừa thời gian máy); mọi thứ khác giữ nguyên. Thay đổi sau smoke ghi vào mục "Lịch sử bản nháp".
 - Chốt = commit tài liệu này cùng cấu hình và code; runner ghi hash (sau khi đổi CRLF thành LF) của chúng vào `protocol_lock.json` trước lần fit đầu tiên.
 
@@ -37,11 +37,11 @@ Mọi arm dùng vòng lặp thời gian thực chung (`src/dt/orchestration.py`,
 - **Model:** 20 client, partition 42, S = 4 (`assign_shards`), cấu hình `standard` (R_base = 20, `shard_fixed` = 10 vòng).
 - **Ngưỡng:** sau mỗi thao tác unlearn, ngưỡng được chọn lại trên validation theo quy tắc `youden` từ model vừa train lại. Thời gian này nằm trong thời gian phục vụ của thao tác. Utility báo trên calibration với ngưỡng đó (kèm ngưỡng mặc định để tham khảo).
 - **Block** = seed × họ chuỗi × mức tải × môi trường:
-  - seed train **73042, 73043** (chưa từng chạy; số seed có thể tăng sau smoke);
+  - seed train **73042, 73043, 73044** (xem mục "Lịch sử bản nháp" về lần chạy 2 seed bị dừng);
   - họ `spread`, `proportional`;
   - mức tải: khoảng cách trung bình giữa hai yêu cầu = 0,2 F, 0,5 F, 1,0 F (0,2 F là mức của các thí nghiệm trước, quá tải);
   - môi trường `none`, `gradual_clients`, `jitter_bandwidth` (như [dt_online_confirmation_plan.md](dt_online_confirmation_plan.md), seed stress 93000).
-  - Với 2 seed: 2 × 2 × 3 × 3 = **36 block, 360 chuỗi**.
+  - Với 3 seed: 3 × 2 × 3 × 3 = **54 block, 540 chuỗi**.
 - Mỗi block: một lần fit; F = thời gian 20 vòng của shard lớn nhất trong lần fit đó; ngân sách B = 0,75 F mỗi yêu cầu, deadline D = 1,5 F; 12 yêu cầu sample-level (`stream_requests`, seed chuỗi 83000 + 100·lần_lặp + offset). Cùng một chuỗi yêu cầu cho mọi mức tải và môi trường của cùng seed và họ; chỉ thời điểm đến được nhân với mức tải.
 - **Thứ tự chạy:** môi trường xoay vòng theo (lần lặp, họ, mức tải); thứ tự arm xoay vòng theo chỉ số block.
 - **Tính chính xác:** mọi thao tác phải `exact` và `structure_ok`; cuối mỗi chuỗi `verify_bit_exact` đạt; mọi arm của một block phải còn cùng số dòng. Sai một điều kiện thì runner dừng.
@@ -49,11 +49,11 @@ Mọi arm dùng vòng lặp thời gian thực chung (`src/dt/orchestration.py`,
 
 ## Thước đo và phép kiểm (cố định khi chốt)
 - **Thước đo chính:** số yêu cầu **thành công đồng thời** mỗi block: hoàn thành trước deadline (đo tới model-ready, gồm chờ, xử lý và chọn ngưỡng) **và** batch chứa nó không vượt ngân sách thời gian vòng gộp.
-- **C1:** với mỗi đối chứng b, d = `dt_queue` − b theo block; Wilcoxon signed-rank một phía (d > 0), bỏ các cặp bằng 0; Holm trên 5 đối chứng; α = 0,05. b **bị vượt** khi p Holm < 0,05 và trung bình d > 0. Biên utility: trung bình chênh macro-F1 calibration ghép cặp (`dt_queue` − b) ≥ **−0,005** với `edf` và `rows_legacy`, ≥ **−0,02** với `immediate`, `window` và `lazy` (`analysis.calibration_f1_floor`). **C1 đạt** khi đủ 36 block, mọi chuỗi chính xác, mọi đối chứng bị vượt và mọi biên utility đạt.
+- **C1:** với mỗi đối chứng b, d = `dt_queue` − b theo block; Wilcoxon signed-rank một phía (d > 0), bỏ các cặp bằng 0; Holm trên 5 đối chứng; α = 0,05. b **bị vượt** khi p Holm < 0,05 và trung bình d > 0. Biên utility: trung bình chênh macro-F1 calibration ghép cặp (`dt_queue` − b) ≥ **−0,005** với `edf` và `rows_legacy`, ≥ **−0,02** với `immediate`, `window` và `lazy` (`analysis.calibration_f1_floor`). **C1 đạt** khi đủ 54 block, mọi chuỗi chính xác, mọi đối chứng bị vượt và mọi biên utility đạt.
 - **Vì sao hai biên:** đối chứng luôn chạy full có utility cao hơn theo cấu tạo, vì `shard_fixed` (10 vòng) kém `shard_full` (20 vòng). v3 đo được cận dưới của chênh `shard_fixed` − `shard_full` từ −0,0108 đến −0,0137 ([shard_v3_results.md](shard_v3_results.md), G4). Giữ ngân sách chặt mà không mất utility so với chúng là điều không thể; biên −0,02 cho phép đúng cái giá đó cộng một khoảng dư, và vẫn chặn một controller hạ cấp quá mức. Với đối chứng cùng không gian full/fixed, chênh utility chỉ đến từ khác biệt quyết định, nên giữ biên chặt −0,005.
 - **C2:** với mỗi ablation a, d = `dt_queue` − a; Wilcoxon hai phía, Holm trên 4 ablation. Thành phần **có đóng góp** khi p Holm < 0,05 và trung bình d > 0; **có hại** khi p Holm < 0,05 và trung bình d < 0; còn lại **không phát hiện được**. Mọi trung bình kèm khoảng tin cậy bootstrap 95 % theo block (10.000 lần, seed 1).
 - **Mô tả (không kiểm định):** chênh theo mức tải, deadline miss, tổng thời gian phục vụ, latency p95, số yêu cầu chạy full, FPR calibration, thời gian lập kế hoạch và chọn ngưỡng.
-- **Cỡ mẫu:** độ lệch chuẩn của chênh lệch theo block ở thí nghiệm trước là 1,65 yêu cầu/block. Với 36 block, α hiệu chỉnh khoảng 0,01 và power 0,8, chênh lệch nhỏ nhất phát hiện được khoảng 3,42 · 1,65 / √36 ≈ 0,94 yêu cầu/block. Chênh của controller mới so với controller cũ trước đây là +2,44. Các ablation có hiệu ứng nhỏ hơn mức này có thể ra "không phát hiện được"; điều đó được ghi trước ở đây.
+- **Cỡ mẫu:** độ lệch chuẩn của chênh lệch theo block ở thí nghiệm trước là 1,65 yêu cầu/block. Với 54 block, α hiệu chỉnh khoảng 0,01 và power 0,8, chênh lệch nhỏ nhất phát hiện được khoảng 3,42 · 1,65 / √54 ≈ 0,77 yêu cầu/block (với 36 block là 0,94). Chênh của controller mới so với controller cũ trước đây là +2,44. Các ablation có hiệu ứng nhỏ hơn mức này có thể ra "không phát hiện được"; điều đó được ghi trước ở đây.
 - Bộ phân tích: `scripts/dt/analyze_orchestration.py`. Nó audit lại từ log sự kiện (mỗi yêu cầu đúng một lần, không có yêu cầu tương lai trong batch, một worker, latency = chờ + xử lý, thành công đồng thời khớp tổng hợp) trước khi tính.
 
 ## Không được tuyên bố, kể cả khi đạt
@@ -84,3 +84,8 @@ Thêm `--resume` để tiếp tục sau gián đoạn với cùng cấu hình v�
   - **Quyết định của người dùng: giữ `dt_queue` làm controller đề xuất**, không chỉnh thiết kế theo smoke. Nếu thành phần nào có hại, C2 sẽ báo cáo nguyên trạng.
   - Số seed giữ **2** (73042, 73043) trong cấu hình; người dùng chọn hoãn lần chạy chính. Nếu tăng số seed thì phải làm trước khi chốt và ghi vào mục này.
   - **Chưa chốt.** Khi chạy: commit tài liệu, cấu hình và code ở trạng thái này, rồi chạy runner; runner ghi lock trước lần fit đầu tiên.
+- 2026-11-19, **lần chạy 2 seed bị dừng, chuyển sang 3 seed:**
+  - Lần chạy từ commit `8389859` (2 seed) bắt đầu lúc 13:25 UTC (lock `frozen_utc`). Khi bị dừng theo yêu cầu của người dùng, nó đã xong 2 block (`r0_spread_load0.2_none`, `r0_spread_load0.2_jitter_bandwidth`) và dở 1 block (`r0_spread_load0.2_gradual_clients`), đều thuộc seed 73042.
+  - **Không ai xem kết quả của các block đó.** Lý do đổi là để tăng cỡ mẫu cho C2 (chênh phát hiện được từ 0,94 xuống 0,77 yêu cầu/block), đã được nêu trước khi chạy; nó không dựa trên kết quả nào của lần chạy dừng.
+  - Thư mục của lần chạy dừng được chuyển nguyên vẹn sang `runs/dt_orchestration_aborted_2seed_20261119/` (không nằm trong git), **không dùng trong phân tích**. Lần chạy 3 seed bắt đầu lại từ đầu, gồm cả seed 73042.
+  - Chỉ đổi danh sách seed trong `configs/dt_orchestration.json` và các con số phụ thuộc (số block, cỡ mẫu) cùng trạng thái của tài liệu này. Code, arm, phép kiểm và biên không đổi.

@@ -3,7 +3,7 @@
   "purpose": "C1/C2: proposed DT controller vs literature baselines and ablations on sharded exact unlearning",
   "data_dir": "data/processed/connected_v3_auxfit_log1p_seed42",
   "numeric_transform": "append_log1p",
-  "seeds": [73042, 73043],
+  "seeds": [73042, 73043, 73044],
   "families": ["spread", "proportional"],
   "loads": [0.2, 0.5, 1.0],
   "environments": ["none", "gradual_clients", "jitter_bandwidth"],
