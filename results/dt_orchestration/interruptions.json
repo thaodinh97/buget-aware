@@ -1,0 +1,62 @@
+{
+  "interruptions": [
+    {
+      "kind": "pause requested by the user, to resume on a later day",
+      "runner_pid": 19228,
+      "run_started_local": "2026-11-19T20:48:05",
+      "stopped_local": "2026-11-19T22:16:56",
+      "completed_blocks_kept": [
+        "r0_spread_load0.2_gradual_clients",
+        "r0_spread_load0.2_jitter_bandwidth",
+        "r0_spread_load0.2_none",
+        "r0_spread_load0.5_gradual_clients",
+        "r0_spread_load0.5_jitter_bandwidth",
+        "r0_spread_load0.5_none"
+      ],
+      "partial_block": "r0_spread_load1_jitter_bandwidth",
+      "partial_block_arms_with_final_json": 9,
+      "partial_block_archived_to": "runs/dt_orchestration_partial/r0_spread_load1_jitter_bandwidth_stopped_20261119T221656",
+      "partial_block_results_inspected": false,
+      "logs_renamed_to": [
+        "runs/dt_orchestration_main_part1.log",
+        "runs/dt_orchestration_main_part1.err"
+      ],
+      "note": "The partial block is rerun from scratch on resume (never merged); completed blocks are reused by --resume. The first Stop-Process call did not terminate the process; taskkill /F did, about 20 minutes after the user decided to pause, so the partial block had progressed further than when the pause was proposed.",
+      "resumed_local": "2026-11-20T23:33:35",
+      "resumed_runner_pid": 14392,
+      "resumed_logs": [
+        "runs/dt_orchestration_main_part2.log",
+        "runs/dt_orchestration_main_part2.err"
+      ],
+      "resume_checks": "config and LF source hashes equal the lock; 6 complete blocks; no partial block dir"
+    }
+  ],
+  "power_events": [
+    {
+      "kind": "Windows Modern Standby entered while the resumed runner was active (screen-off standby, not an interruption)",
+      "source": "System event log, Microsoft-Windows-Kernel-Power ids 506/507/566, queried after the run",
+      "events_local": [
+        {
+          "time": "2026-11-21T00:16:30",
+          "id": 506,
+          "msg": "entering Modern Standby"
+        },
+        {
+          "time": "2026-11-21T08:21:16",
+          "id": 507,
+          "msg": "exiting Modern Standby"
+        },
+        {
+          "time": "2026-11-21T08:21:45",
+          "id": 506,
+          "msg": "entering Modern Standby"
+        }
+      ],
+      "no_sleep_events": "no Kernel-Power 42/107 or Power-Troubleshooter 1 events between 2026-11-20T23:33 and 2026-11-21T09:53",
+      "evidence_of_no_suspension": "file write times of all 48 resumed blocks are continuous: ~15 s between blocks throughout, per-arm gaps 84-98 s (load 1.0) and 26-45 s (load 0.2) in the blocks spanning 00:16 and 08:21, block durations in the same range before and after 00:16; total 48 blocks in 10.3 h, matching the pre-resume estimate",
+      "checked_before_reading_results": true,
+      "action": "none; no block rerun"
+    }
+  ],
+  "run_completed_local": "2026-11-21T09:51:54"
+}
