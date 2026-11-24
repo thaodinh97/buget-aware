@@ -1,0 +1,19 @@
+{
+  "configs_complete": 35,
+  "blocks": 400,
+  "arms_exact_and_bit_exact": "129/129 (config, arm)",
+  "driver": {"pid": 13700, "first_start_local": "2026-11-21T20:19:29", "last_exit_local": "2026-11-22T18:34:59", "all_exit_codes_zero": true, "resumed_configs": 0},
+  "power_events": {
+    "window_local": ["2026-11-21T20:15", "2026-11-22T18:40"],
+    "kernel_power_506_507_modern_standby_pairs": 16,
+    "kernel_power_42_107_sleep_resume": 0,
+    "unexpected_shutdown_41_6008": 0,
+    "longest_standby_local": ["2026-11-22T00:54:28", "2026-11-22T10:56:28"],
+    "evidence_no_suspension": "largest gap between consecutive block completions 8.3 min (a K = 24, load 0.5 block); blocks completed throughout every standby window",
+    "fit_reference_F_seconds_default_mlp": {"screen_off_at_fit": {"n": 245, "mean": 7.23, "min": 7.02, "max": 7.76},
+                                            "screen_on_at_fit": {"n": 131, "mean": 7.76, "min": 5.94, "max": 9.76}},
+    "note": "Screen-off periods were faster and steadier than screen-on periods; machine state therefore varies between configs run hours apart (see the S4 placebo comparisons in docs/dt_sensitivity_results.md)."
+  },
+  "activity_during_run": "A few short numpy/pandas jobs by the assistant (analyzer smoke runs and the numpy-only FU-table tests, each a few seconds) on 2026-11-21 between 20:22 and 23:58; no training job ran concurrently.",
+  "deviations_from_plan": []
+}

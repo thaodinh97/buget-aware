@@ -1,0 +1,140 @@
+{
+  "config": {
+    "version": 1,
+    "purpose": "Sensitivity s4 (s4_q0.95); docs/dt_sensitivity_plan.md. Descriptive, not a confirmation.",
+    "data_dir": "data/processed/connected_v3_auxfit_log1p_seed42",
+    "numeric_transform": "append_log1p",
+    "seeds": [
+      75042,
+      75043
+    ],
+    "families": [
+      "spread",
+      "proportional"
+    ],
+    "loads": [
+      0.2
+    ],
+    "environments": [
+      "gradual_clients",
+      "jitter_bandwidth"
+    ],
+    "arms": [
+      "dt_queue",
+      "edf",
+      "rows_legacy"
+    ],
+    "proposed": "dt_queue",
+    "threshold_rule": "youden",
+    "window_scale": 0.5,
+    "alpha": 0.3,
+    "margin_q": 0.95,
+    "margin_window": 10,
+    "expert_loss_alpha": 0.3,
+    "expert_eta": 3.0,
+    "expert_floor": 0.1,
+    "requests": 12,
+    "stream_seed_base": 85000,
+    "shards": 4,
+    "threads": 2,
+    "train_config": "standard",
+    "budget_scale": 0.75,
+    "deadline_scale": 1.5,
+    "service_padding_seconds": 0.05,
+    "stress_seed": 95000,
+    "slow_factor_max": 4.0,
+    "bandwidth_mbps_range": [
+      5.0,
+      20.0
+    ],
+    "noise_bucket_seconds": 1.0,
+    "calibration_max_round_seconds": 60.0,
+    "sensitivity": {
+      "name": "s4_q0.95",
+      "stage": "s4",
+      "changed_from_c1c2": {
+        "seeds": [
+          75042,
+          75043
+        ],
+        "stream_seed_base": 85000,
+        "stress_seed": 95000,
+        "loads": [
+          0.2
+        ],
+        "environments": [
+          "gradual_clients",
+          "jitter_bandwidth"
+        ],
+        "arms": [
+          "dt_queue",
+          "edf",
+          "rows_legacy"
+        ],
+        "margin_q": 0.95
+      },
+      "base_config": "configs/dt_orchestration.json"
+    }
+  },
+  "source_sha256_lf": {
+    "configs/sens/s4_q0.95.json": "bf2be37c1498eb981ed6f80709e0a2dd726f7fd42476b9ffef41caa45524825d",
+    "docs/dt_sensitivity_plan.md": "b1ef08caf4611cdfa43900c81ec2514523f7d434986e839bf99508c9b52bbabf",
+    "scripts/dt/analyze_batch.py": "9ced9b8494eb6f9863a74c867f760335f1696eb399a118bc7ca3cbd6c544ac50",
+    "scripts/dt/analyze_online_confirmation.py": "fb335c2c627afb5d5dc9961c8f36c4b0a9f7747eed48544e37bd64219e30dbf8",
+    "scripts/dt/analyze_orchestration.py": "3468edb0a39e66a02aa162d27aa70fd029797dc0fea40a5108d4fc44e7b6dd66",
+    "scripts/dt/analyze_predictive_confirmation.py": "cefd884304e8dd25b5660ea3ab8d57117d5cb1d48ee3fc0323b151c18890e2a0",
+    "scripts/dt/evaluate_stress.py": "b57dd99dd9eb7efe6e49d403842099dbca9f16d132b576f635fdcf31cd3fb059",
+    "scripts/dt/machine.py": "b3e7be30ecc2964cf87b9279f7af573fdeb41cfd260abecd071bf138e6fb9842",
+    "scripts/dt/measure_dt_overhead.py": "1343a8d90ef6c293d23d5b9064e126e88aa7a3d0f92dca3566d62d33240579e3",
+    "scripts/dt/run_batch_dt.py": "7049f6a52ab6cea6af98faccbd1cf45aeba0f65c0a87434c79683eac48ea71a2",
+    "scripts/dt/run_midcourse_online.py": "005eac1d0db702913ec418a5e82941c664083a37f6a1fddd563809d9d5c8a5d1",
+    "scripts/dt/run_online_confirmation.py": "bf68eb35f990b56c26fff2278264b2335acdb871895e23c4680101a0f929bd8b",
+    "scripts/dt/run_orchestration.py": "c860aba6e591287e7e5bc201a721ceee984e56008c06ce2aac28f3da5e01816f",
+    "scripts/dt/run_predictive_confirmation.py": "ba007d8a164f0fc38dd37b70bde6a12066f2a6952bebfb383377679e017f8e1e",
+    "scripts/dt/run_stress_trajectories.py": "7df153c788a848d121bbceff3bb60bb2366cf9fe015b782fb6de75d281c51160",
+    "scripts/shard/fpr_threshold_check.py": "cc5de10dba0b0c17256a64f130a31d60b31924c6ccb3e490f2821b359a853350",
+    "scripts/shard/shard_dt.py": "051f98adee3f038ee8f55daf8abe3ebab5e90d3dadd21c9e277fb4ddf0bc649d",
+    "scripts/shard/shard_v2.py": "487236596891f69c09a4523aa6a6122e27d2557d0e0dd2eefd0dd93c0e3f675f",
+    "scripts/shard/shard_v3.py": "5726c861c0282d0cfbf472d062717af7cc9706012cf860b2e4885ff56a1bbc42",
+    "scripts/shard/stream_v3.py": "aa2d814c1e1c3c2f043881a39ca1132f233220409cc877a3e7d68e16128f25b4",
+    "scripts/shard/train_config.py": "0c44f75ef8ca8032252952c6357ea5ab6a9e946b5541d55cd8576b71df8d1f92",
+    "src/data/federated.py": "f65647a9f25d93f381e84ccf3bb376e0b701fc887187f3e9f100989a59a8902b",
+    "src/data/loading.py": "25bcf40aaeedee00b095faa7a1d8a3ef109e5e20262e576f6119319bb679cd01",
+    "src/data/prepare.py": "daed652df02126e123d45875d7e76b275357f2ffe2d1a592a48ba7b74dc353ac",
+    "src/data/prepare_log1p.py": "8e6625b108ec9887ba47fe3a776fa887b86ee3c7c40383dc42280cfec894fdde",
+    "src/dt/orchestration.py": "55cb897884abfdfbe8862a54acd2988d2970b0c7fa43219fdcad7ac5ea71bd37",
+    "src/dt/overhead.py": "30503ad41a28cd5d65fab37e657e22514f354c6ded82d63e29f08308119ec6f9",
+    "src/dt/planner.py": "a847cbc35b277226a2a4cd42d45fc220dbe7fd4ee7639522a459fdf5b45d2198",
+    "src/dt/predictive.py": "678c9ec7d534de255b5972f392ae6204a0ceb2ff88356a316076e22511d51bbc",
+    "src/dt/realtime.py": "b1a106505e40f829b55c89371e3243fc44a3a2618bda534d76fae5a26e962be2",
+    "src/dt/scheduler.py": "98d12670147349d233d63fd9b13605158aa85bf8c3d91aa37df35ff4a863f178",
+    "src/dt/stress.py": "126094d12a6aee5558da5c6e936980c9dda50ddb1c3978809f40432126459603",
+    "src/eval/membership_validation.py": "41070c98f7feb798f4bb79b917d53bb9ab37006c186724443a8818d6e30a4902",
+    "src/eval/metrics.py": "e2e9becb03bfa068ec947fcdcfd7699ed11a370625432131a95584dbb7d721cd",
+    "src/eval/utility_breakdown.py": "e255f00d50b85f8637e4aa92ad986e0cdf6439d0e5fae655c66e01631f146c6b",
+    "src/fl/distributed.py": "563500e35ce7fbc2b6ff6d36a82f386b82c39f79c9109dd79f445ae1b6437294",
+    "src/fl/fedavg_core.py": "9ebc731b09132f10a9d7716ff91ff8391d76d75735b99b9de10719608b6a84d7",
+    "src/fu/conpfu_inspired.py": "57156e59c41640a70a0106b84278ae807e92aef3eb55499963c62e320de9854d",
+    "src/fu/shard_cost.py": "6220322b9f9e45ca822055c9aae4d729f0542adb11e91fa7dba1de8db287c435",
+    "src/fu/shard_exact.py": "057d5c33dfbdbb9aee888f52b0701dec09320eca18a4ad53aaab341186e1926c"
+  },
+  "data_content_sha256": "52d233f0418bfdb13c4270889f772ae98a8b0587608a4bea457d4e545363c2f1",
+  "data_artifacts_sha256": {
+    "audit.json": "84db375fbda90d790fdd030abb892f187d6c33f6d11f08848b07753f26bdf14e",
+    "calibration.npz": "83fd0cd8a2f01c486fa26ac0459bd8850c45c5d4e1c131e8628a28c5fd72c696",
+    "duplicate_mapping.csv": "a6dd82a330df6dc5713ea1dd37b9b295297f76d627d9e9c96cc0062a1d9c6ad2",
+    "metadata.csv": "26170368dfa3eb12455572bb1f5d37148bffcbf55f6d5039b9a38176fa00a9fd",
+    "test.npz": "d8d7257d0e7178a849ce38fe06f131f53fc6f715f2eb6342a5809311ecbec8e4",
+    "train.npz": "fdc13eebb043cbf8d41a52a22d14714136ef3a5ee7e6786232998871fcccc1b5",
+    "transformer.json": "497eae110fd612facf2f691e330c8d9db485b81799da089bb4c1f06bde52eb27",
+    "validation.npz": "f7bd6d5d69e6f778eed9d917ca8b4328d6772b4552e66601e62f7a1ff91b37bf"
+  },
+  "frozen_utc": "2026-11-22T07:07:37Z",
+  "machine": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.2",
+    "torch": "2.6.0+cu124",
+    "numpy": "2.3.5"
+  },
+  "system_sleep_prevention": true
+}

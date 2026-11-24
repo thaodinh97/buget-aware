@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "requests": 12,
+    "events": 8,
+    "deadline_misses": 3,
+    "deadline_success_rate": 0.75,
+    "joint_success_requests": 9,
+    "latency_mean_seconds": 9.874609173630583,
+    "latency_p95_seconds": 22.97992464125665,
+    "latency_max_seconds": 25.897240554635488,
+    "waiting_mean_seconds": 5.802136465298691,
+    "service_seconds": 35.232589499988535,
+    "round_seconds": 34.26812949998566,
+    "lateness_total_seconds": 17.72826821774979,
+    "round_over_budget_events": 0,
+    "forced_over_budget_events": 0,
+    "service_over_budget_events": 0,
+    "round_overrun_seconds": 0.0,
+    "within_budget_requests": 12,
+    "full_requests": 3,
+    "rows_x_rounds": 2671880,
+    "makespan_seconds": 39.15817740000057,
+    "predictor": "dt_queue",
+    "kind": "queue",
+    "exact_all_events": true,
+    "bit_exact": true,
+    "alive_rows": 106860,
+    "threshold_final": 6.976205974817276,
+    "threshold_seconds_total": 0.2019022999884328,
+    "plan_seconds_total": 0.009717400003864896,
+    "sync_seconds_total": 0.0007158000007621013,
+    "validation_macro_f1": 0.9671679478203958,
+    "validation_fpr": 0.03888323725556686,
+    "validation_recall_attack": 0.9766274589332793,
+    "validation_macro_f1_default_threshold": 0.9661890379632809,
+    "validation_fpr_default_threshold": 0.048830111902339775,
+    "validation_recall_attack_default_threshold": 0.9800750354897587,
+    "calibration_macro_f1": 0.9541349286720676,
+    "calibration_fpr": 0.06236958033851148,
+    "calibration_recall_attack": 0.9764506277570411,
+    "calibration_macro_f1_default_threshold": 0.9529400032318616,
+    "calibration_fpr_default_threshold": 0.07929515418502203,
+    "calibration_recall_attack_default_threshold": 0.9807940278249067
+  },
+  "verify_bit_exact": {
+    "bit_exact": true,
+    "shards_checked": 4,
+    "per_shard": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "included_equals_active": true,
+    "exact": true,
+    "structure_ok": true
+  },
+  "weights_sha256": {
+    "0": "8a30e390b47fcf7d43430c612e1c3da5008eab826a7d2d9bd2c38524193cd895",
+    "1": "c222ba5f09c50171a55a4d98651c20c7b49b1b7ad4a2ec238cd21449ac20192c",
+    "2": "8f423670b63e95b7cfc7b62cb8bd860f5d2c4c81899367e6150a03c23f24124f",
+    "3": "c6cdedef6d6fda4f4fe702555a16df7266370abd52fbf6c9badcdc7cf0ce3950"
+  },
+  "shard_rounds": {
+    "0": 10,
+    "1": 10,
+    "2": 10,
+    "3": 20
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "requests": 12,
+    "events": 10,
+    "deadline_misses": 1,
+    "deadline_success_rate": 0.9166666666666666,
+    "joint_success_requests": 11,
+    "latency_mean_seconds": 8.429297714080215,
+    "latency_p95_seconds": 14.033306586710292,
+    "latency_max_seconds": 14.41466075368492,
+    "waiting_mean_seconds": 5.378615722413865,
+    "service_seconds": 27.483439899995574,
+    "round_seconds": 26.127437400034978,
+    "lateness_total_seconds": 0.10986395369666724,
+    "round_over_budget_events": 0,
+    "forced_over_budget_events": 0,
+    "service_over_budget_events": 0,
+    "round_overrun_seconds": 0.0,
+    "within_budget_requests": 12,
+    "full_requests": 8,
+    "rows_x_rounds": 3927420,
+    "makespan_seconds": 31.4254873999962,
+    "predictor": "edf",
+    "kind": "baseline",
+    "exact_all_events": true,
+    "bit_exact": true,
+    "alive_rows": 106860,
+    "threshold_final": 4.262294135987759,
+    "threshold_seconds_total": 0.24507750001066597,
+    "plan_seconds_total": 0.007366800004092511,
+    "sync_seconds_total": 0.000979500007815659,
+    "validation_macro_f1": 0.9619870649504216,
+    "validation_fpr": 0.04611732790776534,
+    "validation_recall_attack": 0.9734333806530115,
+    "validation_macro_f1_default_threshold": 0.9633336187763495,
+    "validation_fpr_default_threshold": 0.05798575788402848,
+    "validation_recall_attack_default_threshold": 0.9807848306631515,
+    "calibration_macro_f1": 0.9485593674413052,
+    "calibration_fpr": 0.06886158126594018,
+    "calibration_recall_attack": 0.9731930777061418,
+    "calibration_macro_f1_default_threshold": 0.9540580209923412,
+    "calibration_fpr_default_threshold": 0.07790401112914444,
+    "calibration_recall_attack_default_threshold": 0.9814048184594503
+  },
+  "verify_bit_exact": {
+    "bit_exact": true,
+    "shards_checked": 4,
+    "per_shard": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "included_equals_active": true,
+    "exact": true,
+    "structure_ok": true
+  },
+  "weights_sha256": {
+    "0": "8a30e390b47fcf7d43430c612e1c3da5008eab826a7d2d9bd2c38524193cd895",
+    "1": "c32cf030d08849d2bff51fbd89a8fa3acb7e5f63765f66fc88ef2ed12df54d6e",
+    "2": "444607836efa4fd6b23cec8921ad1301ca85039c5a6c9c576470f1cdffcf5c70",
+    "3": "44df1279db3160f3e1b950b2c43e8f20b3c9c9b717836b4078508e912f8365eb"
+  },
+  "shard_rounds": {
+    "0": 10,
+    "1": 20,
+    "2": 20,
+    "3": 10
+  }
+}
