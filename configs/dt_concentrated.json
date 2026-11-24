@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "purpose": "Family extension of C1/C2 (docs/dt_concentrated_plan.md): the concentrated stream family, every request on the largest shard. Descriptive, not a confirmation.",
+  "data_dir": "data/processed/connected_v3_auxfit_log1p_seed42",
+  "numeric_transform": "append_log1p",
+  "seeds": [
+    73042,
+    73043,
+    73044
+  ],
+  "families": [
+    "concentrated"
+  ],
+  "loads": [
+    0.2,
+    0.5,
+    1.0
+  ],
+  "environments": [
+    "none",
+    "gradual_clients",
+    "jitter_bandwidth"
+  ],
+  "arms": [
+    "dt_queue",
+    "edf",
+    "rows_legacy",
+    "immediate",
+    "window",
+    "lazy"
+  ],
+  "proposed": "dt_queue",
+  "c1_baselines": [
+    "immediate",
+    "window",
+    "lazy",
+    "edf",
+    "rows_legacy"
+  ],
+  "c2_ablations": [],
+  "threshold_rule": "youden",
+  "window_scale": 0.5,
+  "alpha": 0.3,
+  "margin_q": 0.9,
+  "margin_window": 10,
+  "expert_loss_alpha": 0.3,
+  "expert_eta": 3.0,
+  "expert_floor": 0.1,
+  "requests": 12,
+  "stream_seed_base": 83000,
+  "shards": 4,
+  "threads": 2,
+  "train_config": "standard",
+  "budget_scale": 0.75,
+  "deadline_scale": 1.5,
+  "service_padding_seconds": 0.05,
+  "stress_seed": 93000,
+  "slow_factor_max": 4.0,
+  "bandwidth_mbps_range": [
+    5.0,
+    20.0
+  ],
+  "noise_bucket_seconds": 1.0,
+  "calibration_max_round_seconds": 60.0,
+  "analysis": {
+    "alpha": 0.05,
+    "calibration_f1_floor": {
+      "immediate": -0.02,
+      "window": -0.02,
+      "lazy": -0.02,
+      "edf": -0.005,
+      "rows_legacy": -0.005
+    },
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 1
+  }
+}

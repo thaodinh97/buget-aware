@@ -1,0 +1,1277 @@
+{"block": "r0_concentrated_load0.2_none", "status": "fit"}
+{"block": "r0_concentrated_load0.2_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.52, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 9.49, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 13.0, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [7, 8, 9], "policy": "shard_full", "ready": 19.67, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 22.79, "misses": 0}
+{"block": "r0_concentrated_load0.2_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.11, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 12.35, "misses": 0}
+{"arm": "edf", "event": 3, "served": [4, 5, 6, 7, 8], "policy": "shard_fixed", "ready": 15.75, "misses": 0}
+{"arm": "edf", "event": 4, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 22.21, "misses": 0}
+{"block": "r0_concentrated_load0.2_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 9.94, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_fixed", "ready": 14.68, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [8, 9, 10, 11], "policy": "shard_full", "ready": 21.12, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [12], "policy": "shard_fixed", "ready": 25.79, "misses": 0}
+{"block": "r0_concentrated_load0.2_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.58, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4, 5], "policy": "shard_full", "ready": 15.81, "misses": 2}
+{"arm": "immediate", "event": 3, "served": [6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 22.15, "misses": 2}
+{"block": "r0_concentrated_load0.2_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 10.74, "misses": 0}
+{"arm": "window", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 17.79, "misses": 2}
+{"arm": "window", "event": 3, "served": [5, 6, 7, 8, 9, 10], "policy": "shard_full", "ready": 24.31, "misses": 5}
+{"arm": "window", "event": 4, "served": [11, 12], "policy": "shard_full", "ready": 30.73, "misses": 2}
+{"block": "r0_concentrated_load0.2_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2, 3], "policy": "shard_full", "ready": 11.7, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [4, 5, 6, 7], "policy": "shard_full", "ready": 18.65, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_full", "ready": 24.98, "misses": 3}
+{"block": "r0_concentrated_load0.2_none", "status": "complete"}
+{"block": "r0_concentrated_load0.2_gradual_clients", "status": "fit"}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.08, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 12.9, "misses": 0}
+{"arm": "edf", "event": 3, "served": [4, 5, 6, 7], "policy": "shard_fixed", "ready": 17.32, "misses": 0}
+{"arm": "edf", "event": 4, "served": [8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 21.29, "misses": 0}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 10.1, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_fixed", "ready": 16.33, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [8, 9, 10, 11], "policy": "shard_full", "ready": 24.31, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [12], "policy": "shard_fixed", "ready": 28.65, "misses": 1}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.73, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 16.72, "misses": 2}
+{"arm": "immediate", "event": 3, "served": [5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 24.7, "misses": 4}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 11.1, "misses": 0}
+{"arm": "window", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 20.08, "misses": 2}
+{"arm": "window", "event": 3, "served": [5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 28.32, "misses": 8}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2, 3], "policy": "shard_full", "ready": 12.53, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [4, 5, 6, 7], "policy": "shard_full", "ready": 21.01, "misses": 2}
+{"arm": "lazy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_full", "ready": 29.08, "misses": 5}
+{"block": "r0_concentrated_load0.2_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.08, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 12.63, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [4, 5, 6, 7], "policy": "shard_fixed", "ready": 16.85, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 20.97, "misses": 0}
+{"block": "r0_concentrated_load0.2_gradual_clients", "status": "complete"}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "status": "fit"}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 9.91, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6], "policy": "shard_fixed", "ready": 16.71, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 21.4, "misses": 1}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.67, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4, 5], "policy": "shard_full", "ready": 18.9, "misses": 4}
+{"arm": "immediate", "event": 3, "served": [6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 27.02, "misses": 7}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 13.25, "misses": 1}
+{"arm": "window", "event": 2, "served": [3, 4, 5, 6], "policy": "shard_full", "ready": 24.09, "misses": 4}
+{"arm": "window", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 36.05, "misses": 6}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2, 3], "policy": "shard_full", "ready": 14.32, "misses": 2}
+{"arm": "lazy", "event": 2, "served": [4, 5, 6, 7, 8, 9, 10], "policy": "shard_full", "ready": 25.0, "misses": 7}
+{"arm": "lazy", "event": 3, "served": [11, 12], "policy": "shard_full", "ready": 35.87, "misses": 2}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.0, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 18.41, "misses": 2}
+{"arm": "dt_queue", "event": 3, "served": [4, 5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 22.56, "misses": 5}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.99, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 14.95, "misses": 2}
+{"arm": "edf", "event": 3, "served": [4, 5, 6, 7, 8, 9, 10, 11], "policy": "shard_fixed", "ready": 20.24, "misses": 3}
+{"arm": "edf", "event": 4, "served": [12], "policy": "shard_fixed", "ready": 26.37, "misses": 1}
+{"block": "r0_concentrated_load0.2_jitter_bandwidth", "status": "complete"}
+{"block": "r0_concentrated_load0.5_gradual_clients", "status": "fit"}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.33, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 17.87, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [4], "policy": "shard_full", "ready": 25.45, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 33.8, "misses": 2}
+{"arm": "immediate", "event": 5, "served": [7, 8, 9], "policy": "shard_full", "ready": 42.34, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 50.35, "misses": 3}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.66, "misses": 0}
+{"arm": "window", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 18.32, "misses": 1}
+{"arm": "window", "event": 3, "served": [4], "policy": "shard_full", "ready": 25.96, "misses": 0}
+{"arm": "window", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 34.53, "misses": 2}
+{"arm": "window", "event": 5, "served": [7, 8, 9], "policy": "shard_full", "ready": 43.3, "misses": 3}
+{"arm": "window", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 52.0, "misses": 3}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.57, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 21.26, "misses": 2}
+{"arm": "lazy", "event": 3, "served": [4, 5], "policy": "shard_full", "ready": 29.18, "misses": 1}
+{"arm": "lazy", "event": 4, "served": [6, 7], "policy": "shard_full", "ready": 37.68, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [8, 9, 10, 11], "policy": "shard_full", "ready": 45.66, "misses": 3}
+{"arm": "lazy", "event": 6, "served": [12], "policy": "shard_full", "ready": 53.67, "misses": 1}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.79, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.98, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 14.6, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 20.92, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 25.09, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 28.71, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 32.13, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8, 9], "policy": "shard_full", "ready": 42.99, "misses": 2}
+{"arm": "dt_queue", "event": 9, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 47.34, "misses": 2}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.82, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.36, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 15.19, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 21.38, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 25.65, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 30.19, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 34.75, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 39.23, "misses": 0}
+{"arm": "edf", "event": 9, "served": [11, 12], "policy": "shard_fixed", "ready": 43.61, "misses": 0}
+{"block": "r0_concentrated_load0.5_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 13.49, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3], "policy": "shard_fixed", "ready": 20.68, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 27.98, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8, 9], "policy": "shard_fixed", "ready": 37.87, "misses": 1}
+{"arm": "rows_legacy", "event": 5, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 45.42, "misses": 1}
+{"block": "r0_concentrated_load0.5_gradual_clients", "status": "complete"}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "status": "fit"}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.53, "misses": 0}
+{"arm": "window", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 22.49, "misses": 2}
+{"arm": "window", "event": 3, "served": [4, 5], "policy": "shard_full", "ready": 34.84, "misses": 2}
+{"arm": "window", "event": 4, "served": [6, 7, 8, 9], "policy": "shard_full", "ready": 46.7, "misses": 4}
+{"arm": "window", "event": 5, "served": [10, 11, 12], "policy": "shard_full", "ready": 56.23, "misses": 3}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.54, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 24.66, "misses": 2}
+{"arm": "lazy", "event": 3, "served": [4, 5, 6], "policy": "shard_full", "ready": 37.41, "misses": 3}
+{"arm": "lazy", "event": 4, "served": [7, 8, 9, 10, 11], "policy": "shard_full", "ready": 49.63, "misses": 5}
+{"arm": "lazy", "event": 5, "served": [12], "policy": "shard_full", "ready": 57.89, "misses": 1}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.75, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.95, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 16.91, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4, 5], "policy": "shard_fixed", "ready": 26.91, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [6, 7], "policy": "shard_fixed", "ready": 31.39, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [8, 9], "policy": "shard_fixed", "ready": 36.98, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [10, 11], "policy": "shard_fixed", "ready": 42.87, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [12], "policy": "shard_fixed", "ready": 48.91, "misses": 1}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.78, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.93, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 16.82, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 21.76, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 26.41, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 30.94, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7, 8], "policy": "shard_fixed", "ready": 35.82, "misses": 0}
+{"arm": "edf", "event": 8, "served": [9, 10], "policy": "shard_fixed", "ready": 41.89, "misses": 0}
+{"arm": "edf", "event": 9, "served": [11, 12], "policy": "shard_fixed", "ready": 46.25, "misses": 0}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 14.28, "misses": 1}
+{"arm": "rows_legacy", "event": 2, "served": [3], "policy": "shard_fixed", "ready": 20.97, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 28.74, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8], "policy": "shard_fixed", "ready": 36.35, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [9, 10, 11], "policy": "shard_fixed", "ready": 42.1, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [12], "policy": "shard_fixed", "ready": 48.13, "misses": 1}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.32, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 22.33, "misses": 2}
+{"arm": "immediate", "event": 3, "served": [4, 5], "policy": "shard_full", "ready": 34.5, "misses": 2}
+{"arm": "immediate", "event": 4, "served": [6, 7, 8, 9, 10], "policy": "shard_full", "ready": 45.71, "misses": 5}
+{"arm": "immediate", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 53.9, "misses": 2}
+{"block": "r0_concentrated_load0.5_jitter_bandwidth", "status": "complete"}
+{"block": "r0_concentrated_load0.5_none", "status": "fit"}
+{"block": "r0_concentrated_load0.5_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.77, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 21.08, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [4], "policy": "shard_full", "ready": 28.09, "misses": 0}
+{"arm": "lazy", "event": 4, "served": [5, 6, 7], "policy": "shard_full", "ready": 34.71, "misses": 2}
+{"arm": "lazy", "event": 5, "served": [8, 9], "policy": "shard_full", "ready": 42.21, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 49.63, "misses": 2}
+{"block": "r0_concentrated_load0.5_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.44, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.65, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 15.54, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 21.22, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 25.48, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 29.27, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 32.89, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 36.43, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9, 10], "policy": "shard_full", "ready": 43.19, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [11, 12], "policy": "shard_fixed", "ready": 46.77, "misses": 0}
+{"block": "r0_concentrated_load0.5_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.99, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.48, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 15.28, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 21.27, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 25.3, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 28.93, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 32.46, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 36.02, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9, 10], "policy": "shard_full", "ready": 42.63, "misses": 0}
+{"arm": "edf", "event": 10, "served": [11, 12], "policy": "shard_fixed", "ready": 45.99, "misses": 0}
+{"block": "r0_concentrated_load0.5_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 13.94, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3], "policy": "shard_fixed", "ready": 20.98, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 28.43, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8], "policy": "shard_full", "ready": 37.8, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 43.61, "misses": 0}
+{"block": "r0_concentrated_load0.5_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.82, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 18.83, "misses": 1}
+{"arm": "immediate", "event": 3, "served": [4], "policy": "shard_full", "ready": 25.83, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 32.78, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [7, 8], "policy": "shard_full", "ready": 39.75, "misses": 1}
+{"arm": "immediate", "event": 6, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 46.24, "misses": 1}
+{"block": "r0_concentrated_load0.5_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.03, "misses": 0}
+{"arm": "window", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 18.53, "misses": 1}
+{"arm": "window", "event": 3, "served": [4], "policy": "shard_full", "ready": 25.85, "misses": 0}
+{"arm": "window", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 32.84, "misses": 1}
+{"arm": "window", "event": 5, "served": [7], "policy": "shard_full", "ready": 39.79, "misses": 1}
+{"arm": "window", "event": 6, "served": [8, 9, 10], "policy": "shard_full", "ready": 46.44, "misses": 2}
+{"arm": "window", "event": 7, "served": [11, 12], "policy": "shard_full", "ready": 53.03, "misses": 2}
+{"block": "r0_concentrated_load0.5_none", "status": "complete"}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "status": "fit"}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 10.34, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 18.42, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 27.07, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 44.01, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 51.68, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [7], "policy": "shard_fixed", "ready": 64.86, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [8], "policy": "shard_fixed", "ready": 70.24, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [9], "policy": "shard_fixed", "ready": 75.82, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [10, 11], "policy": "shard_fixed", "ready": 81.64, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [12], "policy": "shard_fixed", "ready": 86.2, "misses": 0}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 10.32, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 18.46, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 27.1, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 41.75, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 47.91, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 52.48, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 61.01, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 66.62, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 72.6, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 78.98, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11, 12], "policy": "shard_fixed", "ready": 83.3, "misses": 0}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 17.2, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 26.59, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [4], "policy": "shard_fixed", "ready": 45.94, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [5, 6], "policy": "shard_fixed", "ready": 54.05, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [7], "policy": "shard_fixed", "ready": 68.16, "misses": 1}
+{"arm": "rows_legacy", "event": 6, "served": [8, 9], "policy": "shard_fixed", "ready": 72.46, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [10, 11], "policy": "shard_fixed", "ready": 81.44, "misses": 0}
+{"arm": "rows_legacy", "event": 8, "served": [12], "policy": "shard_fixed", "ready": 87.44, "misses": 0}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.91, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.16, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 35.05, "misses": 1}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 48.14, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 58.68, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [7], "policy": "shard_full", "ready": 70.54, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [8, 9], "policy": "shard_full", "ready": 81.18, "misses": 2}
+{"arm": "immediate", "event": 8, "served": [10, 11, 12], "policy": "shard_full", "ready": 89.28, "misses": 3}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.72, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 27.2, "misses": 1}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 37.12, "misses": 1}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 49.87, "misses": 1}
+{"arm": "window", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 58.6, "misses": 2}
+{"arm": "window", "event": 6, "served": [7], "policy": "shard_full", "ready": 70.56, "misses": 1}
+{"arm": "window", "event": 7, "served": [8, 9], "policy": "shard_full", "ready": 81.32, "misses": 2}
+{"arm": "window", "event": 8, "served": [10, 11, 12], "policy": "shard_full", "ready": 89.47, "misses": 3}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 17.16, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 27.67, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3], "policy": "shard_full", "ready": 37.75, "misses": 1}
+{"arm": "lazy", "event": 4, "served": [4], "policy": "shard_full", "ready": 50.44, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 60.14, "misses": 2}
+{"arm": "lazy", "event": 6, "served": [7], "policy": "shard_full", "ready": 68.96, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [8, 9], "policy": "shard_full", "ready": 77.43, "misses": 2}
+{"arm": "lazy", "event": 8, "served": [10, 11], "policy": "shard_full", "ready": 89.21, "misses": 2}
+{"arm": "lazy", "event": 9, "served": [12], "policy": "shard_full", "ready": 99.53, "misses": 1}
+{"block": "r0_concentrated_load1_jitter_bandwidth", "status": "complete"}
+{"block": "r0_concentrated_load1_none", "status": "fit"}
+{"block": "r0_concentrated_load1_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 9.98, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 17.8, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.5, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 37.0, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 44.9, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 48.42, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 56.47, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 62.73, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 66.2, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 71.14, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 74.48, "misses": 0}
+{"arm": "edf", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 77.62, "misses": 0}
+{"block": "r0_concentrated_load1_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 16.41, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 24.48, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4], "policy": "shard_fixed", "ready": 43.71, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 51.26, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [7, 8], "policy": "shard_fixed", "ready": 63.23, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [9, 10], "policy": "shard_fixed", "ready": 73.05, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [11, 12], "policy": "shard_full", "ready": 80.76, "misses": 0}
+{"block": "r0_concentrated_load1_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.5, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 21.61, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 28.67, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 40.26, "misses": 0}
+{"arm": "immediate", "event": 5, "served": [5], "policy": "shard_full", "ready": 48.15, "misses": 0}
+{"arm": "immediate", "event": 6, "served": [6], "policy": "shard_full", "ready": 54.89, "misses": 0}
+{"arm": "immediate", "event": 7, "served": [7], "policy": "shard_full", "ready": 61.75, "misses": 0}
+{"arm": "immediate", "event": 8, "served": [8], "policy": "shard_full", "ready": 68.46, "misses": 0}
+{"arm": "immediate", "event": 9, "served": [9, 10], "policy": "shard_full", "ready": 74.75, "misses": 1}
+{"arm": "immediate", "event": 10, "served": [11, 12], "policy": "shard_full", "ready": 80.99, "misses": 0}
+{"block": "r0_concentrated_load1_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.02, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.35, "misses": 0}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 31.55, "misses": 1}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 41.68, "misses": 0}
+{"arm": "window", "event": 5, "served": [5], "policy": "shard_full", "ready": 48.66, "misses": 0}
+{"arm": "window", "event": 6, "served": [6], "policy": "shard_full", "ready": 55.5, "misses": 1}
+{"arm": "window", "event": 7, "served": [7], "policy": "shard_full", "ready": 62.68, "misses": 0}
+{"arm": "window", "event": 8, "served": [8, 9], "policy": "shard_full", "ready": 69.46, "misses": 0}
+{"arm": "window", "event": 9, "served": [10], "policy": "shard_full", "ready": 76.22, "misses": 0}
+{"arm": "window", "event": 10, "served": [11], "policy": "shard_full", "ready": 82.49, "misses": 1}
+{"arm": "window", "event": 11, "served": [12], "policy": "shard_full", "ready": 88.7, "misses": 1}
+{"block": "r0_concentrated_load1_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 16.68, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.8, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3], "policy": "shard_full", "ready": 31.79, "misses": 1}
+{"arm": "lazy", "event": 4, "served": [4], "policy": "shard_full", "ready": 43.65, "misses": 0}
+{"arm": "lazy", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 51.77, "misses": 0}
+{"arm": "lazy", "event": 6, "served": [7], "policy": "shard_full", "ready": 63.57, "misses": 0}
+{"arm": "lazy", "event": 7, "served": [8, 9], "policy": "shard_full", "ready": 70.24, "misses": 1}
+{"arm": "lazy", "event": 8, "served": [10, 11], "policy": "shard_full", "ready": 78.09, "misses": 0}
+{"arm": "lazy", "event": 9, "served": [12], "policy": "shard_full", "ready": 84.76, "misses": 0}
+{"block": "r0_concentrated_load1_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 9.95, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 17.74, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.43, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 37.09, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 44.77, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 48.18, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 56.58, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 62.75, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 66.24, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 71.11, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 74.49, "misses": 0}
+{"arm": "dt_queue", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 77.65, "misses": 0}
+{"block": "r0_concentrated_load1_none", "status": "complete"}
+{"block": "r0_concentrated_load1_gradual_clients", "status": "fit"}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 17.64, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 26.04, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4], "policy": "shard_fixed", "ready": 47.18, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 55.37, "misses": 1}
+{"arm": "rows_legacy", "event": 5, "served": [7, 8], "policy": "shard_fixed", "ready": 68.08, "misses": 1}
+{"arm": "rows_legacy", "event": 6, "served": [9, 10], "policy": "shard_fixed", "ready": 78.33, "misses": 1}
+{"arm": "rows_legacy", "event": 7, "served": [11, 12], "policy": "shard_fixed", "ready": 87.24, "misses": 1}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.95, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.4, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 30.05, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 43.32, "misses": 0}
+{"arm": "immediate", "event": 5, "served": [5], "policy": "shard_full", "ready": 52.15, "misses": 0}
+{"arm": "immediate", "event": 6, "served": [6], "policy": "shard_full", "ready": 60.35, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [7], "policy": "shard_full", "ready": 68.58, "misses": 1}
+{"arm": "immediate", "event": 8, "served": [8, 9], "policy": "shard_full", "ready": 77.02, "misses": 1}
+{"arm": "immediate", "event": 9, "served": [10, 11], "policy": "shard_full", "ready": 85.0, "misses": 1}
+{"arm": "immediate", "event": 10, "served": [12], "policy": "shard_full", "ready": 93.16, "misses": 1}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.71, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 25.77, "misses": 0}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 33.2, "misses": 1}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 44.8, "misses": 0}
+{"arm": "window", "event": 5, "served": [5], "policy": "shard_full", "ready": 52.84, "misses": 0}
+{"arm": "window", "event": 6, "served": [6], "policy": "shard_full", "ready": 60.92, "misses": 1}
+{"arm": "window", "event": 7, "served": [7], "policy": "shard_full", "ready": 69.17, "misses": 1}
+{"arm": "window", "event": 8, "served": [8, 9], "policy": "shard_full", "ready": 77.78, "misses": 1}
+{"arm": "window", "event": 9, "served": [10], "policy": "shard_full", "ready": 85.88, "misses": 1}
+{"arm": "window", "event": 10, "served": [11, 12], "policy": "shard_full", "ready": 93.85, "misses": 2}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 17.61, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 26.26, "misses": 0}
+{"arm": "lazy", "event": 3, "served": [3], "policy": "shard_full", "ready": 33.71, "misses": 1}
+{"arm": "lazy", "event": 4, "served": [4], "policy": "shard_full", "ready": 47.3, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 55.58, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [7], "policy": "shard_full", "ready": 67.99, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [8, 9], "policy": "shard_full", "ready": 76.6, "misses": 1}
+{"arm": "lazy", "event": 8, "served": [10, 11], "policy": "shard_full", "ready": 84.69, "misses": 1}
+{"arm": "lazy", "event": 9, "served": [12], "policy": "shard_full", "ready": 92.8, "misses": 1}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 10.57, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 18.73, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 24.85, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 39.79, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 48.08, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 52.17, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 60.8, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 67.62, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 71.95, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 76.6, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 80.69, "misses": 0}
+{"arm": "dt_queue", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 84.7, "misses": 0}
+{"block": "r0_concentrated_load1_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 10.56, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 18.75, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 24.81, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 39.64, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 48.04, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 52.03, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 60.72, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 67.57, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 71.81, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 76.68, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 80.74, "misses": 0}
+{"arm": "edf", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 84.75, "misses": 0}
+{"block": "r0_concentrated_load1_gradual_clients", "status": "complete"}
+{"block": "r1_concentrated_load0.2_gradual_clients", "status": "fit"}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.81, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 16.73, "misses": 1}
+{"arm": "immediate", "event": 3, "served": [4, 5, 6, 7, 8, 9], "policy": "shard_full", "ready": 24.82, "misses": 5}
+{"arm": "immediate", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 33.0, "misses": 3}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.56, "misses": 0}
+{"arm": "window", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 18.74, "misses": 2}
+{"arm": "window", "event": 3, "served": [5, 6, 7, 8, 9], "policy": "shard_full", "ready": 26.87, "misses": 5}
+{"arm": "window", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 34.79, "misses": 3}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.86, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2, 3, 4, 5, 6], "policy": "shard_full", "ready": 20.06, "misses": 3}
+{"arm": "lazy", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 28.0, "misses": 4}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.27, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.96, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 13.88, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_fixed", "ready": 17.93, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [9, 10, 11], "policy": "shard_fixed", "ready": 21.96, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [12], "policy": "shard_fixed", "ready": 26.0, "misses": 0}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.28, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.01, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 14.01, "misses": 0}
+{"arm": "edf", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_fixed", "ready": 18.17, "misses": 0}
+{"arm": "edf", "event": 5, "served": [9, 10, 11], "policy": "shard_fixed", "ready": 22.28, "misses": 0}
+{"arm": "edf", "event": 6, "served": [12], "policy": "shard_fixed", "ready": 26.26, "misses": 0}
+{"block": "r1_concentrated_load0.2_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2, 3], "policy": "shard_fixed", "ready": 11.74, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [4, 5, 6, 7, 8], "policy": "shard_fixed", "ready": 19.79, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 26.11, "misses": 0}
+{"block": "r1_concentrated_load0.2_gradual_clients", "status": "complete"}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "status": "fit"}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.59, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 21.15, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4, 5, 6, 7, 8, 9], "policy": "shard_full", "ready": 29.5, "misses": 7}
+{"arm": "window", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 42.65, "misses": 3}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 15.75, "misses": 1}
+{"arm": "lazy", "event": 2, "served": [2, 3, 4, 5, 6, 7, 8], "policy": "shard_full", "ready": 25.14, "misses": 7}
+{"arm": "lazy", "event": 3, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 37.26, "misses": 4}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.29, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.02, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 16.62, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [5, 6, 7, 8, 9], "policy": "shard_fixed", "ready": 21.13, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 25.47, "misses": 0}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.44, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.02, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 16.64, "misses": 0}
+{"arm": "edf", "event": 4, "served": [5, 6, 7, 8, 9], "policy": "shard_fixed", "ready": 21.17, "misses": 0}
+{"arm": "edf", "event": 5, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 25.35, "misses": 0}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2, 3], "policy": "shard_fixed", "ready": 12.57, "misses": 1}
+{"arm": "rows_legacy", "event": 2, "served": [4, 5, 6, 7, 8], "policy": "shard_fixed", "ready": 20.64, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 27.73, "misses": 1}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.84, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 17.76, "misses": 1}
+{"arm": "immediate", "event": 3, "served": [4, 5, 6, 7, 8, 9], "policy": "shard_full", "ready": 27.33, "misses": 6}
+{"arm": "immediate", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 36.45, "misses": 3}
+{"block": "r1_concentrated_load0.2_jitter_bandwidth", "status": "complete"}
+{"block": "r1_concentrated_load0.2_none", "status": "fit"}
+{"block": "r1_concentrated_load0.2_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.58, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2, 3, 4, 5, 6], "policy": "shard_full", "ready": 18.61, "misses": 2}
+{"arm": "lazy", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 25.06, "misses": 2}
+{"block": "r1_concentrated_load0.2_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.24, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.74, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 13.27, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [5, 6, 7], "policy": "shard_fixed", "ready": 16.64, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [8, 9], "policy": "shard_fixed", "ready": 19.85, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 26.04, "misses": 0}
+{"block": "r1_concentrated_load0.2_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.28, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.73, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 13.47, "misses": 0}
+{"arm": "edf", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_fixed", "ready": 16.76, "misses": 0}
+{"arm": "edf", "event": 5, "served": [9], "policy": "shard_fixed", "ready": 19.99, "misses": 0}
+{"arm": "edf", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 26.19, "misses": 0}
+{"block": "r1_concentrated_load0.2_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2, 3], "policy": "shard_fixed", "ready": 11.21, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [4, 5, 6, 7, 8], "policy": "shard_fixed", "ready": 18.46, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 24.65, "misses": 0}
+{"block": "r1_concentrated_load0.2_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.73, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 15.75, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [4, 5, 6, 7, 8, 9], "policy": "shard_full", "ready": 22.11, "misses": 3}
+{"arm": "immediate", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 28.41, "misses": 3}
+{"block": "r1_concentrated_load0.2_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.83, "misses": 0}
+{"arm": "window", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 18.02, "misses": 2}
+{"arm": "window", "event": 3, "served": [5, 6, 7, 8, 9], "policy": "shard_full", "ready": 24.37, "misses": 4}
+{"arm": "window", "event": 4, "served": [10, 11, 12], "policy": "shard_full", "ready": 30.73, "misses": 3}
+{"block": "r1_concentrated_load0.2_none", "status": "complete"}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "status": "fit"}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.73, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 20.3, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 25.29, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4, 5], "policy": "shard_fixed", "ready": 32.05, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [6, 7], "policy": "shard_fixed", "ready": 37.91, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [8], "policy": "shard_fixed", "ready": 44.57, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [9, 10], "policy": "shard_fixed", "ready": 49.29, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [11, 12], "policy": "shard_fixed", "ready": 55.7, "misses": 0}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.72, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 20.34, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 25.34, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 31.62, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 38.59, "misses": 1}
+{"arm": "edf", "event": 6, "served": [7, 8], "policy": "shard_fixed", "ready": 42.74, "misses": 0}
+{"arm": "edf", "event": 7, "served": [9], "policy": "shard_fixed", "ready": 47.89, "misses": 0}
+{"arm": "edf", "event": 8, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 53.33, "misses": 0}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 16.0, "misses": 1}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 25.7, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5], "policy": "shard_fixed", "ready": 32.87, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [6, 7], "policy": "shard_fixed", "ready": 39.14, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [8], "policy": "shard_fixed", "ready": 46.2, "misses": 1}
+{"arm": "rows_legacy", "event": 6, "served": [9, 10, 11], "policy": "shard_fixed", "ready": 50.63, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [12], "policy": "shard_fixed", "ready": 54.73, "misses": 0}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.24, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 25.14, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 37.69, "misses": 2}
+{"arm": "immediate", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_full", "ready": 46.11, "misses": 4}
+{"arm": "immediate", "event": 5, "served": [9, 10, 11], "policy": "shard_full", "ready": 54.89, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [12], "policy": "shard_full", "ready": 63.66, "misses": 1}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.03, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 27.32, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 37.22, "misses": 2}
+{"arm": "window", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_full", "ready": 45.77, "misses": 4}
+{"arm": "window", "event": 5, "served": [9, 10, 11], "policy": "shard_full", "ready": 53.87, "misses": 1}
+{"arm": "window", "event": 6, "served": [12], "policy": "shard_full", "ready": 66.37, "misses": 1}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.37, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 28.3, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4, 5], "policy": "shard_full", "ready": 37.67, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [6, 7, 8], "policy": "shard_full", "ready": 46.07, "misses": 3}
+{"arm": "lazy", "event": 5, "served": [9, 10, 11], "policy": "shard_full", "ready": 54.8, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [12], "policy": "shard_full", "ready": 63.5, "misses": 1}
+{"block": "r1_concentrated_load0.5_jitter_bandwidth", "status": "complete"}
+{"block": "r1_concentrated_load0.5_none", "status": "fit"}
+{"block": "r1_concentrated_load0.5_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.76, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 19.21, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.17, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 27.07, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 31.12, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 34.58, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 37.92, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 41.11, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 44.34, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 48.18, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11, 12], "policy": "shard_full", "ready": 54.31, "misses": 0}
+{"block": "r1_concentrated_load0.5_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 14.45, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 25.9, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 33.93, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8], "policy": "shard_full", "ready": 41.68, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 51.49, "misses": 0}
+{"block": "r1_concentrated_load0.5_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.24, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.7, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 29.6, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4, 5], "policy": "shard_full", "ready": 36.47, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [6, 7, 8], "policy": "shard_full", "ready": 42.83, "misses": 1}
+{"arm": "immediate", "event": 6, "served": [9], "policy": "shard_full", "ready": 49.1, "misses": 0}
+{"arm": "immediate", "event": 7, "served": [10, 11, 12], "policy": "shard_full", "ready": 55.26, "misses": 0}
+{"block": "r1_concentrated_load0.5_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.18, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.99, "misses": 0}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 31.83, "misses": 1}
+{"arm": "window", "event": 4, "served": [4, 5], "policy": "shard_full", "ready": 38.75, "misses": 2}
+{"arm": "window", "event": 5, "served": [6, 7, 8], "policy": "shard_full", "ready": 45.02, "misses": 2}
+{"arm": "window", "event": 6, "served": [9], "policy": "shard_full", "ready": 51.32, "misses": 0}
+{"arm": "window", "event": 7, "served": [10, 11, 12], "policy": "shard_full", "ready": 57.47, "misses": 2}
+{"block": "r1_concentrated_load0.5_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.67, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 25.94, "misses": 0}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 32.75, "misses": 1}
+{"arm": "lazy", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 39.55, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [7, 8], "policy": "shard_full", "ready": 45.91, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [9, 10], "policy": "shard_full", "ready": 52.37, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [11, 12], "policy": "shard_full", "ready": 58.77, "misses": 2}
+{"block": "r1_concentrated_load0.5_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.86, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 19.11, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.11, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 27.06, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 31.13, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 34.53, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 37.88, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 41.11, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 44.31, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 48.26, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11, 12], "policy": "shard_full", "ready": 54.6, "misses": 0}
+{"block": "r1_concentrated_load0.5_none", "status": "complete"}
+{"block": "r1_concentrated_load0.5_gradual_clients", "status": "fit"}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 14.2, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2, 3], "policy": "shard_fixed", "ready": 25.75, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [4, 5, 6], "policy": "shard_fixed", "ready": 33.99, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8], "policy": "shard_full", "ready": 42.7, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 50.78, "misses": 0}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.26, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.79, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 30.55, "misses": 1}
+{"arm": "immediate", "event": 4, "served": [4, 5, 6], "policy": "shard_full", "ready": 38.91, "misses": 2}
+{"arm": "immediate", "event": 5, "served": [7, 8], "policy": "shard_full", "ready": 46.99, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 54.72, "misses": 2}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.03, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 25.0, "misses": 0}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 32.78, "misses": 1}
+{"arm": "window", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 41.31, "misses": 2}
+{"arm": "window", "event": 5, "served": [7, 8], "policy": "shard_full", "ready": 49.3, "misses": 2}
+{"arm": "window", "event": 6, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 57.35, "misses": 4}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.31, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 26.17, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 34.36, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [5, 6, 7], "policy": "shard_full", "ready": 42.53, "misses": 2}
+{"arm": "lazy", "event": 5, "served": [8, 9], "policy": "shard_full", "ready": 50.51, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [10, 11, 12], "policy": "shard_full", "ready": 58.45, "misses": 3}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.76, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 19.06, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.19, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 27.26, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 31.33, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 35.45, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7, 8], "policy": "shard_fixed", "ready": 39.42, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [9], "policy": "shard_fixed", "ready": 44.32, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [10], "policy": "shard_fixed", "ready": 48.34, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [11, 12], "policy": "shard_fixed", "ready": 52.39, "misses": 0}
+{"block": "r1_concentrated_load0.5_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.71, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 19.03, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 23.1, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 27.15, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 31.33, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 35.44, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7, 8], "policy": "shard_fixed", "ready": 39.44, "misses": 0}
+{"arm": "edf", "event": 8, "served": [9], "policy": "shard_fixed", "ready": 44.36, "misses": 0}
+{"arm": "edf", "event": 9, "served": [10], "policy": "shard_fixed", "ready": 48.51, "misses": 0}
+{"arm": "edf", "event": 10, "served": [11, 12], "policy": "shard_fixed", "ready": 52.44, "misses": 0}
+{"block": "r1_concentrated_load0.5_gradual_clients", "status": "complete"}
+{"block": "r1_concentrated_load1_none", "status": "fit"}
+{"block": "r1_concentrated_load1_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 15.19, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 36.88, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 44.8, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 52.12, "misses": 0}
+{"arm": "immediate", "event": 5, "served": [5], "policy": "shard_full", "ready": 59.94, "misses": 0}
+{"arm": "immediate", "event": 6, "served": [6], "policy": "shard_full", "ready": 66.7, "misses": 0}
+{"arm": "immediate", "event": 7, "served": [7], "policy": "shard_full", "ready": 73.35, "misses": 1}
+{"arm": "immediate", "event": 8, "served": [8], "policy": "shard_full", "ready": 79.62, "misses": 1}
+{"arm": "immediate", "event": 9, "served": [9], "policy": "shard_full", "ready": 86.18, "misses": 0}
+{"arm": "immediate", "event": 10, "served": [10], "policy": "shard_full", "ready": 92.53, "misses": 0}
+{"arm": "immediate", "event": 11, "served": [11, 12], "policy": "shard_full", "ready": 98.75, "misses": 1}
+{"block": "r1_concentrated_load1_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 17.22, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 37.9, "misses": 0}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 47.89, "misses": 0}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 54.72, "misses": 0}
+{"arm": "window", "event": 5, "served": [5], "policy": "shard_full", "ready": 61.66, "misses": 0}
+{"arm": "window", "event": 6, "served": [6], "policy": "shard_full", "ready": 68.58, "misses": 1}
+{"arm": "window", "event": 7, "served": [7, 8], "policy": "shard_full", "ready": 74.87, "misses": 1}
+{"arm": "window", "event": 8, "served": [9], "policy": "shard_full", "ready": 88.44, "misses": 0}
+{"arm": "window", "event": 9, "served": [10, 11], "policy": "shard_full", "ready": 95.36, "misses": 0}
+{"arm": "window", "event": 10, "served": [12], "policy": "shard_full", "ready": 101.56, "misses": 1}
+{"block": "r1_concentrated_load1_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 18.34, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 39.81, "misses": 0}
+{"arm": "lazy", "event": 3, "served": [3], "policy": "shard_full", "ready": 47.73, "misses": 0}
+{"arm": "lazy", "event": 4, "served": [4], "policy": "shard_full", "ready": 55.29, "misses": 0}
+{"arm": "lazy", "event": 5, "served": [5], "policy": "shard_full", "ready": 63.39, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [6, 7], "policy": "shard_full", "ready": 70.08, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [8], "policy": "shard_full", "ready": 77.8, "misses": 0}
+{"arm": "lazy", "event": 8, "served": [9], "policy": "shard_full", "ready": 88.87, "misses": 0}
+{"arm": "lazy", "event": 9, "served": [10, 11], "policy": "shard_full", "ready": 96.24, "misses": 0}
+{"arm": "lazy", "event": 10, "served": [12], "policy": "shard_full", "ready": 102.36, "misses": 1}
+{"block": "r1_concentrated_load1_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 11.95, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 33.41, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 41.08, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 48.66, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 56.49, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 60.88, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 66.29, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 71.05, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 81.9, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 89.34, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 92.52, "misses": 0}
+{"arm": "dt_queue", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 95.62, "misses": 0}
+{"block": "r1_concentrated_load1_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 11.68, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 33.5, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 41.07, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 48.65, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 56.47, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 60.94, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 66.31, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 71.07, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 81.96, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 89.31, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 92.52, "misses": 0}
+{"arm": "edf", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 95.65, "misses": 0}
+{"block": "r1_concentrated_load1_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 17.95, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 39.72, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 47.53, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 55.14, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 63.14, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [7, 8], "policy": "shard_fixed", "ready": 72.89, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [9], "policy": "shard_fixed", "ready": 88.79, "misses": 0}
+{"arm": "rows_legacy", "event": 8, "served": [10, 11], "policy": "shard_full", "ready": 95.07, "misses": 0}
+{"arm": "rows_legacy", "event": 9, "served": [12], "policy": "shard_fixed", "ready": 100.49, "misses": 1}
+{"block": "r1_concentrated_load1_none", "status": "complete"}
+{"block": "r1_concentrated_load1_gradual_clients", "status": "fit"}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 17.26, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 38.14, "misses": 0}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 48.64, "misses": 1}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 56.46, "misses": 1}
+{"arm": "window", "event": 5, "served": [5], "policy": "shard_full", "ready": 64.58, "misses": 1}
+{"arm": "window", "event": 6, "served": [6], "policy": "shard_full", "ready": 73.07, "misses": 1}
+{"arm": "window", "event": 7, "served": [7, 8], "policy": "shard_full", "ready": 81.11, "misses": 2}
+{"arm": "window", "event": 8, "served": [9], "policy": "shard_full", "ready": 90.25, "misses": 1}
+{"arm": "window", "event": 9, "served": [10, 11], "policy": "shard_full", "ready": 98.5, "misses": 2}
+{"arm": "window", "event": 10, "served": [12], "policy": "shard_full", "ready": 106.28, "misses": 1}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 18.46, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 40.33, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3], "policy": "shard_full", "ready": 47.94, "misses": 0}
+{"arm": "lazy", "event": 4, "served": [4], "policy": "shard_full", "ready": 55.7, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [5], "policy": "shard_full", "ready": 63.66, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [6, 7], "policy": "shard_full", "ready": 71.82, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [8], "policy": "shard_full", "ready": 79.97, "misses": 1}
+{"arm": "lazy", "event": 8, "served": [9], "policy": "shard_full", "ready": 88.72, "misses": 0}
+{"arm": "lazy", "event": 9, "served": [10, 11], "policy": "shard_full", "ready": 96.73, "misses": 1}
+{"arm": "lazy", "event": 10, "served": [12], "policy": "shard_full", "ready": 104.68, "misses": 1}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 11.75, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 33.63, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 41.43, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 49.15, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 57.05, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 61.51, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 67.04, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 71.9, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 82.77, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 90.16, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 94.4, "misses": 0}
+{"arm": "dt_queue", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 98.43, "misses": 0}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 11.88, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 33.69, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 41.4, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 49.26, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 56.98, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 61.51, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 67.11, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 71.83, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 82.75, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 90.17, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 94.19, "misses": 0}
+{"arm": "edf", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 98.18, "misses": 0}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 17.33, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 40.92, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 47.84, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 55.33, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 62.87, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [7, 8], "policy": "shard_fixed", "ready": 73.07, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [9], "policy": "shard_fixed", "ready": 88.86, "misses": 0}
+{"arm": "rows_legacy", "event": 8, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 96.16, "misses": 0}
+{"block": "r1_concentrated_load1_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 15.22, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 37.32, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 45.27, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 53.0, "misses": 0}
+{"arm": "immediate", "event": 5, "served": [5], "policy": "shard_full", "ready": 61.06, "misses": 0}
+{"arm": "immediate", "event": 6, "served": [6], "policy": "shard_full", "ready": 69.34, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [7, 8], "policy": "shard_full", "ready": 77.2, "misses": 1}
+{"arm": "immediate", "event": 8, "served": [9], "policy": "shard_full", "ready": 86.97, "misses": 0}
+{"arm": "immediate", "event": 9, "served": [10], "policy": "shard_full", "ready": 95.31, "misses": 0}
+{"arm": "immediate", "event": 10, "served": [11, 12], "policy": "shard_full", "ready": 103.41, "misses": 2}
+{"block": "r1_concentrated_load1_gradual_clients", "status": "complete"}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "status": "fit"}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 18.89, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 47.46, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 60.92, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 69.83, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [7], "policy": "shard_full", "ready": 81.17, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [8], "policy": "shard_full", "ready": 91.59, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [9, 10, 11], "policy": "shard_full", "ready": 100.46, "misses": 2}
+{"arm": "lazy", "event": 8, "served": [12], "policy": "shard_full", "ready": 109.79, "misses": 1}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 12.11, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 35.75, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 43.26, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 51.38, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 59.54, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 64.01, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 70.01, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 74.29, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 86.31, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10, 11], "policy": "shard_fixed", "ready": 95.36, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [12], "policy": "shard_fixed", "ready": 99.48, "misses": 0}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 11.99, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 35.76, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 43.21, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 51.31, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 59.39, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 63.78, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 70.19, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 74.52, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 86.35, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 94.18, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11, 12], "policy": "shard_fixed", "ready": 99.69, "misses": 0}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 18.36, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 41.85, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 50.0, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 57.18, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 64.22, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [7, 8], "policy": "shard_fixed", "ready": 74.66, "misses": 0}
+{"arm": "rows_legacy", "event": 7, "served": [9], "policy": "shard_fixed", "ready": 91.46, "misses": 0}
+{"arm": "rows_legacy", "event": 8, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 99.7, "misses": 1}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 15.58, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 40.7, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 53.62, "misses": 1}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 66.97, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [5, 6, 7], "policy": "shard_full", "ready": 77.92, "misses": 3}
+{"arm": "immediate", "event": 6, "served": [8], "policy": "shard_full", "ready": 86.19, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [9], "policy": "shard_full", "ready": 95.43, "misses": 1}
+{"arm": "immediate", "event": 8, "served": [10, 11, 12], "policy": "shard_full", "ready": 103.69, "misses": 3}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 17.58, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 45.12, "misses": 1}
+{"arm": "window", "event": 3, "served": [3], "policy": "shard_full", "ready": 53.87, "misses": 1}
+{"arm": "window", "event": 4, "served": [4], "policy": "shard_full", "ready": 71.17, "misses": 1}
+{"arm": "window", "event": 5, "served": [5, 6, 7, 8], "policy": "shard_full", "ready": 81.36, "misses": 4}
+{"arm": "window", "event": 6, "served": [9], "policy": "shard_full", "ready": 96.73, "misses": 1}
+{"arm": "window", "event": 7, "served": [10, 11, 12], "policy": "shard_full", "ready": 108.49, "misses": 3}
+{"block": "r1_concentrated_load1_jitter_bandwidth", "status": "complete"}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "status": "fit"}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.77, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.6, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4, 5, 6], "policy": "shard_fixed", "ready": 15.27, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 20.89, "misses": 0}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.67, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.54, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4, 5, 6], "policy": "shard_fixed", "ready": 15.25, "misses": 0}
+{"arm": "edf", "event": 4, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 20.82, "misses": 0}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 9.51, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_fixed", "ready": 16.51, "misses": 2}
+{"arm": "rows_legacy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 22.13, "misses": 0}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.08, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 17.88, "misses": 3}
+{"arm": "immediate", "event": 3, "served": [5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 26.66, "misses": 8}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 15.75, "misses": 2}
+{"arm": "window", "event": 2, "served": [3, 4, 5, 6, 7, 8, 9, 10], "policy": "shard_full", "ready": 27.1, "misses": 8}
+{"arm": "window", "event": 3, "served": [11, 12], "policy": "shard_full", "ready": 35.78, "misses": 2}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 16.12, "misses": 2}
+{"arm": "lazy", "event": 2, "served": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 25.8, "misses": 10}
+{"block": "r2_concentrated_load0.2_jitter_bandwidth", "status": "complete"}
+{"block": "r2_concentrated_load0.2_none", "status": "fit"}
+{"block": "r2_concentrated_load0.2_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.65, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 8.39, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 11.86, "misses": 0}
+{"arm": "edf", "event": 4, "served": [5, 6, 7], "policy": "shard_fixed", "ready": 15.36, "misses": 0}
+{"arm": "edf", "event": 5, "served": [8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 18.67, "misses": 0}
+{"block": "r2_concentrated_load0.2_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 9.05, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_fixed", "ready": 14.78, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_full", "ready": 21.18, "misses": 0}
+{"block": "r2_concentrated_load0.2_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.11, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 15.24, "misses": 2}
+{"arm": "immediate", "event": 3, "served": [5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 21.86, "misses": 3}
+{"block": "r2_concentrated_load0.2_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 10.39, "misses": 0}
+{"arm": "window", "event": 2, "served": [3, 4, 5, 6], "policy": "shard_full", "ready": 17.73, "misses": 2}
+{"arm": "window", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 24.04, "misses": 4}
+{"block": "r2_concentrated_load0.2_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 11.08, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_full", "ready": 17.89, "misses": 2}
+{"arm": "lazy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_full", "ready": 24.16, "misses": 3}
+{"block": "r2_concentrated_load0.2_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.81, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 8.62, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4, 5], "policy": "shard_fixed", "ready": 12.07, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [6, 7, 8], "policy": "shard_full", "ready": 18.57, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 21.74, "misses": 0}
+{"block": "r2_concentrated_load0.2_none", "status": "complete"}
+{"block": "r2_concentrated_load0.2_gradual_clients", "status": "fit"}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 9.22, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4, 5, 6, 7], "policy": "shard_fixed", "ready": 20.17, "misses": 3}
+{"arm": "rows_legacy", "event": 3, "served": [8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 27.95, "misses": 5}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 8.17, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 21.48, "misses": 3}
+{"arm": "immediate", "event": 3, "served": [5, 6, 7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 36.53, "misses": 8}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 11.36, "misses": 0}
+{"arm": "window", "event": 2, "served": [3, 4, 5, 6], "policy": "shard_full", "ready": 27.85, "misses": 4}
+{"arm": "window", "event": 3, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 42.97, "misses": 6}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1, 2], "policy": "shard_full", "ready": 12.74, "misses": 1}
+{"arm": "lazy", "event": 2, "served": [3, 4, 5, 6, 7, 8], "policy": "shard_full", "ready": 28.24, "misses": 6}
+{"arm": "lazy", "event": 3, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 43.29, "misses": 4}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.69, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.38, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4, 5], "policy": "shard_fixed", "ready": 16.38, "misses": 2}
+{"arm": "dt_queue", "event": 4, "served": [6, 7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 23.99, "misses": 4}
+{"block": "r2_concentrated_load0.2_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 4.65, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 9.33, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3, 4, 5], "policy": "shard_fixed", "ready": 16.26, "misses": 1}
+{"arm": "edf", "event": 4, "served": [6, 7, 8, 9, 10, 11, 12], "policy": "shard_fixed", "ready": 23.98, "misses": 4}
+{"block": "r2_concentrated_load0.2_gradual_clients", "status": "complete"}
+{"block": "r2_concentrated_load0.5_none", "status": "fit"}
+{"block": "r2_concentrated_load0.5_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.69, "misses": 1}
+{"arm": "immediate", "event": 2, "served": [2, 3], "policy": "shard_full", "ready": 19.86, "misses": 2}
+{"arm": "immediate", "event": 3, "served": [4, 5, 6], "policy": "shard_full", "ready": 27.99, "misses": 3}
+{"arm": "immediate", "event": 4, "served": [7, 8, 9, 10], "policy": "shard_full", "ready": 35.33, "misses": 3}
+{"arm": "immediate", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 43.46, "misses": 2}
+{"block": "r2_concentrated_load0.5_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.99, "misses": 1}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 19.06, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 26.65, "misses": 2}
+{"arm": "window", "event": 4, "served": [5, 6, 7, 8], "policy": "shard_full", "ready": 34.74, "misses": 4}
+{"arm": "window", "event": 5, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 42.65, "misses": 4}
+{"block": "r2_concentrated_load0.5_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.68, "misses": 1}
+{"arm": "lazy", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 20.46, "misses": 3}
+{"arm": "lazy", "event": 3, "served": [5, 6], "policy": "shard_full", "ready": 28.95, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [7, 8, 9, 10], "policy": "shard_full", "ready": 35.83, "misses": 4}
+{"arm": "lazy", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 42.96, "misses": 2}
+{"block": "r2_concentrated_load0.5_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.32, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 12.05, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3, 4], "policy": "shard_fixed", "ready": 16.43, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [5, 6], "policy": "shard_fixed", "ready": 23.08, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [7, 8], "policy": "shard_fixed", "ready": 29.28, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [9, 10], "policy": "shard_fixed", "ready": 32.95, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [11, 12], "policy": "shard_fixed", "ready": 37.33, "misses": 0}
+{"block": "r2_concentrated_load0.5_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 5.95, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.13, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 14.18, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 18.29, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 22.22, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 26.34, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7, 8, 9], "policy": "shard_fixed", "ready": 30.06, "misses": 0}
+{"arm": "edf", "event": 8, "served": [10, 11], "policy": "shard_fixed", "ready": 33.98, "misses": 0}
+{"arm": "edf", "event": 9, "served": [12], "policy": "shard_fixed", "ready": 37.63, "misses": 0}
+{"block": "r2_concentrated_load0.5_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 10.66, "misses": 1}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_fixed", "ready": 18.94, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_fixed", "ready": 26.74, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8, 9], "policy": "shard_fixed", "ready": 30.66, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 34.74, "misses": 0}
+{"block": "r2_concentrated_load0.5_none", "status": "complete"}
+{"block": "r2_concentrated_load0.5_gradual_clients", "status": "fit"}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.5, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 26.32, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 43.66, "misses": 2}
+{"arm": "window", "event": 4, "served": [5, 6, 7, 8, 9, 10], "policy": "shard_full", "ready": 62.05, "misses": 6}
+{"arm": "window", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 80.32, "misses": 2}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.98, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 27.09, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4, 5, 6], "policy": "shard_full", "ready": 45.43, "misses": 4}
+{"arm": "lazy", "event": 4, "served": [7, 8, 9, 10, 11, 12], "policy": "shard_full", "ready": 64.02, "misses": 6}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.75, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.11, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 20.96, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 27.65, "misses": 1}
+{"arm": "dt_queue", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 35.93, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [7, 8], "policy": "shard_fixed", "ready": 44.67, "misses": 1}
+{"arm": "dt_queue", "event": 7, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 53.3, "misses": 2}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.79, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.46, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 21.22, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 28.9, "misses": 1}
+{"arm": "edf", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 37.83, "misses": 1}
+{"arm": "edf", "event": 6, "served": [7, 8, 9], "policy": "shard_fixed", "ready": 46.58, "misses": 1}
+{"arm": "edf", "event": 7, "served": [10, 11, 12], "policy": "shard_fixed", "ready": 56.54, "misses": 3}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 14.32, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 28.4, "misses": 2}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_fixed", "ready": 40.01, "misses": 2}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8, 9, 10], "policy": "shard_fixed", "ready": 49.57, "misses": 3}
+{"arm": "rows_legacy", "event": 5, "served": [11, 12], "policy": "shard_fixed", "ready": 58.58, "misses": 2}
+{"block": "r2_concentrated_load0.5_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.28, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 21.7, "misses": 1}
+{"arm": "immediate", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 37.73, "misses": 2}
+{"arm": "immediate", "event": 4, "served": [5, 6, 7, 8, 9], "policy": "shard_full", "ready": 56.73, "misses": 5}
+{"arm": "immediate", "event": 5, "served": [10, 11, 12], "policy": "shard_full", "ready": 74.35, "misses": 3}
+{"block": "r2_concentrated_load0.5_gradual_clients", "status": "complete"}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "status": "fit"}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.58, "misses": 1}
+{"arm": "lazy", "event": 2, "served": [2, 3, 4], "policy": "shard_full", "ready": 31.03, "misses": 3}
+{"arm": "lazy", "event": 3, "served": [5, 6, 7, 8], "policy": "shard_full", "ready": 41.94, "misses": 4}
+{"arm": "lazy", "event": 4, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 55.61, "misses": 4}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.41, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 11.21, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 22.08, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4, 5], "policy": "shard_fixed", "ready": 29.1, "misses": 1}
+{"arm": "dt_queue", "event": 5, "served": [6, 7], "policy": "shard_fixed", "ready": 34.95, "misses": 1}
+{"arm": "dt_queue", "event": 6, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 41.41, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [11, 12], "policy": "shard_fixed", "ready": 48.22, "misses": 2}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 6.57, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 10.91, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 22.55, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4, 5], "policy": "shard_fixed", "ready": 31.1, "misses": 1}
+{"arm": "edf", "event": 5, "served": [6, 7, 8], "policy": "shard_fixed", "ready": 37.82, "misses": 1}
+{"arm": "edf", "event": 6, "served": [9, 10, 11, 12], "policy": "shard_fixed", "ready": 46.32, "misses": 2}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 14.46, "misses": 1}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_fixed", "ready": 23.12, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_fixed", "ready": 34.0, "misses": 2}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8, 9, 10], "policy": "shard_fixed", "ready": 40.5, "misses": 1}
+{"arm": "rows_legacy", "event": 5, "served": [11, 12], "policy": "shard_fixed", "ready": 45.3, "misses": 0}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 10.81, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.67, "misses": 1}
+{"arm": "immediate", "event": 3, "served": [3, 4, 5], "policy": "shard_full", "ready": 36.39, "misses": 3}
+{"arm": "immediate", "event": 4, "served": [6, 7, 8, 9, 10], "policy": "shard_full", "ready": 49.84, "misses": 5}
+{"arm": "immediate", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 60.58, "misses": 2}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.04, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.9, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4, 5, 6], "policy": "shard_full", "ready": 36.37, "misses": 4}
+{"arm": "window", "event": 4, "served": [7, 8, 9, 10], "policy": "shard_full", "ready": 50.03, "misses": 4}
+{"arm": "window", "event": 5, "served": [11, 12], "policy": "shard_full", "ready": 61.26, "misses": 2}
+{"block": "r2_concentrated_load0.5_jitter_bandwidth", "status": "complete"}
+{"block": "r2_concentrated_load1_gradual_clients", "status": "fit"}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 9.43, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 16.51, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 36.16, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 43.97, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 61.2, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [7], "policy": "shard_fixed", "ready": 78.87, "misses": 1}
+{"arm": "dt_queue", "event": 7, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 89.07, "misses": 2}
+{"arm": "dt_queue", "event": 8, "served": [11, 12], "policy": "shard_fixed", "ready": 98.03, "misses": 0}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 10.26, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 16.99, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 36.2, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 44.73, "misses": 1}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 60.29, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 70.42, "misses": 1}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 79.98, "misses": 1}
+{"arm": "edf", "event": 8, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 89.54, "misses": 2}
+{"arm": "edf", "event": 9, "served": [11, 12], "policy": "shard_fixed", "ready": 98.57, "misses": 1}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 16.81, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 44.93, "misses": 2}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_fixed", "ready": 65.61, "misses": 1}
+{"arm": "rows_legacy", "event": 4, "served": [7], "policy": "shard_fixed", "ready": 79.39, "misses": 1}
+{"arm": "rows_legacy", "event": 5, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 88.63, "misses": 2}
+{"arm": "rows_legacy", "event": 6, "served": [11, 12], "policy": "shard_fixed", "ready": 98.23, "misses": 0}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.69, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 23.05, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 42.76, "misses": 1}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 56.89, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 73.93, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [7, 8], "policy": "shard_full", "ready": 91.66, "misses": 2}
+{"arm": "immediate", "event": 7, "served": [9, 10, 11, 12], "policy": "shard_full", "ready": 109.58, "misses": 4}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 15.84, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.13, "misses": 0}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 45.65, "misses": 2}
+{"arm": "window", "event": 4, "served": [5], "policy": "shard_full", "ready": 69.26, "misses": 1}
+{"arm": "window", "event": 5, "served": [6, 7], "policy": "shard_full", "ready": 87.53, "misses": 2}
+{"arm": "window", "event": 6, "served": [8, 9, 10], "policy": "shard_full", "ready": 104.84, "misses": 3}
+{"arm": "window", "event": 7, "served": [11, 12], "policy": "shard_full", "ready": 121.76, "misses": 2}
+{"block": "r2_concentrated_load1_gradual_clients", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 16.61, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 24.8, "misses": 0}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 46.43, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [5], "policy": "shard_full", "ready": 66.7, "misses": 1}
+{"arm": "lazy", "event": 5, "served": [6, 7], "policy": "shard_full", "ready": 83.53, "misses": 2}
+{"arm": "lazy", "event": 6, "served": [8, 9, 10], "policy": "shard_full", "ready": 101.72, "misses": 3}
+{"arm": "lazy", "event": 7, "served": [11, 12], "policy": "shard_full", "ready": 118.75, "misses": 2}
+{"block": "r2_concentrated_load1_gradual_clients", "status": "complete"}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "status": "fit"}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 8.32, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 14.34, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 31.79, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 36.46, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 48.53, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 53.32, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 59.28, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 65.55, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 69.84, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 74.53, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11, 12], "policy": "shard_fixed", "ready": 78.85, "misses": 0}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 14.3, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 36.58, "misses": 1}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_fixed", "ready": 53.4, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [7], "policy": "shard_fixed", "ready": 65.19, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [8, 9, 10], "policy": "shard_fixed", "ready": 71.76, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [11, 12], "policy": "shard_full", "ready": 81.95, "misses": 0}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.42, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 18.4, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 37.89, "misses": 1}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 51.48, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [5, 6], "policy": "shard_full", "ready": 61.17, "misses": 2}
+{"arm": "immediate", "event": 6, "served": [7], "policy": "shard_full", "ready": 69.78, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [8, 9, 10], "policy": "shard_full", "ready": 81.4, "misses": 3}
+{"arm": "immediate", "event": 8, "served": [11, 12], "policy": "shard_full", "ready": 93.01, "misses": 2}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.24, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 21.59, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 39.35, "misses": 2}
+{"arm": "window", "event": 4, "served": [5], "policy": "shard_full", "ready": 58.11, "misses": 1}
+{"arm": "window", "event": 5, "served": [6, 7], "policy": "shard_full", "ready": 68.01, "misses": 2}
+{"arm": "window", "event": 6, "served": [8, 9], "policy": "shard_full", "ready": 80.16, "misses": 2}
+{"arm": "window", "event": 7, "served": [10, 11, 12], "policy": "shard_full", "ready": 91.74, "misses": 3}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.56, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 22.1, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 38.37, "misses": 2}
+{"arm": "lazy", "event": 4, "served": [5], "policy": "shard_full", "ready": 53.95, "misses": 0}
+{"arm": "lazy", "event": 5, "served": [6], "policy": "shard_full", "ready": 62.79, "misses": 1}
+{"arm": "lazy", "event": 6, "served": [7, 8, 9], "policy": "shard_full", "ready": 72.03, "misses": 2}
+{"arm": "lazy", "event": 7, "served": [10], "policy": "shard_full", "ready": 80.71, "misses": 1}
+{"arm": "lazy", "event": 8, "served": [11, 12], "policy": "shard_full", "ready": 90.14, "misses": 2}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 8.12, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 14.52, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 31.66, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 36.33, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5, 6], "policy": "shard_fixed", "ready": 50.75, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [7], "policy": "shard_fixed", "ready": 59.16, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [8], "policy": "shard_fixed", "ready": 65.63, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [9], "policy": "shard_fixed", "ready": 69.87, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [10], "policy": "shard_fixed", "ready": 74.63, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [11, 12], "policy": "shard_fixed", "ready": 79.19, "misses": 0}
+{"block": "r2_concentrated_load1_jitter_bandwidth", "status": "complete"}
+{"block": "r2_concentrated_load1_none", "status": "fit"}
+{"block": "r2_concentrated_load1_none", "arm": "rows_legacy", "status": "start"}
+{"arm": "rows_legacy", "event": 1, "served": [1, 2], "policy": "shard_fixed", "ready": 14.03, "misses": 0}
+{"arm": "rows_legacy", "event": 2, "served": [3, 4], "policy": "shard_full", "ready": 32.92, "misses": 0}
+{"arm": "rows_legacy", "event": 3, "served": [5, 6], "policy": "shard_full", "ready": 51.52, "misses": 0}
+{"arm": "rows_legacy", "event": 4, "served": [7, 8], "policy": "shard_fixed", "ready": 63.19, "misses": 0}
+{"arm": "rows_legacy", "event": 5, "served": [9, 10], "policy": "shard_full", "ready": 70.23, "misses": 0}
+{"arm": "rows_legacy", "event": 6, "served": [11, 12], "policy": "shard_full", "ready": 77.59, "misses": 0}
+{"block": "r2_concentrated_load1_none", "arm": "immediate", "status": "start"}
+{"arm": "immediate", "event": 1, "served": [1], "policy": "shard_full", "ready": 11.23, "misses": 0}
+{"arm": "immediate", "event": 2, "served": [2], "policy": "shard_full", "ready": 18.57, "misses": 0}
+{"arm": "immediate", "event": 3, "served": [3], "policy": "shard_full", "ready": 31.49, "misses": 0}
+{"arm": "immediate", "event": 4, "served": [4], "policy": "shard_full", "ready": 38.35, "misses": 1}
+{"arm": "immediate", "event": 5, "served": [5], "policy": "shard_full", "ready": 49.06, "misses": 0}
+{"arm": "immediate", "event": 6, "served": [6], "policy": "shard_full", "ready": 55.33, "misses": 1}
+{"arm": "immediate", "event": 7, "served": [7], "policy": "shard_full", "ready": 60.87, "misses": 0}
+{"arm": "immediate", "event": 8, "served": [8, 9], "policy": "shard_full", "ready": 67.72, "misses": 0}
+{"arm": "immediate", "event": 9, "served": [10], "policy": "shard_full", "ready": 74.06, "misses": 0}
+{"arm": "immediate", "event": 10, "served": [11, 12], "policy": "shard_full", "ready": 80.4, "misses": 0}
+{"block": "r2_concentrated_load1_none", "arm": "window", "status": "start"}
+{"arm": "window", "event": 1, "served": [1], "policy": "shard_full", "ready": 13.61, "misses": 0}
+{"arm": "window", "event": 2, "served": [2], "policy": "shard_full", "ready": 20.96, "misses": 1}
+{"arm": "window", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 33.79, "misses": 0}
+{"arm": "window", "event": 4, "served": [5], "policy": "shard_full", "ready": 50.46, "misses": 0}
+{"arm": "window", "event": 5, "served": [6], "policy": "shard_full", "ready": 57.56, "misses": 1}
+{"arm": "window", "event": 6, "served": [7], "policy": "shard_full", "ready": 63.92, "misses": 1}
+{"arm": "window", "event": 7, "served": [8], "policy": "shard_full", "ready": 70.31, "misses": 1}
+{"arm": "window", "event": 8, "served": [9, 10], "policy": "shard_full", "ready": 76.61, "misses": 2}
+{"arm": "window", "event": 9, "served": [11, 12], "policy": "shard_full", "ready": 82.83, "misses": 2}
+{"block": "r2_concentrated_load1_none", "arm": "lazy", "status": "start"}
+{"arm": "lazy", "event": 1, "served": [1], "policy": "shard_full", "ready": 14.35, "misses": 0}
+{"arm": "lazy", "event": 2, "served": [2], "policy": "shard_full", "ready": 21.26, "misses": 1}
+{"arm": "lazy", "event": 3, "served": [3, 4], "policy": "shard_full", "ready": 34.38, "misses": 0}
+{"arm": "lazy", "event": 4, "served": [5, 6], "policy": "shard_full", "ready": 52.2, "misses": 0}
+{"arm": "lazy", "event": 5, "served": [7], "policy": "shard_full", "ready": 63.35, "misses": 0}
+{"arm": "lazy", "event": 6, "served": [8, 9], "policy": "shard_full", "ready": 69.71, "misses": 1}
+{"arm": "lazy", "event": 7, "served": [10], "policy": "shard_full", "ready": 76.05, "misses": 1}
+{"arm": "lazy", "event": 8, "served": [11, 12], "policy": "shard_full", "ready": 82.16, "misses": 2}
+{"block": "r2_concentrated_load1_none", "arm": "dt_queue", "status": "start"}
+{"arm": "dt_queue", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 7.94, "misses": 0}
+{"arm": "dt_queue", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 14.0, "misses": 0}
+{"arm": "dt_queue", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 28.18, "misses": 0}
+{"arm": "dt_queue", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 31.62, "misses": 0}
+{"arm": "dt_queue", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 45.62, "misses": 0}
+{"arm": "dt_queue", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 49.01, "misses": 0}
+{"arm": "dt_queue", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 56.53, "misses": 0}
+{"arm": "dt_queue", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 62.82, "misses": 0}
+{"arm": "dt_queue", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 66.11, "misses": 0}
+{"arm": "dt_queue", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 69.26, "misses": 0}
+{"arm": "dt_queue", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 73.91, "misses": 0}
+{"arm": "dt_queue", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 77.1, "misses": 0}
+{"block": "r2_concentrated_load1_none", "arm": "edf", "status": "start"}
+{"arm": "edf", "event": 1, "served": [1], "policy": "shard_fixed", "ready": 8.13, "misses": 0}
+{"arm": "edf", "event": 2, "served": [2], "policy": "shard_fixed", "ready": 14.35, "misses": 0}
+{"arm": "edf", "event": 3, "served": [3], "policy": "shard_fixed", "ready": 28.04, "misses": 0}
+{"arm": "edf", "event": 4, "served": [4], "policy": "shard_fixed", "ready": 31.55, "misses": 0}
+{"arm": "edf", "event": 5, "served": [5], "policy": "shard_fixed", "ready": 45.63, "misses": 0}
+{"arm": "edf", "event": 6, "served": [6], "policy": "shard_fixed", "ready": 49.06, "misses": 0}
+{"arm": "edf", "event": 7, "served": [7], "policy": "shard_fixed", "ready": 56.53, "misses": 0}
+{"arm": "edf", "event": 8, "served": [8], "policy": "shard_fixed", "ready": 62.65, "misses": 0}
+{"arm": "edf", "event": 9, "served": [9], "policy": "shard_fixed", "ready": 65.87, "misses": 0}
+{"arm": "edf", "event": 10, "served": [10], "policy": "shard_fixed", "ready": 69.02, "misses": 0}
+{"arm": "edf", "event": 11, "served": [11], "policy": "shard_fixed", "ready": 73.98, "misses": 0}
+{"arm": "edf", "event": 12, "served": [12], "policy": "shard_fixed", "ready": 77.18, "misses": 0}
+{"block": "r2_concentrated_load1_none", "status": "complete"}
